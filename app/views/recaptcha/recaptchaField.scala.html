@@ -1,0 +1,45 @@
+@****************************************************************************************
+ * High-level API: Renders a Google Recaptcha Widget, using the Play Forms API.
+ *
+ * @param form          The current form
+ * @param fieldName     The logical field name
+ * @param isRequired    Whether the field is to be shown as required (default is true)
+ ****************************************************************************************@
+@(form: Form[_], fieldName: String, isRequired: Boolean = true)
+
+@import com.nappin.play.recaptcha.RecaptchaVerifier
+@import com.nappin.play.recaptcha.RecaptchaErrorCode
+
+@messageOrDefault(key: String, default: String) = @{ if (Messages.isDefinedAt(key)) { Messages(key) } else { default } }
+@errorCode = @{ form.error(RecaptchaVerifier.formErrorKey).map(e => { Some(e.message) }).getOrElse(None) }
+@recaptchaError = @{ errorCode.filter(code => !RecaptchaErrorCode.isInternalErrorCode(code)) }
+
+<dl class="error" id="@{fieldName}_field">
+    <dt><label for="@fieldName">@Messages(fieldName)</label></dt>
+    <dd>@recaptchaWidget(recaptchaError)</dd>
+
+@errorCode match {
+    
+    case Some(RecaptchaErrorCode.captchaIncorrect) => {
+        <dd class="error">@messageOrDefault("error.captchaIncorrect", "Incorrect, please try again")</dd>
+    }
+    
+    case Some(RecaptchaErrorCode.recaptchaNotReachable) => {
+        <dd class="error">@messageOrDefault("error.recaptchaNotReachable", "Unable to contact Recaptcha")</dd>
+    }
+    
+    case Some(RecaptchaErrorCode.apiError) => {
+        <dd class="error">@messageOrDefault("error.apiError", "Invalid response from Recaptcha")</dd>
+    }
+    
+    case Some(RecaptchaErrorCode.responseMissing) => {
+        <dd class="error">@Messages("error.required")</dd>
+    }
+    
+    case _ => {}
+}
+    
+@if(isRequired) {    
+    <dd class="info">@Messages("constraint.required")</dd>
+}
+</dl>

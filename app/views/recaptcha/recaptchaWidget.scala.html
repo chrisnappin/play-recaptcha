@@ -1,0 +1,23 @@
+@****************************************************************************************
+ * Low-level API: Renders a Google Recaptcha Widget, independent of the Play Forms API.
+ *
+ * @param error         The error code (if any)
+ ****************************************************************************************@
+@(error: Option[String])
+
+@import com.nappin.play.recaptcha.RecaptchaConfiguration
+@import play.api.Play.current
+
+@errorCode = @{ error.map("&error=" + _).getOrElse("") }
+@publicKey = @{ current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("") }
+
+<script type="text/javascript"
+  src="http://www.google.com/recaptcha/api/challenge@Html(publicKey)@Html(errorCode)">
+</script>
+<noscript>
+   <iframe src="http://www.google.com/recaptcha/api/noscript@Html(publicKey)@Html(errorCode)" 
+       height="300" width="500" frameborder="0"></iframe><br>
+   <textarea name="recaptcha_challenge_field" rows="3" cols="40">
+   </textarea>
+   <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
+</noscript>

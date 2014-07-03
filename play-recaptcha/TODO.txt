@@ -1,0 +1,62 @@
+- get something working with recaptcha - done
+- ensure it is reactive - done
+- add unit test with mock WS - done
+- add messages - done
+- refactor to plugin with plenty of checks, logging, config - done
+- added view templates - done
+- make the example look nice
+
+todo list for publishing
+------------------------
+- refactor WS to use new ning class with config.
+- remove any unused files, jquery etc
+- write a simple summary for the client
+- build for multiple scala versions
+- add license, check code headers
+- create github account
+- make sure my personal recpatcha keys aren't checked in!
+- create sonatype account
+
+
+dev documentation is at https://developers.google.com/recaptcha/docs/display
+
+todo list for after version 1.0
+-------------------------------
+- extras: ajax api, allow recaptcha customisations...
+- typesafe activator?
+
+
+to publish locally
+------------------
+activator publish-local
+- writes to local maven/ivy cache 
+(uses organisation, module, scala version, module version from build.sbt)
+e.g. 
+[info] :: delivering :: com.nappin.play#recaptcha_2.10;0.1 :: 0.1 :: release :: ...
+...
+[info]  published ivy to C:\Users\P10046146\.ivy2\local\com.nappin.play\recaptcha_2.10\0.1\ivys\ivy.xml
+
+(creates .jar docs, jars, srcs, ivy module xml and maven poms)
+(note: when example project resolves the jar locally, it creates eclipse config pointing directly
+ to the file within .ivy2/local/..etc.. and Eclipse holds a file lock on this!)
+ 
+
+to publish publicly on Maven Central
+------------------------------------
+(following http://mfizz.com/blog/2013/07/play-framework-module-maven-central)
+- sign up for Sonatype account
+https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
+
+then see
+http://www.scala-sbt.org/release/docs/Using-Sonatype.html
+
+- create PGP keys
+- add sbt pgp plugin
+- add extra pom details needed for Sonatype
+- run activator plublish-signed 
+
+to use from example project
+---------------------------
+add to build.sbt (libraryDependencies):
+  "com.nappin.play" %% "recaptcha" % "0.1"
+  

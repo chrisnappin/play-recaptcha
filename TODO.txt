@@ -1,0 +1,118 @@
+Chris Nappin's play-recaptcha project todo list
+===============================================
+
+completed items
+---------------
+- get something working with recaptcha - done
+- ensure it is reactive - done
+- add unit test with mock WS - done
+- add messages - done
+- refactor to plugin with plenty of checks, logging, config - done
+- added view templates - done
+- make the example look nice - done
+- create github account, upload initial code - done
+- make sure my personal recpatcha keys aren't checked in! - done
+- add license, check code headers - done
+- add customize theme using config - done
+- add optional tabindex - done
+
+todo list for version 1.0
+-------------------------
+- publish via sonatype to maven central - done to snapshots
+- update example application to use maven central - done using snapshots
+- i18n of example app (add french translation?), map play locale to recpatcha widget language
+- write API docs for the client
+- build for multiple scala versions
+
+todo list for after version 1.0
+-------------------------------
+- extras: ajax api, allow custom recaptcha themes, translations etc...
+- refactor WS to use new ning class with config.
+- typesafe activator?
+
+
+Google reCAPTCHA
+----------------
+My personal key is registered to nappin.com (but works with localhost)
+Google development documentation is at https://developers.google.com/recaptcha/docs/display
+
+
+github account
+--------------
+www.github.com, chrisnappin/..
+
+module repo: https://github.com/chrisnappin/play-recaptcha
+module website (uses gh-pages branch): http://chrisnappin.github.io/play-recaptcha
+
+example repo: https://github.com/chrisnappin/play-recaptcha-example
+
+
+sonatype account
+----------------
+https://issues.sonatype.org, chrisnappin/..
+groupId = com.nappin
+
+
+to publish locally
+------------------
+  activator publish-local
+or
+  activator publish-local-signed
+  
+- writes to $home\.ivy2\local\com.nappin\play-recaptcha_2.10\0.1-SNAPSHOT
+
+(note: when example project resolves the jar locally, it creates eclipse config pointing directly
+ to the local archive and Eclipse holds a file lock on this!)
+ 
+
+to publish on Maven Central
+---------------------------
+see http://mfizz.com/blog/2013/07/play-framework-module-maven-central
+and https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
+and http://www.scala-sbt.org/release/docs/Using-Sonatype.html
+
+Using the SBT PGP plugin, rather than using GPG itself
+- added to project/plugins.sbt:
+  addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3")
+  
+- create PGP keys (in activator/play shell)
+  set pgpReadOnly := false
+  pgp-cmd gen-key
+  
+Name: Chris Nappin
+email: chris@nappin.com
+passphrase: ..
+  
+Public key := $home\.sbt\gpg\pubring.asc
+Secret key := $home\.sbt\gpg\secring.asc
+
+- then publish the public key:
+  pgp-cmd send-key chris@nappin.com hkp://pool.sks-keyservers.net/
+(worked eventually, from work)
+
+- add extra pom details needed for Sonatype (see build.sbt)
+
+- created $home\.sbt\0.13\sonatype.sbt:
+    credentials += Credentials("Sonatype Nexus Repository Manager",
+                           "oss.sonatype.org",
+                           "chrisnappin",
+                           "..")
+
+- run:
+  activator publish-signed 
+
+(works fine from home)  
+(in work, tried SBT_OPTS="-Dhttp.proxyHost=proxy.capita.zone -Dhttp.proxyPort=80" but still gave connection refused)
+
+
+to use module in example project
+--------------------------------
+add to build.sbt:
+
+libraryDependencies ++= Seq(
+  "com.nappin" %% "play-recaptcha" % "0.1-SNAPSHOT" 
+)
+
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+
+  

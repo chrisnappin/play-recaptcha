@@ -74,7 +74,7 @@ class RecaptchaPlugin(app: Application) extends Plugin {
         
         if (!mandatoryConfigurationPresent) {
             logger.error("Mandatory configuration missing, so recaptcha module will be disabled. " +
-                    "Please check the module documenation and add the missing items to your application.conf file.")
+                    "Please check the module documentation and add the missing items to your application.conf file.")
         }
         
         return mandatoryConfigurationPresent

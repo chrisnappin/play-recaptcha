@@ -16,14 +16,13 @@ completed items
 - add customize theme using config - done
 - add optional tabindex - done
 - build for multiple scala versions - done for 2.10.4 and 2.11.1
-
+- write API docs for the client - done (on wiki)
 
 todo list for version 1.0
 -------------------------
 - publish via sonatype to maven central - done to snapshots
 - update example application to use maven central - done using snapshots
 - i18n of example app (add french translation?), map play locale to recpatcha widget language
-- write API docs for the client
 
 
 todo list for after version 1.0
@@ -43,8 +42,12 @@ github account
 --------------
 www.github.com, chrisnappin/..
 
+markdown details: https://help.github.com/articles/markdown-basics
+wiki details: https://help.github.com/articles/about-github-wikis
+
 module repo: https://github.com/chrisnappin/play-recaptcha
 module website (uses gh-pages branch): http://chrisnappin.github.io/play-recaptcha
+module wiki: https://github.com/chrisnappin/play-recaptcha/wiki
 
 example repo: https://github.com/chrisnappin/play-recaptcha-example
 

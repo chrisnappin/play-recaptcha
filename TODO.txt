@@ -95,7 +95,8 @@ Secret key := $home\.sbt\gpg\secring.asc
 
 - then publish the public key:
   pgp-cmd send-key chris@nappin.com hkp://pool.sks-keyservers.net/
-(worked eventually, from work)
+(command line said success, but sonatype or key search couldn't find it)
+(manually uploaded contents from pubring.asc to https://a.keyserver.pki.scientia.net)
 
 - add extra pom details needed for Sonatype (see build.sbt)
 
@@ -131,6 +132,7 @@ make "full releases" using a regular version number (e.g. "a.b")
         - status should be "Open"
         - can manually download and test it
         - can select the repo and click "Close" to trigger evaluation
+            (takes a couple of minutes)
             - if fails, need to "Drop", resolve issues (see "Ruleset Evaluation Report") then redeploy to staging
             - if successful, click "Release" to move staging repo to release repo
             (first time you do this, need to update ticket to activate sync)

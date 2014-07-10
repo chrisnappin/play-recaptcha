@@ -99,6 +99,9 @@ object RecaptchaConfiguration {
         
     /** The default request timeout to use if none is explicitly defined. */    
     val defaultRequestTimeout = 10.seconds.toMillis
+    
+    /** The theme for the recaptcha widget to use (if any). */
+    val theme = "recaptcha.theme"
         
     /** The mandatory configuration items that must exist for this module to work. */    
     val mandatoryConfiguration = Seq(privateKey, publicKey)    

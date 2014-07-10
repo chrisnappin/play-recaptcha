@@ -3,9 +3,10 @@
  *
  * @param form          The current form
  * @param fieldName     The logical field name
+ * @param tabindex      The tabindex of the field (if any)
  * @param isRequired    Whether the field is to be shown as required (default is true)
  ****************************************************************************************@
-@(form: Form[_], fieldName: String, isRequired: Boolean = true)
+@(form: Form[_], fieldName: String, tabindex: Option[Int] = None, isRequired: Boolean = true)
 
 @import com.nappin.play.recaptcha.RecaptchaVerifier
 @import com.nappin.play.recaptcha.RecaptchaErrorCode
@@ -16,7 +17,7 @@
 
 <dl class="error" id="@{fieldName}_field">
     <dt><label for="@fieldName">@Messages(fieldName)</label></dt>
-    <dd>@recaptchaWidget(recaptchaError)</dd>
+    <dd>@recaptchaWidget(error = recaptchaError, tabindex = tabindex)</dd>
 
 @errorCode match {
     

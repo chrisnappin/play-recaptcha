@@ -2,14 +2,26 @@
  * Low-level API: Renders a Google Recaptcha Widget, independent of the Play Forms API.
  *
  * @param error         The error code (if any)
+ * @param tabindex      The tabindex of the field (if any)
  ****************************************************************************************@
-@(error: Option[String])
+@(error: Option[String] = None, tabindex: Option[Int] = None)
 
 @import com.nappin.play.recaptcha.RecaptchaConfiguration
 @import play.api.Play.current
 
 @errorCode = @{ error.map("&error=" + _).getOrElse("") }
 @publicKey = @{ current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("") }
+@themeName = @{ current.configuration.getString(RecaptchaConfiguration.theme) }
+@needOptionsBlock = @{ themeName.isDefined || tabindex.isDefined }
+
+@if(needOptionsBlock) { 
+<script type="text/javascript">
+var RecaptchaOptions = {
+    @if(themeName.isDefined) { theme : '@themeName.get'@if(tabindex.isDefined) {,} }
+    @if(tabindex.isDefined) { tabindex : @tabindex.get }
+ };
+</script>
+}
 
 <script type="text/javascript"
   src="http://www.google.com/recaptcha/api/challenge@Html(publicKey)@Html(errorCode)">

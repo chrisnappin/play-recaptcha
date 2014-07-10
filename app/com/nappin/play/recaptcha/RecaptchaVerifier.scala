@@ -21,7 +21,7 @@ import play.api.mvc.{AnyContent, Request}
 import play.api.data.Form
 import play.api.libs.ws.{WS, WSRequestHolder}
 
-import scala.concurrent.{ExecutionContext, future, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 object RecaptchaVerifier {
     /** The artificial form field key used for captcha errors. */
@@ -87,12 +87,12 @@ class RecaptchaVerifier(parser: ResponseParser, wsRequest: WSRequestHolder) {
             logger.debug("User did not enter a captcha response in the form POST submitted")
             
             // return the missing required field, plus any other form bind errors that might have happened
-            return future { boundForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing) }
+            return Future { boundForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing) }
         }
         
         boundForm.fold(
             // form binding failed, so don't call recaptcha
-            error => future { 
+            error => Future { 
                 logger.debug("Binding error")
                 error 
             },

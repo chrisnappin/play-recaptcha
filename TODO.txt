@@ -15,6 +15,8 @@ completed items
 - add license, check code headers - done
 - add customize theme using config - done
 - add optional tabindex - done
+- build for multiple scala versions - done for 2.10.4 and 2.11.1
+
 
 todo list for version 1.0
 -------------------------
@@ -22,7 +24,7 @@ todo list for version 1.0
 - update example application to use maven central - done using snapshots
 - i18n of example app (add french translation?), map play locale to recpatcha widget language
 - write API docs for the client
-- build for multiple scala versions
+
 
 todo list for after version 1.0
 -------------------------------
@@ -55,11 +57,12 @@ groupId = com.nappin
 
 to publish locally
 ------------------
-  activator publish-local
+  activator + publish-local
 or
-  activator publish-local-signed
+  activator + publish-local-signed
   
 - writes to $home\.ivy2\local\com.nappin\play-recaptcha_2.10\0.1-SNAPSHOT
+        and $home\.ivy2\local\com.nappin\play-recaptcha_2.11\0.1-SNAPSHOT
 
 (note: when example project resolves the jar locally, it creates eclipse config pointing directly
  to the local archive and Eclipse holds a file lock on this!)
@@ -67,8 +70,9 @@ or
 
 to publish on Maven Central
 ---------------------------
+sbt uses the standard Maven2 repository (http://repo1.maven.org/maven/ aka http://central.sonatype.org) by default
 see http://mfizz.com/blog/2013/07/play-framework-module-maven-central
-and https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide
+and http://central.sonatype.org/pages/ossrh-guide.html
 and http://www.scala-sbt.org/release/docs/Using-Sonatype.html
 
 Using the SBT PGP plugin, rather than using GPG itself
@@ -99,10 +103,40 @@ Secret key := $home\.sbt\gpg\secring.asc
                            "..")
 
 - run:
-  activator publish-signed 
+  activator + publish-signed 
 
 (works fine from home)  
 (in work, tried SBT_OPTS="-Dhttp.proxyHost=proxy.capita.zone -Dhttp.proxyPort=80" but still gave connection refused)
+(also tried credentials property file format, still doesn't work)
+
+
+workflow
+--------
+make test/beta releases to maven central using a "a.b-SNAPHOTS" version number
+- this uploads artifacts to the "snapshots" repo (Maven Central only includes "full" releases)
+- snapshots can be published several times (immediately overwrites)
+- run "activator update" to explicitly refresh remote snapshot dependencies (otherwise it will try to cache locally)
+
+make "full releases" using a regular version number (e.g. "a.b")
+- this uploads artifacts to the "staging" repo
+- releases cannot be published several times, have to be deleted first
+
+?? then need to "drop"/"close" (delete release, try again later) or "release" (promote to maven central) the staging repository
+- login to https://oss.sonatype.org (using sonatype user account above)
+- click on Build Promotion -> Staging Repositories
+    - look for groupId without dots and with -nnnn suffix
+        - status should be "Open"
+        - can manually download and test it
+        - can select the repo and click "Close" to trigger evaluation
+            - if fails, need to "Drop", resolve issues (see "Ruleset Evaluation Report") then redeploy to staging
+            - if successful, click "Release" to move staging repo to release repo
+            (first time you do this, need to update ticket to activate sync)
+
+(sbt-sonatype plugin can be used to automate all of this - see https://github.com/xerial/sbt-sonatype)
+
+- Maven central syncs to release repo, takes about 2 hours
+    - cannot update or delete artifacts from this point!
+
 
 
 to use module in example project

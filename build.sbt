@@ -4,7 +4,7 @@ description := "Google reCAPTCHA integration for Play Framework"
 
 organization := "com.nappin"
 
-version := "0.1-SNAPSHOT"
+version := "0.8"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
@@ -41,6 +41,8 @@ pomExtra := (
   </licenses>
   <scm>
     <connection>scm:git:git@github.com:chrisnappin/play-recaptcha.git</connection>
+    <developerConnection>scm:git:git@github.com:chrisnappin/play-recaptcha.git</developerConnection>
+    <url>git@github.com:chrisnappin/play-recaptcha.git</url>
   </scm>
   <developers>
     <developer>

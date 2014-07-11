@@ -17,11 +17,10 @@ completed items
 - add optional tabindex - done
 - build for multiple scala versions - done for 2.10.4 and 2.11.1
 - write API docs for the client - done (on wiki)
+- publish initial release on maven central - done (v0.8)
 
 todo list for version 1.0
 -------------------------
-- publish via sonatype to maven central - done to snapshots
-- update example application to use maven central - done using snapshots
 - i18n of example app (add french translation?), map play locale to recpatcha widget language
 
 

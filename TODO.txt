@@ -22,6 +22,7 @@ completed items
 todo list for version 1.0
 -------------------------
 - i18n of example app (add french translation?), map play locale to recpatcha widget language
+- custom form field html and attributes, like the standard form view templates 
 
 
 todo list for after version 1.0

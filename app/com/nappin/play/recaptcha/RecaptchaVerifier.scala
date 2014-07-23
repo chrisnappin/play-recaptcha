@@ -39,12 +39,12 @@ object RecaptchaVerifier {
  * 
  * Follows the API documented at <a href="https://developers.google.com/recaptcha/docs/verify">Verify Without Plugins</a>.
  * 
- * Allows constructor injection of dependencies (e.g. for unit testing) with no-arguments constructor for production 
- * use.
+ * The package private constructor allows injection of dependencies (e.g. for unit testing), the no-arguments public 
+ * constructor is for production use.
  * 
  * @author Chris Nappin
  */
-class RecaptchaVerifier(parser: ResponseParser, wsRequest: WSRequestHolder) {
+class RecaptchaVerifier private[recaptcha] (parser: ResponseParser, wsRequest: WSRequestHolder) {
 
     val logger = Logger(this.getClass())  
     

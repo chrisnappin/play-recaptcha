@@ -20,7 +20,7 @@ import com.nappin.play.recaptcha.RecaptchaConfiguration
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 
-import play.api.test.{FakeApplication, PlaySpecification, WithApplication}
+import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithApplication}
 
 /**
  * Tests the <code>recaptchaWidget</code> view template.
@@ -33,6 +33,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     val scriptApi = "http://www.google.com/recaptcha/api/challenge"
         
     val noScriptApi = "http://www.google.com/recaptcha/api/noscript"
+        
+    // browser prefers french then english
+    implicit val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
     
     "recaptchaWidget" should {
         
@@ -43,8 +46,13 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key")
             html must contain(s"$noScriptApi?k=public-key")
             
-            // no options needed
-            html must not contain("RecaptchaOptions")
+            // fr lang should be set
+            html must contain("lang : 'fr'")
+            
+            // no lang with comma, theme or tabindex
+            html must not contain("lang : 'fr',")
+            html must not contain("theme : ")
+            html must not contain("tabindex : ")
         }
         
         "render widget with error message" in new WithApplication(getApplication()) {
@@ -54,8 +62,13 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key&error=my-error-key")
             html must contain(s"$noScriptApi?k=public-key&error=my-error-key")
             
-            // no options needed
-            html must not contain("RecaptchaOptions")
+            // fr lang should be set
+            html must contain("lang : 'fr'")
+            
+            // no lang with comma, theme or tabindex
+            html must not contain("lang : 'fr',")
+            html must not contain("theme : ")
+            html must not contain("tabindex : ")
         }
         
         "render widget with theme" in new WithApplication(getApplication(Some("my-theme"))) {
@@ -65,9 +78,14 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key")
             html must contain(s"$noScriptApi?k=public-key")
             
-            // must have options with theme 
-            html must contain("RecaptchaOptions")
+            // fr lang should be set with comma
+            html must contain("lang : 'fr',")
+            
+            // must have theme set 
             html must contain("theme : 'my-theme'")
+            
+            // no tabindex
+            html must not contain("tabindex : ")
         }
         
         "render widget with tabindex" in new WithApplication(getApplication()) {
@@ -77,8 +95,13 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key")
             html must contain(s"$noScriptApi?k=public-key")
             
-            // must have options with tabindex 
-            html must contain("RecaptchaOptions")
+            // fr lang should be set with comma
+            html must contain("lang : 'fr',")
+            
+            // no theme
+            html must not contain("theme : ")
+            
+            // must have tabindex set
             html must contain("tabindex : 42")
         }
         
@@ -89,8 +112,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key")
             html must contain(s"$noScriptApi?k=public-key")
             
-            // must have options with theme, comma and tabindex 
-            html must contain("RecaptchaOptions")
+            // must have lang, theme, tabindex and commas
+            html must contain("lang : 'fr',")
             html must contain("theme : 'my-theme',")
             html must contain("tabindex : 42")
         }
@@ -103,8 +126,25 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key&error=my-error-key")
             html must contain(s"$noScriptApi?k=public-key&error=my-error-key")
             
-            // must have options with theme, comma and tabindex 
-            html must contain("RecaptchaOptions")
+            // must have lang, theme, tabindex and commas
+            html must contain("lang : 'fr',")
+            html must contain("theme : 'my-theme',")
+            html must contain("tabindex : 42")
+        }
+        
+        "render widget with error message, theme and tabindex (en)" in new WithApplication(getApplication(Some("my-theme"))) {
+            // browser prefers english then french
+            implicit val request = FakeRequest().withHeaders(("Accept-Language", "en; q=1.0, fr; q=0.5"))
+            
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget(
+                    error = Some("my-error-key"), tabindex = Some(42)))
+            
+            // error passed to recaptcha 
+            html must contain(s"$scriptApi?k=public-key&error=my-error-key")
+            html must contain(s"$noScriptApi?k=public-key&error=my-error-key")
+            
+            // must have lang, theme, tabindex and commas
+            html must contain("lang : 'en',")
             html must contain("theme : 'my-theme',")
             html must contain("tabindex : 42")
         }

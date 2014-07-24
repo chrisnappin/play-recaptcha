@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 
 import play.api.data._
 import play.api.data.Forms._
-import play.api.test.{FakeApplication, PlaySpecification, WithApplication}
+import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithApplication}
 
 /**
  * Tests the <code>recaptchaField</code> view template.
@@ -47,6 +47,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             "field2" -> optional(number)
         )(Model.apply)(Model.unapply))
             
+    // browser prefers french then english
+    implicit val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))    
         
     "recaptchaField" should {
         

@@ -177,6 +177,9 @@ class RecaptchaVerifier private[recaptcha] (parser: ResponseParser, wsRequest: W
      */
     def verify(challenge: String, response: String, remoteIp: String)(implicit context: ExecutionContext): 
     		Future[Either[Error, Success]] = {
+        
+        import scala.concurrent.duration._
+        
         checkPluginEnabled()
         
         // create the POST payload
@@ -188,7 +191,7 @@ class RecaptchaVerifier private[recaptcha] (parser: ResponseParser, wsRequest: W
         )
         
         val requestTimeout = current.configuration.getMilliseconds(RecaptchaConfiguration.requestTimeout)
-        							.getOrElse(RecaptchaConfiguration.defaultRequestTimeout)
+        							.getOrElse(10.seconds.toMillis)
         
         logger.info(s"Verifying recaptcha ($response) for $remoteIp")
         val futureResponse = wsRequest.withRequestTimeout(requestTimeout.toInt).post(payload)

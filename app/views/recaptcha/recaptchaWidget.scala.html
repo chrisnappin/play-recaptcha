@@ -3,25 +3,25 @@
  *
  * @param error         The error code (if any)
  * @param tabindex      The tabindex of the field (if any)
+ * @param request       (Implicit) The current request
  ****************************************************************************************@
-@(error: Option[String] = None, tabindex: Option[Int] = None)
+@(error: Option[String] = None, tabindex: Option[Int] = None)(implicit request: Request[AnyContent])
 
-@import com.nappin.play.recaptcha.RecaptchaConfiguration
+@import com.nappin.play.recaptcha.{RecaptchaConfiguration, WidgetHelper}
 @import play.api.Play.current
 
 @errorCode = @{ error.map("&error=" + _).getOrElse("") }
 @publicKey = @{ current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("") }
 @themeName = @{ current.configuration.getString(RecaptchaConfiguration.theme) }
-@needOptionsBlock = @{ themeName.isDefined || tabindex.isDefined }
+@otherOptionsDefined = @{ themeName.isDefined || tabindex.isDefined }
 
-@if(needOptionsBlock) { 
 <script type="text/javascript">
 var RecaptchaOptions = {
+    lang : '@WidgetHelper.getPreferredLanguage()'@if(otherOptionsDefined) {,}
     @if(themeName.isDefined) { theme : '@themeName.get'@if(tabindex.isDefined) {,} }
     @if(tabindex.isDefined) { tabindex : @tabindex.get }
  };
 </script>
-}
 
 <script type="text/javascript"
   src="http://www.google.com/recaptcha/api/challenge@Html(publicKey)@Html(errorCode)">

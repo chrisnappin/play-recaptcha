@@ -72,6 +72,13 @@ class RecaptchaPlugin(app: Application) extends Plugin {
             }
         })
         
+        // sanity check the default language (if set) is a supported one
+        configuration.getString(RecaptchaConfiguration.defaultLanguage).foreach(key => {
+        	if (!WidgetHelper.isSupportedLanguage(key)) {
+        	    logger.warn(s"The default language you have set ($key) is not supported by reCAPTCHA")
+        	}
+        })
+        
         if (!mandatoryConfigurationPresent) {
             logger.error("Mandatory configuration missing, so recaptcha module will be disabled. " +
                     "Please check the module documentation and add the missing items to your application.conf file.")
@@ -95,14 +102,14 @@ object RecaptchaConfiguration {
     val publicKey = "recaptcha.publicKey"    
         
     /** The millisecond duration to use as request timeout, when connecting to the recaptcha web API. */    
-    val requestTimeout = "recaptcha.requestTimeout"    
-        
-    /** The default request timeout to use if none is explicitly defined. */    
-    val defaultRequestTimeout = 10.seconds.toMillis
+    val requestTimeout = "recaptcha.requestTimeout"
     
     /** The theme for the recaptcha widget to use (if any). */
     val theme = "recaptcha.theme"
         
+    /** The default language (if any) to use if browser doesn't support any languages supported by reCAPTCHA. */    
+    val defaultLanguage = "recaptcha.defaultLanguage" 
+        
     /** The mandatory configuration items that must exist for this module to work. */    
-    val mandatoryConfiguration = Seq(privateKey, publicKey)    
+    private[recaptcha] val mandatoryConfiguration = Seq(privateKey, publicKey)    
 }

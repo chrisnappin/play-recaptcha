@@ -4,7 +4,7 @@ description := "Google reCAPTCHA integration for Play Framework"
 
 organization := "com.nappin"
 
-version := "0.8"
+version := "0.9-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 

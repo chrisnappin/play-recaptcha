@@ -19,11 +19,28 @@ completed items
 - write API docs for the client - done (on wiki)
 - publish initial release on maven central - done (v0.8)
 
+done for version 0.9
+--------------------
+- pass lang to reCAPTCHA if supported, otherwise recaptcha.defaultLanguage if set, or "en"
+
+
 todo list for version 1.0
 -------------------------
-- i18n of example app (add french translation?), map play locale to recpatcha widget language
-- custom form field html and attributes, like the standard form view templates 
+- i18n of example app (add french translation?), support custom strings
+- custom form field html, like the standard form view templates??
 
+
+visual_challenge:"Get a visual challenge",
+audio_challenge:"Get an audio challenge",
+refresh_btn:"Get a new challenge",
+instructions_visual:"Type the text:",
+instructions_audio:"Type what you hear:",
+help_btn:"Help",
+play_again:"Play sound again",
+cant_hear_this:"Download sound as MP3",
+incorrect_try_again:"Incorrect. Try again.",
+image_alt_text:"reCAPTCHA challenge image",
+privacy_and_terms:"Privacy & Terms"
 
 todo list for after version 1.0
 -------------------------------

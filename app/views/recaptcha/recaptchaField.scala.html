@@ -6,8 +6,9 @@
  * @param tabindex      The tabindex of the field (if any)
  * @param isRequired    Whether the field is to be shown as required (default is true)
  * @param request       (Implicit) The current request
+ * @param lang          (Implicit) The current language
  ****************************************************************************************@
-@(form: Form[_], fieldName: String, tabindex: Option[Int] = None, isRequired: Boolean = true)(implicit request: Request[AnyContent])
+@(form: Form[_], fieldName: String, tabindex: Option[Int] = None, isRequired: Boolean = true)(implicit request: Request[AnyContent], lang: Lang)
 
 @import com.nappin.play.recaptcha.RecaptchaVerifier
 @import com.nappin.play.recaptcha.RecaptchaErrorCode

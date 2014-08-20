@@ -15,6 +15,9 @@ libraryDependencies ++= Seq(
   "org.mockito" % "mockito-core" % "1.+" % "test"
 )
 
+// adds "test-conf" to the test classpath (for message resolving)
+unmanagedClasspath in Test <+= baseDirectory map { bd => Attributed.blank(bd / "test-conf") }
+
 // needed to publish to maven central
 publishMavenStyle := true
 

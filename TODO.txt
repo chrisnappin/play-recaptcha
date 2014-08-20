@@ -22,6 +22,7 @@ completed items
 done for version 0.9
 --------------------
 - pass lang to reCAPTCHA if supported, otherwise recaptcha.defaultLanguage if set, or "en"
+- i18n of example app (with french translation)
 - view templates now require implicit request
 
 todo list for version 1.0

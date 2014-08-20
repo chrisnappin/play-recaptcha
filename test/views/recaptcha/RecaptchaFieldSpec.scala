@@ -22,6 +22,7 @@ import org.junit.runner.RunWith
 
 import play.api.data._
 import play.api.data.Forms._
+import play.api.i18n.Messages
 import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithApplication}
 
 /**
@@ -35,7 +36,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
     val scriptApi = "http://www.google.com/recaptcha/api/challenge"
     val noScriptApi = "http://www.google.com/recaptcha/api/noscript"
     val validApplication = 
-        new FakeApplication(additionalConfiguration = Map(
+        new FakeApplication(path = new java.io.File("test-conf/"), 
+            additionalConfiguration = Map(
+                "application.langs" -> "en,fr",
                 RecaptchaConfiguration.privateKey -> "private-key",
                 RecaptchaConfiguration.publicKey -> "public-key"))
     
@@ -49,12 +52,13 @@ class RecaptchaFieldSpec extends PlaySpecification {
             
     // browser prefers french then english
     implicit val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))    
-        
+    implicit val lang = request.acceptLanguages(0)    
+    
     "recaptchaField" should {
-        
+            
         "render field without errors, is required default" in new WithApplication(validApplication) {
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm, fieldName = "myCaptcha"))
+                    form = modelForm, fieldName = "myCaptcha")(request, request.acceptLanguages(0)))
             
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -63,8 +67,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // no error shown to end user
             html must not contain("<dd class=\"error\">")
             
-            // constraint.required shown to end user
-            html must contain("<dd class=\"info\">Required</dd>")
+            // constraint.required (in french) shown to end user
+            html must contain("<dd class=\"info\">Fr-Constraint-Required</dd>")
         }
         
         "render field without errors, is required true" in new WithApplication(validApplication) {
@@ -78,8 +82,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // no error shown to end user
             html must not contain("<dd class=\"error\">")
             
-            // constraint.required shown to end user
-            html must contain("<dd class=\"info\">Required</dd>")
+            // constraint.required (in french) shown to end user
+            html must contain("<dd class=\"info\">Fr-Constraint-Required</dd>")
         }
         
         "render field without errors, is required false" in new WithApplication(validApplication) {
@@ -93,8 +97,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // no error shown to end user
             html must not contain("<dd class=\"error\">")
             
-            // constraint.required not shown to end user
-            html must not contain("<dd class=\"info\">Required</dd>")
+            // constraint.required (in french) not shown to end user
+            html must not contain("<dd class=\"info\">Fr-Constraint-Required</dd>")
         }
         
         "treat unknown error as external, not shown to end user" in new WithApplication(validApplication) {
@@ -119,8 +123,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key")
             html must contain(s"$noScriptApi?k=public-key")
             
-            // error.required shown to end user
-            html must contain("<dd class=\"error\">This field is required</dd>")
+            // error.required (in french) shown to end user
+            html must contain("<dd class=\"error\">Fr-Error-Required</dd>")
         }
         
         "treat captchaIncorrect as external, showing error.captchaIncorrect" in new WithApplication(validApplication) {
@@ -132,8 +136,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key&error=incorrect-captcha-sol")
             html must contain(s"$noScriptApi?k=public-key&error=incorrect-captcha-sol")
             
-            // error.captchaIncorrect shown to end user
-            html must contain("<dd class=\"error\">Incorrect, please try again</dd>")
+            // error.captchaIncorrect (in french) shown to end user
+            html must contain("<dd class=\"error\">Fr-Error-CaptchaIncorrect</dd>")
         }
         
         "treat recaptchaNotReachable as internal, showing error.recaptchaNotReachable" in new WithApplication(validApplication) {
@@ -145,8 +149,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key")
             html must contain(s"$noScriptApi?k=public-key")
             
-            // error.recaptchaNotReachable shown to end user
-            html must contain("<dd class=\"error\">Unable to contact Recaptcha</dd>")
+            // error.recaptchaNotReachable (in french) shown to end user
+            html must contain("<dd class=\"error\">Fr-Error-RecaptchaNotReachable</dd>")
         }
         
         "treat apiError as internal, showing error.apiError" in new WithApplication(validApplication) {
@@ -158,8 +162,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain(s"$scriptApi?k=public-key")
             html must contain(s"$noScriptApi?k=public-key")
             
-            // error.apiError shown to end user
-            html must contain("<dd class=\"error\">Invalid response from Recaptcha</dd>")
+            // error.apiError (in french) shown to end user
+            html must contain("<dd class=\"error\">Fr-Error-ApiError</dd>")
         }
         
         "pass tabindex to recaptcha widget" in new WithApplication(validApplication) {
@@ -173,8 +177,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // no error shown to end user
             html must not contain("<dd class=\"error\">")
             
-            // constraint.required shown to end user
-            html must contain("<dd class=\"info\">Required</dd>")
+            // constraint.required (in french) shown to end user
+            html must contain("<dd class=\"info\">Fr-Constraint-Required</dd>")
             
             // must have options with tabindex 
             html must contain("RecaptchaOptions")

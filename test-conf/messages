@@ -1,0 +1,6 @@
+# test messages used by RecaptchaFieldSpec
+constraint.required=Constraint-Required
+error.required=Error-Required
+error.captchaIncorrect=Error-CaptchaIncorrect
+error.recaptchaNotReachable=Error-RecaptchaNotReachable
+error.apiError=Error-ApiError

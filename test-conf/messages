@@ -4,3 +4,15 @@ error.required=Error-Required
 error.captchaIncorrect=Error-CaptchaIncorrect
 error.recaptchaNotReachable=Error-RecaptchaNotReachable
 error.apiError=Error-ApiError
+
+recaptcha.visualChallenge=Visual-Challenge
+recaptcha.audioChallenge=Audio-Challenge
+recaptcha.refreshButton=Refresh-Button
+recaptcha.instructionsVisual=Instructions-Visual
+recaptcha.instructionsAudio=Instructions-Audio
+recaptcha.helpButton=Help-Button
+recaptcha.playAgain=Play-Again
+recaptcha.cantHearThis=Cant-Hear-This
+recaptcha.incorrectTryAgain=Incorrect-Try-Again
+recaptcha.imageAltText=Image-Alt-Text
+recaptcha.privacyAndTerms=Privacy-And-Terms

@@ -28,11 +28,11 @@ import play.api.test.{FakeApplication, FakeHeaders, FakeRequest, PlaySpecificati
 @RunWith(classOf[JUnitRunner])
 class WidgetHelperSpec extends PlaySpecification {
 
-    "getPreferredLanguage" should {
-        
-        val application = new FakeApplication(additionalConfiguration = Map(
+    val application = new FakeApplication(additionalConfiguration = Map(
                 RecaptchaConfiguration.privateKey -> "private-key",
                 RecaptchaConfiguration.publicKey -> "public-key"))
+    
+    "getPreferredLanguage" should {
                 
         "return first matching language (en)" in new WithApplication(application) {
             // browser prefers english then french
@@ -105,6 +105,113 @@ class WidgetHelperSpec extends PlaySpecification {
         
         "not match sw" in {
             WidgetHelper.isSupportedLanguage("sw") must beFalse
+        }
+    }
+    
+    "getRecaptchaOptions" should {
+        
+        val application = new FakeApplication(additionalConfiguration = Map(
+                "application.langs" -> "en,fr",
+        		RecaptchaConfiguration.privateKey -> "private-key",
+        		RecaptchaConfiguration.publicKey -> "public-key"))
+        
+        val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
+        val lang = request.acceptLanguages(0)
+        
+        "handle language only" in new WithApplication(application) {
+            WidgetHelper.getRecaptchaOptions(None)(request, lang) must equalTo(
+                    "var RecaptchaOptions = {\n" +
+                    "  lang : 'fr',\n" +
+                    "  custom_translations : {\n" +
+                    "    visual_challenge : 'Fr-Visual-Challenge',\n" +
+                    "    play_again : 'Fr-Play \\u00E9 Again',\n" +
+                    "    cant_hear_this : 'Fr-Cant-Hear-This',\n" +
+                    "    incorrect_try_again : 'Fr-Incorrect-Try-Again',\n" +
+                    "    audio_challenge : 'Fr-Audio \\u00E0 Challenge',\n" +
+                    "    privacy_and_terms : 'Fr-Privacy-And-Terms',\n" +
+                    "    instructions_visual : 'Fr-Instructions-Visual',\n" +
+                    "    image_alt_text : 'Fr-Image-Alt-Text',\n" +
+                    "    instructions_audio : 'Fr-Instructions-Audio',\n" +
+                    "    refresh_btn : 'Fr-Refresh-Button',\n" +
+                    "    help_btn : 'Fr-Help-Button'\n" +
+                    "  }\n" +
+                    "};")
+        }
+        
+        "handle language and theme" in new WithApplication(
+                    new FakeApplication(additionalConfiguration = Map(
+                        "application.langs" -> "en,fr",
+                		RecaptchaConfiguration.privateKey -> "private-key",
+                		RecaptchaConfiguration.publicKey -> "public-key",
+                		RecaptchaConfiguration.theme -> "red"))) {
+
+            WidgetHelper.getRecaptchaOptions(None)(request, lang) must equalTo(
+                    "var RecaptchaOptions = {\n" +
+                    "  lang : 'fr',\n" +
+                    "  theme : 'red',\n" +
+                    "  custom_translations : {\n" +
+                    "    visual_challenge : 'Fr-Visual-Challenge',\n" +
+                    "    play_again : 'Fr-Play \\u00E9 Again',\n" +
+                    "    cant_hear_this : 'Fr-Cant-Hear-This',\n" +
+                    "    incorrect_try_again : 'Fr-Incorrect-Try-Again',\n" +
+                    "    audio_challenge : 'Fr-Audio \\u00E0 Challenge',\n" +
+                    "    privacy_and_terms : 'Fr-Privacy-And-Terms',\n" +
+                    "    instructions_visual : 'Fr-Instructions-Visual',\n" +
+                    "    image_alt_text : 'Fr-Image-Alt-Text',\n" +
+                    "    instructions_audio : 'Fr-Instructions-Audio',\n" +
+                    "    refresh_btn : 'Fr-Refresh-Button',\n" +
+                    "    help_btn : 'Fr-Help-Button'\n" +
+                    "  }\n" +
+                    "};")
+        }
+        
+        "handle language, theme and tabindex" in new WithApplication(
+                    new FakeApplication(additionalConfiguration = Map(
+                        "application.langs" -> "en,fr",
+                		RecaptchaConfiguration.privateKey -> "private-key",
+                		RecaptchaConfiguration.publicKey -> "public-key",
+                		RecaptchaConfiguration.theme -> "red"))) {
+
+            WidgetHelper.getRecaptchaOptions(Some(42))(request, lang) must equalTo(
+                    "var RecaptchaOptions = {\n" +
+                    "  lang : 'fr',\n" +
+                    "  theme : 'red',\n" +
+                    "  tabindex : 42,\n" +
+                    "  custom_translations : {\n" +
+                    "    visual_challenge : 'Fr-Visual-Challenge',\n" +
+                    "    play_again : 'Fr-Play \\u00E9 Again',\n" +
+                    "    cant_hear_this : 'Fr-Cant-Hear-This',\n" +
+                    "    incorrect_try_again : 'Fr-Incorrect-Try-Again',\n" +
+                    "    audio_challenge : 'Fr-Audio \\u00E0 Challenge',\n" +
+                    "    privacy_and_terms : 'Fr-Privacy-And-Terms',\n" +
+                    "    instructions_visual : 'Fr-Instructions-Visual',\n" +
+                    "    image_alt_text : 'Fr-Image-Alt-Text',\n" +
+                    "    instructions_audio : 'Fr-Instructions-Audio',\n" +
+                    "    refresh_btn : 'Fr-Refresh-Button',\n" +
+                    "    help_btn : 'Fr-Help-Button'\n" +
+                    "  }\n" +
+                    "};")
+        }
+        
+        "handle language and tabindex" in new WithApplication(application) {
+            WidgetHelper.getRecaptchaOptions(Some(42))(request, lang) must equalTo(
+                    "var RecaptchaOptions = {\n" +
+                    "  lang : 'fr',\n" +
+                    "  tabindex : 42,\n" +
+                    "  custom_translations : {\n" +
+                    "    visual_challenge : 'Fr-Visual-Challenge',\n" +
+                    "    play_again : 'Fr-Play \\u00E9 Again',\n" +
+                    "    cant_hear_this : 'Fr-Cant-Hear-This',\n" +
+                    "    incorrect_try_again : 'Fr-Incorrect-Try-Again',\n" +
+                    "    audio_challenge : 'Fr-Audio \\u00E0 Challenge',\n" +
+                    "    privacy_and_terms : 'Fr-Privacy-And-Terms',\n" +
+                    "    instructions_visual : 'Fr-Instructions-Visual',\n" +
+                    "    image_alt_text : 'Fr-Image-Alt-Text',\n" +
+                    "    instructions_audio : 'Fr-Instructions-Audio',\n" +
+                    "    refresh_btn : 'Fr-Refresh-Button',\n" +
+                    "    help_btn : 'Fr-Help-Button'\n" +
+                    "  }\n" +
+                    "};")
         }
     }
 }

@@ -49,8 +49,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             // fr lang should be set
             html must contain("lang : 'fr'")
             
-            // no lang with comma, theme or tabindex
-            html must not contain("lang : 'fr',")
+            // no theme or tabindex
             html must not contain("theme : ")
             html must not contain("tabindex : ")
         }
@@ -65,8 +64,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             // fr lang should be set
             html must contain("lang : 'fr'")
             
-            // no lang with comma, theme or tabindex
-            html must not contain("lang : 'fr',")
+            // no theme or tabindex
             html must not contain("theme : ")
             html must not contain("tabindex : ")
         }

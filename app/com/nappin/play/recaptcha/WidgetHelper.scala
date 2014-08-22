@@ -15,9 +15,14 @@
  */
 package com.nappin.play.recaptcha
 
+import org.apache.commons.lang3.StringEscapeUtils
+
+import play.api.Logger
 import play.api.Play.current
-import play.api.i18n.Lang
+import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{AnyContent, Request}
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * Helper functionality for the <code>recaptchaWidget</code> view template.
@@ -26,6 +31,26 @@ import play.api.mvc.{AnyContent, Request}
  */
 object WidgetHelper {
 
+    val logger = Logger(this.getClass())
+    
+    /**
+     * Returns the <code>RecaptchaOptions</code> JavaScript declaration, with the appropriate customisation options.
+     * @param tabindex		The tabindex (if any)
+     * @param request		The web request
+     * @param lang			The current language
+     * @return The JavaScript code
+     */
+    def getRecaptchaOptions(tabindex: Option[Int])(implicit request: Request[AnyContent], lang: Lang): String = {
+        val theme = current.configuration.getString(RecaptchaConfiguration.theme)
+        
+        new StringBuffer("var RecaptchaOptions = {\n")
+            .append(s"  lang : '${getPreferredLanguage()}'")
+            .append(theme.fold(""){t => s",\n  theme : '$t'"})
+            .append(tabindex.fold(""){t => s",\n  tabindex : $t"})
+            .append(getCustomTranslations().fold(""){t => s",\n  custom_translations : {\n$t\n  }"})
+            .append("\n};").toString()
+    }
+    
     /**
      * Returns the most preferred language (as extracted from the <code>Accept-Language</code> HTTP header in the 
      * request, if any) that is supported by reCAPTCHA. If no supported language is found, returns the default
@@ -33,7 +58,7 @@ object WidgetHelper {
      * @param request		The web request
      * @return The language code
      */
-    def getPreferredLanguage()(implicit request: Request[AnyContent]): String = {
+    private[recaptcha] def getPreferredLanguage()(implicit request: Request[AnyContent]): String = {
         request.acceptLanguages.find(l => isSupportedLanguage(l.language))
         	.fold(getDefaultLanguage()) // if no supported language found
         		{lang => lang.language} // if a supported language was found
@@ -54,6 +79,43 @@ object WidgetHelper {
      */
     private def getDefaultLanguage(): String = {
         current.configuration.getString(RecaptchaConfiguration.defaultLanguage).getOrElse("en")
+    }
+    
+    /**
+     * Get the custom translations (if any) formatted as a JavaScript dictionary of escaped strings.
+     * @param lang		The current language
+     * @return The custom translations (if any)
+     */
+    private def getCustomTranslations()(implicit lang: Lang): Option[String] = {
+        // maps play message names to javascript translation dictionary names
+        val messageNames = Map(
+                "recaptcha.visualChallenge" -> "visual_challenge",
+                "recaptcha.audioChallenge" -> "audio_challenge",
+                "recaptcha.refreshButton" -> "refresh_btn",
+                "recaptcha.instructionsVisual" -> "instructions_visual",
+                "recaptcha.instructionsAudio" -> "instructions_audio",
+                "recaptcha.helpButton" -> "help_btn",
+                "recaptcha.playAgain" -> "play_again",
+                "recaptcha.cantHearThis" -> "cant_hear_this",
+                "recaptcha.incorrectTryAgain" -> "incorrect_try_again",
+                "recaptcha.imageAltText" -> "image_alt_text",
+                "recaptcha.privacyAndTerms" -> "privacy_and_terms")
+        
+        logger.debug(s"language is $lang")
+        
+        val translations = ListBuffer[String]()
+        messageNames.keys.foreach(k => {
+                if (Messages.isDefinedAt(k)) {
+                    translations += s"    ${messageNames(k)} : '${StringEscapeUtils.escapeEcmaScript(Messages(k))}'"
+                }
+            }
+        )
+        
+        if (translations.isEmpty) {
+            None 
+        } else {
+            Some(translations.mkString(",\n"))
+        }
     }
     
     /** As taken from Google reCAPTCHA documentation, 23/07/2014. This needs to be kept up to date. */

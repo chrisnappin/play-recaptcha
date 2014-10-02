@@ -34,6 +34,30 @@ object WidgetHelper {
     val logger = Logger(this.getClass())
     
     /**
+     * Returns the widget script URL, with public key and error code (if any).
+     * @param error			The error code (if any)
+     * @return The URL
+     */
+    def getWidgetScriptUrl(error: Option[String]): String = {
+        val errorSuffix = error.map("&error=" + _).getOrElse("")
+        val publicKey = current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("")
+        
+        RecaptchaUrls.getWidgetScriptUrl + publicKey + errorSuffix
+    }
+    
+    /**
+     * Returns the widget no-script URL, with public key and error code (if any).
+     * @param error			The error code (if any)
+     * @return The URL
+     */
+    def getWidgetNoScriptUrl(error: Option[String]): String = {
+        val errorSuffix = error.map("&error=" + _).getOrElse("")
+        val publicKey = current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("")
+        
+        RecaptchaUrls.getWidgetNoScriptUrl + publicKey + errorSuffix
+    }
+    
+    /**
      * Returns the <code>RecaptchaOptions</code> JavaScript declaration, with the appropriate customisation options.
      * @param tabindex		The tabindex (if any)
      * @param request		The web request

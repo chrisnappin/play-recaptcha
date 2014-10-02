@@ -31,7 +31,8 @@ class RecaptchaPlugin(app: Application) extends Plugin {
      * 
      * Result is cached so it can be checked repeatedly at runtime, not just by Play on start-up.
      */
-    val isEnabled = isMandatoryConfigurationPresent(app.configuration)
+    val isEnabled = 
+        isMandatoryConfigurationPresent(app.configuration) && isConfigurationValid(app.configuration)
     
     /**
      * Called first, for the plugin to decide whether it is enabled.
@@ -72,19 +73,60 @@ class RecaptchaPlugin(app: Application) extends Plugin {
             }
         })
         
-        // sanity check the default language (if set) is a supported one
-        configuration.getString(RecaptchaConfiguration.defaultLanguage).foreach(key => {
-        	if (!WidgetHelper.isSupportedLanguage(key)) {
-        	    logger.warn(s"The default language you have set ($key) is not supported by reCAPTCHA")
-        	}
-        })
-        
         if (!mandatoryConfigurationPresent) {
             logger.error("Mandatory configuration missing, so recaptcha module will be disabled. " +
                     "Please check the module documentation and add the missing items to your application.conf file.")
         }
         
         return mandatoryConfigurationPresent
+    }
+    
+    /**
+     * Determines whether the configuration is valid. If not a suitable error log message will be written.
+     * @param configuration		The configuration to check
+     * @return <code>true</code> if all ok
+     */
+    private def isConfigurationValid(configuration: Configuration): Boolean = {
+        var configurationValid = true
+        
+        // keep going so all invalid items get logged, not just the first one...
+        RecaptchaConfiguration.booleanConfiguration.foreach(key => {
+            if (!validateBoolean(key, configuration)) {
+                configurationValid = false
+            }
+        })
+        
+        // sanity check the default language (if set) is a supported one
+        // only log as a warning since the supported languages might be out of date
+        configuration.getString(RecaptchaConfiguration.defaultLanguage).foreach(key => {
+        	if (!WidgetHelper.isSupportedLanguage(key)) {
+        	    logger.warn(s"The default language you have set ($key) is not supported by reCAPTCHA")
+        	}
+        })
+        
+        if (!configurationValid) {
+            logger.error("Configuration invalid, so recaptcha module will be disabled. " +
+                    "Please check the module documentation and correct your application.conf file.")
+        }
+        
+        return configurationValid
+    }
+    
+    /**
+     * Validates a boolean configuration setting, if present.
+     * @param setting		The setting
+     * @param configuration	The configuration
+     * @return Whether setting is a valid boolean
+     */
+    private def validateBoolean(setting: String, configuration: Configuration): Boolean = {
+        val validValues = Seq("true", "false")
+        configuration.getString(setting).map { value => {
+            if (!validValues.contains(value)) {
+	            logger.error(setting + " must be true or false, not " + value)
+	            return false
+            }
+        }}
+        return true
     }
 }
 
@@ -110,6 +152,15 @@ object RecaptchaConfiguration {
     /** The default language (if any) to use if browser doesn't support any languages supported by reCAPTCHA. */    
     val defaultLanguage = "recaptcha.defaultLanguage" 
         
+    /** Whether to use the secure (SSL) URL to access the verify API. */    
+    val useSecureVerifyUrl = "recaptcha.useSecureVerifyUrl"  
+        
+    /** Whether to use the secure (SSL) URL to render the reCAPCTHA widget. */    
+    val useSecureWidgetUrl = "recaptcha.useSecureWidgetUrl"     
+        
     /** The mandatory configuration items that must exist for this module to work. */    
-    private[recaptcha] val mandatoryConfiguration = Seq(privateKey, publicKey)    
+    private[recaptcha] val mandatoryConfiguration = Seq(privateKey, publicKey)   
+    
+    /** The boolean configuration items. */
+    private[recaptcha] val booleanConfiguration = Seq(useSecureVerifyUrl, useSecureWidgetUrl)
 }

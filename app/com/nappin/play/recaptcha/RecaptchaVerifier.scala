@@ -51,7 +51,7 @@ class RecaptchaVerifier private[recaptcha] (parser: ResponseParser, wsRequest: W
     /**
      * Constructor for production use.
      */
-    def this() = this(new ResponseParser(), WS.url("http://www.google.com/recaptcha/api/verify"))   
+    def this() = this(new ResponseParser(), WS.url(RecaptchaUrls.getVerifyUrl))   
     
     /**
      * High level API (using Play forms).

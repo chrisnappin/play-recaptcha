@@ -45,5 +45,35 @@ class RecaptchaPluginSpec extends Specification {
             
             new RecaptchaPlugin(validApplication).enabled must equalTo(true)
         }
+        
+        "not be enabled if useSecureVerifyUrl invalid" in {
+            val invalidApplication = 
+		        new FakeApplication(additionalConfiguration = Map(
+		            RecaptchaConfiguration.privateKey -> "private-key",
+		            RecaptchaConfiguration.publicKey -> "public-key",
+		            RecaptchaConfiguration.useSecureVerifyUrl -> "wibble"))
+            
+            new RecaptchaPlugin(invalidApplication).enabled must equalTo(false)
+        }
+        
+        "not be enabled if useSecureWidgetUrl invalid" in {
+            val invalidApplication = 
+		        new FakeApplication(additionalConfiguration = Map(
+		            RecaptchaConfiguration.privateKey -> "private-key",
+		            RecaptchaConfiguration.publicKey -> "public-key",
+		            RecaptchaConfiguration.useSecureWidgetUrl -> "wibble"))
+            
+            new RecaptchaPlugin(invalidApplication).enabled must equalTo(false)
+        }
+        
+        "be enabled if language unsupported" in {
+            val warningApplication = 
+		        new FakeApplication(additionalConfiguration = Map(
+		            RecaptchaConfiguration.privateKey -> "private-key",
+		            RecaptchaConfiguration.publicKey -> "public-key",
+		            RecaptchaConfiguration.defaultLanguage -> "zz"))
+            
+            new RecaptchaPlugin(warningApplication).enabled must equalTo(true)
+        }
     }    
 }

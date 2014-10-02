@@ -214,4 +214,30 @@ class WidgetHelperSpec extends PlaySpecification {
                     "};")
         }
     }
+    
+    "getWidgetScriptUrl" should {
+        
+        "include public key" in new WithApplication(application) {
+            
+            WidgetHelper.getWidgetScriptUrl(None) must endWith("?k=public-key")
+        }
+        
+        "include error code if specified" in new WithApplication(application) {
+            
+            WidgetHelper.getWidgetScriptUrl(Some("error-code")) must endWith("?k=public-key&error=error-code")
+        }
+    }
+    
+    "getWidgetNoScriptUrl" should {
+        
+        "include public key" in new WithApplication(application) {
+            
+            WidgetHelper.getWidgetNoScriptUrl(None) must endWith("?k=public-key")
+        }
+        
+        "include error code if specified" in new WithApplication(application) {
+            
+            WidgetHelper.getWidgetNoScriptUrl(Some("error-code")) must endWith("?k=public-key&error=error-code")
+        }
+    }
 }

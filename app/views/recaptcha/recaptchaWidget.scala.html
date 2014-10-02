@@ -8,21 +8,16 @@
  ****************************************************************************************@
 @(error: Option[String] = None, tabindex: Option[Int] = None)(implicit request: Request[AnyContent], lang: Lang)
 
-@import com.nappin.play.recaptcha.{RecaptchaConfiguration, WidgetHelper}
-@import play.api.Play.current
-
-@errorCode = @{ error.map("&error=" + _).getOrElse("") }
-@publicKey = @{ current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("") }
+@import com.nappin.play.recaptcha.WidgetHelper
 
 <script type="text/javascript">
 @Html(WidgetHelper.getRecaptchaOptions(tabindex))
 </script>
 
-<script type="text/javascript"
-  src="http://www.google.com/recaptcha/api/challenge@Html(publicKey)@Html(errorCode)">
+<script type="text/javascript" src="@Html(WidgetHelper.getWidgetScriptUrl(error))">
 </script>
 <noscript>
-   <iframe src="http://www.google.com/recaptcha/api/noscript@Html(publicKey)@Html(errorCode)" 
+   <iframe src="@Html(WidgetHelper.getWidgetNoScriptUrl(error))" 
        height="300" width="500" frameborder="0"></iframe><br>
    <textarea name="recaptcha_challenge_field" rows="3" cols="40">
    </textarea>

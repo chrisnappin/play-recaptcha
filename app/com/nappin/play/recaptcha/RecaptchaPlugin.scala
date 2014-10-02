@@ -119,10 +119,11 @@ class RecaptchaPlugin(app: Application) extends Plugin {
      * @return Whether setting is a valid boolean
      */
     private def validateBoolean(setting: String, configuration: Configuration): Boolean = {
-        val validValues = Seq("true", "false")
+        // booleans can be true/false/yes/no but only lower case
+        val validValues = Seq("true", "false", "yes", "no")
         configuration.getString(setting).map { value => {
             if (!validValues.contains(value)) {
-	            logger.error(setting + " must be true or false, not " + value)
+	            logger.error(setting + " must be true/false/yes/no, not " + value)
 	            return false
             }
         }}

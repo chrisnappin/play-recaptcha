@@ -46,6 +46,28 @@ class RecaptchaPluginSpec extends Specification {
             new RecaptchaPlugin(validApplication).enabled must equalTo(true)
         }
         
+        "be enabled if booleans are true or false" in {
+            val validApplication = 
+		        new FakeApplication(additionalConfiguration = Map(
+		            RecaptchaConfiguration.privateKey -> "private-key",
+		            RecaptchaConfiguration.publicKey -> "public-key",
+		            RecaptchaConfiguration.useSecureVerifyUrl -> "true",
+		            RecaptchaConfiguration.useSecureWidgetUrl -> "false"))
+            
+            new RecaptchaPlugin(validApplication).enabled must equalTo(true)
+        }
+        
+        "be enabled if booleans are yes or no" in {
+            val validApplication = 
+		        new FakeApplication(additionalConfiguration = Map(
+		            RecaptchaConfiguration.privateKey -> "private-key",
+		            RecaptchaConfiguration.publicKey -> "public-key",
+		            RecaptchaConfiguration.useSecureVerifyUrl -> "yes",
+		            RecaptchaConfiguration.useSecureWidgetUrl -> "no"))
+            
+            new RecaptchaPlugin(validApplication).enabled must equalTo(true)
+        }
+        
         "not be enabled if useSecureVerifyUrl invalid" in {
             val invalidApplication = 
 		        new FakeApplication(additionalConfiguration = Map(

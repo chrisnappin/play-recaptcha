@@ -39,11 +39,23 @@ class RecaptchaUrlsSpec extends PlaySpecification {
                 RecaptchaConfiguration.useSecureVerifyUrl -> "false",
                 RecaptchaConfiguration.useSecureWidgetUrl -> "false"))
     
+    val altInsecureConfig = new FakeApplication(additionalConfiguration = Map(
+                RecaptchaConfiguration.privateKey -> "private-key",
+                RecaptchaConfiguration.publicKey -> "public-key",
+                RecaptchaConfiguration.useSecureVerifyUrl -> "no",
+                RecaptchaConfiguration.useSecureWidgetUrl -> "no"))
+    
     val secureConfig = new FakeApplication(additionalConfiguration = Map(
                 RecaptchaConfiguration.privateKey -> "private-key",
                 RecaptchaConfiguration.publicKey -> "public-key",
                 RecaptchaConfiguration.useSecureVerifyUrl -> "true",
                 RecaptchaConfiguration.useSecureWidgetUrl -> "true"))
+    
+    val altSecureConfig = new FakeApplication(additionalConfiguration = Map(
+                RecaptchaConfiguration.privateKey -> "private-key",
+                RecaptchaConfiguration.publicKey -> "public-key",
+                RecaptchaConfiguration.useSecureVerifyUrl -> "yes",
+                RecaptchaConfiguration.useSecureWidgetUrl -> "yes")) 
     
     "getVerifyUrl" should {
         
@@ -52,12 +64,22 @@ class RecaptchaUrlsSpec extends PlaySpecification {
             RecaptchaUrls.getVerifyUrl must equalTo("http://www.google.com/recaptcha/api/verify")
         }
         
-        "use insecure url if explicitly set" in new WithApplication(insecureConfig) {
+        "use insecure url if explicitly set to false" in new WithApplication(insecureConfig) {
             
             RecaptchaUrls.getVerifyUrl must equalTo("http://www.google.com/recaptcha/api/verify")
         }
         
-        "use secure url if explicitly set" in new WithApplication(secureConfig) {
+        "use insecure url if explicitly set to no" in new WithApplication(altInsecureConfig) {
+            
+            RecaptchaUrls.getVerifyUrl must equalTo("http://www.google.com/recaptcha/api/verify")
+        }
+        
+        "use secure url if explicitly set to true" in new WithApplication(secureConfig) {
+            
+            RecaptchaUrls.getVerifyUrl must equalTo("https://www.google.com/recaptcha/api/verify")
+        }
+        
+        "use secure url if explicitly set to yes" in new WithApplication(altSecureConfig) {
             
             RecaptchaUrls.getVerifyUrl must equalTo("https://www.google.com/recaptcha/api/verify")
         }
@@ -70,12 +92,22 @@ class RecaptchaUrlsSpec extends PlaySpecification {
             RecaptchaUrls.getWidgetScriptUrl must equalTo("http://www.google.com/recaptcha/api/challenge")
         }
         
-        "use insecure url if explicitly set" in new WithApplication(insecureConfig) {
+        "use insecure url if explicitly set to false" in new WithApplication(insecureConfig) {
             
             RecaptchaUrls.getWidgetScriptUrl must equalTo("http://www.google.com/recaptcha/api/challenge")
         }
         
-        "use secure url if explicitly set" in new WithApplication(secureConfig) {
+        "use insecure url if explicitly set to no" in new WithApplication(altInsecureConfig) {
+            
+            RecaptchaUrls.getWidgetScriptUrl must equalTo("http://www.google.com/recaptcha/api/challenge")
+        }
+        
+        "use secure url if explicitly set to true" in new WithApplication(secureConfig) {
+            
+            RecaptchaUrls.getWidgetScriptUrl must equalTo("https://www.google.com/recaptcha/api/challenge")
+        }
+        
+        "use secure url if explicitly set to yes" in new WithApplication(altSecureConfig) {
             
             RecaptchaUrls.getWidgetScriptUrl must equalTo("https://www.google.com/recaptcha/api/challenge")
         }
@@ -88,12 +120,22 @@ class RecaptchaUrlsSpec extends PlaySpecification {
             RecaptchaUrls.getWidgetNoScriptUrl must equalTo("http://www.google.com/recaptcha/api/noscript")
         }
         
-        "use insecure url if explicitly set" in new WithApplication(insecureConfig) {
+        "use insecure url if explicitly set to false" in new WithApplication(insecureConfig) {
             
             RecaptchaUrls.getWidgetNoScriptUrl must equalTo("http://www.google.com/recaptcha/api/noscript")
         }
         
-        "use secure url if explicitly set" in new WithApplication(secureConfig) {
+        "use insecure url if explicitly set to no" in new WithApplication(altInsecureConfig) {
+            
+            RecaptchaUrls.getWidgetNoScriptUrl must equalTo("http://www.google.com/recaptcha/api/noscript")
+        }
+        
+        "use secure url if explicitly set to true" in new WithApplication(secureConfig) {
+            
+            RecaptchaUrls.getWidgetNoScriptUrl must equalTo("https://www.google.com/recaptcha/api/noscript")
+        }
+        
+        "use secure url if explicitly set to yes" in new WithApplication(altSecureConfig) {
             
             RecaptchaUrls.getWidgetNoScriptUrl must equalTo("https://www.google.com/recaptcha/api/noscript")
         }

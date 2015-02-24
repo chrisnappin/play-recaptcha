@@ -36,11 +36,13 @@ class RecaptchaFieldSpec extends PlaySpecification {
     val scriptApi = "http://www.google.com/recaptcha/api/challenge"
     val noScriptApi = "http://www.google.com/recaptcha/api/noscript"
     val validApplication = 
-        new FakeApplication(path = new java.io.File("test-conf/"), 
+        new FakeApplication(path = new java.io.File("test-conf/"),
+            additionalPlugins = Seq("com.nappin.play.recaptcha.RecaptchaPlugin"),
             additionalConfiguration = Map(
                 "application.langs" -> "en,fr",
                 RecaptchaConfiguration.privateKey -> "private-key",
-                RecaptchaConfiguration.publicKey -> "public-key"))
+                RecaptchaConfiguration.publicKey -> "public-key",
+                RecaptchaConfiguration.apiVersion -> "1"))
     
     // used to bind with
     case class Model(field1: String, field2: Option[Int])
@@ -54,9 +56,10 @@ class RecaptchaFieldSpec extends PlaySpecification {
     implicit val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))    
     implicit val lang = request.acceptLanguages(0)    
     
-    "recaptchaField" should {
+    "(v1) recaptchaField" should {
             
-        "render field without errors, is required default" in new WithApplication(validApplication) {
+        "render field without errors, is required default" in 
+                new WithApplication(validApplication) {
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm, fieldName = "myCaptcha")(request, request.acceptLanguages(0)))
             
@@ -101,7 +104,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must not contain("<dd class=\"info\">Fr-Constraint-Required</dd>")
         }
         
-        "treat unknown error as external, not shown to end user" in new WithApplication(validApplication) {
+        "treat unknown error as external, not shown to end user" in 
+                new WithApplication(validApplication) {
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm.withError(RecaptchaVerifier.formErrorKey, "my-error-key"), 
                     	fieldName = "myCaptcha"))
@@ -114,9 +118,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must not contain("<dd class=\"error\">")
         }
         
-        "treat responseMissing as internal, showing error.required" in new WithApplication(validApplication) {
+        "treat responseMissing as internal, showing error.required" in 
+                new WithApplication(validApplication) {
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing), 
+                    form = modelForm.withError(
+                            RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing), 
                     	fieldName = "myCaptcha"))
             
             // no error passed to recaptcha
@@ -127,9 +133,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("<dd class=\"error\">Fr-Error-Required</dd>")
         }
         
-        "treat captchaIncorrect as external, showing error.captchaIncorrect" in new WithApplication(validApplication) {
+        "treat captchaIncorrect as external, showing error.captchaIncorrect" in 
+                new WithApplication(validApplication) {
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect), 
+                    form = modelForm.withError(
+                            RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect), 
                     	fieldName = "myCaptcha"))
             
             // error passed to recaptcha
@@ -140,9 +148,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("<dd class=\"error\">Fr-Error-CaptchaIncorrect</dd>")
         }
         
-        "treat recaptchaNotReachable as internal, showing error.recaptchaNotReachable" in new WithApplication(validApplication) {
+        "treat recaptchaNotReachable as internal, showing error.recaptchaNotReachable" in 
+                new WithApplication(validApplication) {
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable), 
+                    form = modelForm.withError(
+                            RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable), 
                     	fieldName = "myCaptcha"))
             
             // no error passed to recaptcha
@@ -153,9 +163,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("<dd class=\"error\">Fr-Error-RecaptchaNotReachable</dd>")
         }
         
-        "treat apiError as internal, showing error.apiError" in new WithApplication(validApplication) {
+        "treat apiError as internal, showing error.apiError" in 
+                new WithApplication(validApplication) {
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError), 
+                    form = modelForm.withError(
+                            RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError), 
                     	fieldName = "myCaptcha"))
             
             // no error passed to recaptcha
@@ -183,6 +195,50 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // must have options with tabindex 
             html must contain("RecaptchaOptions")
             html must contain("tabindex : 21")
+        }
+    }
+    
+    "(v2) recaptchaField" should {
+        
+        val validV2Application = 
+	        new FakeApplication(path = new java.io.File("test-conf/"),
+	            additionalPlugins = Seq("com.nappin.play.recaptcha.RecaptchaPlugin"),
+	            additionalConfiguration = Map(
+	                "application.langs" -> "en,fr",
+	                RecaptchaConfiguration.privateKey -> "private-key",
+	                RecaptchaConfiguration.publicKey -> "public-key",
+	                RecaptchaConfiguration.apiVersion -> "2"))
+        
+        "default to including noscript" in new WithApplication(validV2Application) {
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                    form = modelForm, fieldName = "myCaptcha"))
+            
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+            
+            // no error shown to end user
+            html must not contain("<dd class=\"error\">")
+            
+            // must include noscript block
+            html must contain("<noscript")
+            html must contain("g-recaptcha-response")
+        }
+        
+        "pass includeNoScript to recaptcha widget" in new WithApplication(validV2Application) {
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                    form = modelForm, fieldName = "myCaptcha", includeNoScript = false))
+            
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+            
+            // no error shown to end user
+            html must not contain("<dd class=\"error\">")
+            
+            // must not include noscript block
+            html must not contain("<noscript")
+            html must not contain("g-recaptcha-response")
         }
     }
 }

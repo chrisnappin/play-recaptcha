@@ -31,6 +31,15 @@ todo list for version 1.0
 -------------------------
 - custom form field html, like the standard form view templates??
 
+- add recaptcha 2.0 support
+  - new widget - see https://developers.google.com/recaptcha/docs/display
+    - support languages (explicit and from play) 
+      (see https://developers.google.com/recaptcha/docs/language for larger list)
+    - support themes
+  - verify captcha - see https://developers.google.com/recaptcha/docs/verify
+    (with JSON parser)
+  
+
 todo list for after version 1.0
 -------------------------------
 - extras: ajax api, allow custom recaptcha themes, translations etc...

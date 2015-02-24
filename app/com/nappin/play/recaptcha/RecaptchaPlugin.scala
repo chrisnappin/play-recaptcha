@@ -15,7 +15,7 @@
  */
 package com.nappin.play.recaptcha
 
-import play.api.{Application, Configuration, Logger, Plugin}
+import play.api.{Application, Configuration, Logger, Play, Plugin}
 
 /**
  * Play plugin for the recaptcha module, hooks into the play application lifecycle.
@@ -33,6 +33,14 @@ class RecaptchaPlugin(app: Application) extends Plugin {
      */
     val isEnabled = 
         isMandatoryConfigurationPresent(app.configuration) && isConfigurationValid(app.configuration)
+    
+    /**
+     * Determine whether reCAPTCHA API version 1 is in use (if not must be API version 2, aka
+     * no-captcha recaptcha).
+     * 
+     * Result is cached so it can be checked repeatedly at runtime.
+     */
+    val isApiVersion1 = getApiVersion() == Some(1)
     
     /**
      * Called first, for the plugin to decide whether it is enabled.
@@ -89,20 +97,30 @@ class RecaptchaPlugin(app: Application) extends Plugin {
     private def isConfigurationValid(configuration: Configuration): Boolean = {
         var configurationValid = true
         
-        // keep going so all invalid items get logged, not just the first one...
-        RecaptchaConfiguration.booleanConfiguration.foreach(key => {
-            if (!validateBoolean(key, configuration)) {
-                configurationValid = false
-            }
-        })
+        // check the api version first
+        var apiVersion = getApiVersion()
+        if (apiVersion.isEmpty) {
+            // error already logged
+            configurationValid = false
         
-        // sanity check the default language (if set) is a supported one
-        // only log as a warning since the supported languages might be out of date
-        configuration.getString(RecaptchaConfiguration.defaultLanguage).foreach(key => {
-        	if (!WidgetHelper.isSupportedLanguage(key)) {
-        	    logger.warn(s"The default language you have set ($key) is not supported by reCAPTCHA")
-        	}
-        })
+        } else if (apiVersion.get == 1) {
+            // check API version 1 configuration...
+            
+	        // keep going so all invalid items get logged, not just the first one...
+	        RecaptchaConfiguration.booleanConfiguration.foreach(key => {
+	            if (!validateBoolean(key, configuration)) {
+	                configurationValid = false
+	            }
+	        })
+	        
+	        // sanity check the default language (if set) is a supported one
+	        // only log as a warning since the supported languages might be out of date
+	        configuration.getString(RecaptchaConfiguration.defaultLanguage).foreach(key => {
+	        	if (!WidgetHelper.isSupportedLanguage(key)) {
+	        	    logger.warn(s"The default language you have set ($key) is not supported by reCAPTCHA")
+	        	}
+	        })
+        }
         
         if (!configurationValid) {
             logger.error("Configuration invalid, so recaptcha module will be disabled. " +
@@ -110,6 +128,28 @@ class RecaptchaPlugin(app: Application) extends Plugin {
         }
         
         return configurationValid
+    }
+    
+    /**
+     * Obtains the recaptcha API version configured.
+     * @return The version number, or <code>None</code> if invalid (error will have been logged).
+     */
+    def getApiVersion(): Option[Int] = {
+        var apiVersion = 0
+        var versionString = app.configuration.getString(RecaptchaConfiguration.apiVersion).getOrElse("0")
+        try {
+            apiVersion = versionString.toInt
+        } catch {
+            case ex: NumberFormatException =>
+                logger.error(s"$versionString is not a valid recaptcha API version")
+                return None
+        }
+        if (apiVersion < 1 || apiVersion > 2) {
+            logger.error(s"recaptcha API version $apiVersion is not supported")
+            return None
+        }
+        
+        return Some(apiVersion)
     }
     
     /**
@@ -132,6 +172,28 @@ class RecaptchaPlugin(app: Application) extends Plugin {
 }
 
 /**
+ * Useful methods used by the rest of the code.
+ */
+object RecaptchaPlugin {
+    
+    /**
+     * Determines whether the plugin is present and enabled.
+     * @return <code>true</code> if enabled
+     */
+    def isEnabled(): Boolean = {
+	    Play.current.plugin[RecaptchaPlugin] map { _.isEnabled } getOrElse false
+    }
+    
+    /**
+     * Determines whether API version 1 is enabled.
+     * @return <code>true</code> if enabled
+     */
+    def isApiVersion1(): Boolean = {
+	    Play.current.plugin[RecaptchaPlugin] map { _.isApiVersion1 } getOrElse false
+    }
+}
+
+/**
  * Defines the configuration keys used by the module.
  */
 object RecaptchaConfiguration {
@@ -143,6 +205,9 @@ object RecaptchaConfiguration {
         
     /** The application's recaptcha public key. */
     val publicKey = "recaptcha.publicKey"    
+        
+    /** The version of recaptcha API to use. */    
+    val apiVersion = "recaptcha.apiVersion"    
         
     /** The millisecond duration to use as request timeout, when connecting to the recaptcha web API. */    
     val requestTimeout = "recaptcha.requestTimeout"
@@ -160,7 +225,7 @@ object RecaptchaConfiguration {
     val useSecureWidgetUrl = "recaptcha.useSecureWidgetUrl"     
         
     /** The mandatory configuration items that must exist for this module to work. */    
-    private[recaptcha] val mandatoryConfiguration = Seq(privateKey, publicKey)   
+    private[recaptcha] val mandatoryConfiguration = Seq(privateKey, publicKey, apiVersion)   
     
     /** The boolean configuration items. */
     private[recaptcha] val booleanConfiguration = Seq(useSecureVerifyUrl, useSecureWidgetUrl)

@@ -37,9 +37,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     // browser prefers french then english
     implicit val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
     
-    "recaptchaWidget" should {
+    "recaptchaWidget (v1)" should {
         
-        "render widget without error message" in new WithApplication(getApplication()) {
+        "render v1 widget without error message" in new WithApplication(getApplication(1)) {
             val html = contentAsString(views.html.recaptcha.recaptchaWidget())
             
             // no error passed to recaptcha 
@@ -54,8 +54,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must not contain("tabindex : ")
         }
         
-        "render widget with error message" in new WithApplication(getApplication()) {
-            val html = contentAsString(views.html.recaptcha.recaptchaWidget(error = Some("my-error-key")))
+        "render v1 widget with error message" in new WithApplication(getApplication(1)) {
+            val html = contentAsString(
+                    views.html.recaptcha.recaptchaWidget(error = Some("my-error-key")))
             
             // error passed to recaptcha 
             html must contain(s"$scriptApi?k=public-key&error=my-error-key")
@@ -69,7 +70,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must not contain("tabindex : ")
         }
         
-        "render widget with theme" in new WithApplication(getApplication(Some("my-theme"))) {
+        "render v1 widget with theme" in new WithApplication(getApplication(1, Some("my-theme"))) {
             val html = contentAsString(views.html.recaptcha.recaptchaWidget())
                         
             // no error passed to recaptcha 
@@ -86,7 +87,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must not contain("tabindex : ")
         }
         
-        "render widget with tabindex" in new WithApplication(getApplication()) {
+        "render v1 widget with tabindex" in new WithApplication(getApplication(1)) {
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(tabindex = Some(42)))
             
             // no error passed to recaptcha
@@ -103,7 +104,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("tabindex : 42")
         }
         
-        "render widget with theme and tabindex" in new WithApplication(getApplication(Some("my-theme"))) {
+        "render v1 widget with theme and tabindex" in 
+                new WithApplication(getApplication(1, Some("my-theme"))) {
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(tabindex = Some(42)))
             
             // no error passed to recaptcha
@@ -116,7 +118,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("tabindex : 42")
         }
         
-        "render widget with error message, theme and tabindex" in new WithApplication(getApplication(Some("my-theme"))) {
+        "render v1 widget with error message, theme and tabindex" in 
+                new WithApplication(getApplication(1, Some("my-theme"))) {
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(
                     error = Some("my-error-key"), tabindex = Some(42)))
             
@@ -130,7 +133,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("tabindex : 42")
         }
         
-        "render widget with error message, theme and tabindex (en)" in new WithApplication(getApplication(Some("my-theme"))) {
+        "render v1 widget with error message, theme and tabindex (en)" in 
+                new WithApplication(getApplication(1, Some("my-theme"))) {
             // browser prefers english then french
             implicit val request = FakeRequest().withHeaders(("Accept-Language", "en; q=1.0, fr; q=0.5"))
             
@@ -148,20 +152,55 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
     }
     
+    "recaptchaWidget (v2)" should {
+        
+        "render v2 widget with noscript block" in new WithApplication(getApplication(2)) {
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget())
+            
+            // includes script
+            html must contain("<script")
+            html must contain("g-recaptcha")
+            html must contain("data-sitekey=\"public-key\"")
+            
+            // includes noscript block
+            html must contain("<noscript")
+            html must contain("g-recaptcha-response")
+            html must contain("fallback?k=public-key")
+        }
+        
+        "render v2 widget without noscript" in new WithApplication(getApplication(2)) {
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget(includeNoScript = false))
+            
+            // includes script
+            html must contain("<script")
+            html must contain("g-recaptcha")
+            html must contain("data-sitekey=\"public-key\"")
+            
+            // includes noscript block
+            html must not contain("<noscript")
+            html must not contain("g-recaptcha-response")
+            html must not contain("fallback?k=public-key")
+        }
+    }
+    
     /**
      * Get the fake application context.
+     * @param version	The API version to use
      * @param theme		The configured theme (if any)
      * @return The application
      */
-    private def getApplication(theme: Option[String] = None): FakeApplication = {
+    private def getApplication(version: Int, theme: Option[String] = None): FakeApplication = {
         var config = Map(
                 RecaptchaConfiguration.privateKey -> "private-key",
-                RecaptchaConfiguration.publicKey -> "public-key")
+                RecaptchaConfiguration.publicKey -> "public-key",
+                RecaptchaConfiguration.apiVersion -> String.valueOf(version))
                 
         if (theme.isDefined) {
             config += RecaptchaConfiguration.theme -> theme.get
         }        
         
-        new FakeApplication(additionalConfiguration = config)
+        new FakeApplication(
+                additionalPlugins = Seq("com.nappin.play.recaptcha.RecaptchaPlugin"),
+                additionalConfiguration = config)
     }
 }

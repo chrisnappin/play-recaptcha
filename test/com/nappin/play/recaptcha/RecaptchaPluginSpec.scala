@@ -19,7 +19,8 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 
-import play.api.test.FakeApplication
+import play.api.Play
+import play.api.test.{FakeApplication, WithApplication}
 
 /**
  * Tests the <code>RecaptchaPlugin</code> class.
@@ -29,73 +30,165 @@ import play.api.test.FakeApplication
 @RunWith(classOf[JUnitRunner])
 class RecaptchaPluginSpec extends Specification {
     
-    "RecaptchaPlugin" should {
+    val plugins = Seq("com.nappin.play.recaptcha.RecaptchaPlugin")
+    
+    "RecaptchaPlugin (api v1)" should {
         
-        "not be enabled if mandatory configuration missing" in {
-            val invalidApplication = new FakeApplication()
-            
-            new RecaptchaPlugin(invalidApplication).enabled must equalTo(false)
+        "not be enabled if mandatory configuration missing" in 
+                new WithApplication(new FakeApplication(additionalPlugins = plugins)) {
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(false)
+            RecaptchaPlugin.isEnabled must equalTo(false)
         }
         
-        "be enabled if mandatory configuration present" in {
-            val validApplication = 
-		        new FakeApplication(additionalConfiguration = Map(
-		            RecaptchaConfiguration.privateKey -> "private-key",
-		            RecaptchaConfiguration.publicKey -> "public-key"))
-            
-            new RecaptchaPlugin(validApplication).enabled must equalTo(true)
+        "be enabled if mandatory configuration present" in
+                new WithApplication(new FakeApplication(
+		            additionalPlugins = plugins,
+		            additionalConfiguration = Map(
+		                RecaptchaConfiguration.privateKey -> "private-key",
+		                RecaptchaConfiguration.publicKey -> "public-key",
+		                RecaptchaConfiguration.apiVersion -> "1"))) {   
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(true)
+            RecaptchaPlugin.isEnabled must equalTo(true)
         }
         
-        "be enabled if booleans are true or false" in {
-            val validApplication = 
-		        new FakeApplication(additionalConfiguration = Map(
-		            RecaptchaConfiguration.privateKey -> "private-key",
-		            RecaptchaConfiguration.publicKey -> "public-key",
-		            RecaptchaConfiguration.useSecureVerifyUrl -> "true",
-		            RecaptchaConfiguration.useSecureWidgetUrl -> "false"))
-            
-            new RecaptchaPlugin(validApplication).enabled must equalTo(true)
+        "be enabled if booleans are true or false" in
+                new WithApplication(new FakeApplication(
+		            additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "1",
+			            RecaptchaConfiguration.useSecureVerifyUrl -> "true",
+			            RecaptchaConfiguration.useSecureWidgetUrl -> "false"))) {
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(true)
+            RecaptchaPlugin.isEnabled must equalTo(true)
         }
         
-        "be enabled if booleans are yes or no" in {
-            val validApplication = 
-		        new FakeApplication(additionalConfiguration = Map(
-		            RecaptchaConfiguration.privateKey -> "private-key",
-		            RecaptchaConfiguration.publicKey -> "public-key",
-		            RecaptchaConfiguration.useSecureVerifyUrl -> "yes",
-		            RecaptchaConfiguration.useSecureWidgetUrl -> "no"))
-            
-            new RecaptchaPlugin(validApplication).enabled must equalTo(true)
+        "be enabled if booleans are yes or no" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "1",
+			            RecaptchaConfiguration.useSecureVerifyUrl -> "yes",
+			            RecaptchaConfiguration.useSecureWidgetUrl -> "no"))) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(true)
+            RecaptchaPlugin.isEnabled must equalTo(true)
         }
         
-        "not be enabled if useSecureVerifyUrl invalid" in {
-            val invalidApplication = 
-		        new FakeApplication(additionalConfiguration = Map(
-		            RecaptchaConfiguration.privateKey -> "private-key",
-		            RecaptchaConfiguration.publicKey -> "public-key",
-		            RecaptchaConfiguration.useSecureVerifyUrl -> "wibble"))
-            
-            new RecaptchaPlugin(invalidApplication).enabled must equalTo(false)
+        "not be enabled if useSecureVerifyUrl invalid" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "1",
+			            RecaptchaConfiguration.useSecureVerifyUrl -> "wibble"))) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(false)
+            RecaptchaPlugin.isEnabled must equalTo(false)
         }
         
-        "not be enabled if useSecureWidgetUrl invalid" in {
-            val invalidApplication = 
-		        new FakeApplication(additionalConfiguration = Map(
-		            RecaptchaConfiguration.privateKey -> "private-key",
-		            RecaptchaConfiguration.publicKey -> "public-key",
-		            RecaptchaConfiguration.useSecureWidgetUrl -> "wibble"))
-            
-            new RecaptchaPlugin(invalidApplication).enabled must equalTo(false)
+        "not be enabled if useSecureWidgetUrl invalid" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "1",
+			            RecaptchaConfiguration.useSecureWidgetUrl -> "wibble"))) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(false)
+            RecaptchaPlugin.isEnabled must equalTo(false)
         }
         
-        "be enabled if language unsupported" in {
-            val warningApplication = 
-		        new FakeApplication(additionalConfiguration = Map(
-		            RecaptchaConfiguration.privateKey -> "private-key",
-		            RecaptchaConfiguration.publicKey -> "public-key",
-		            RecaptchaConfiguration.defaultLanguage -> "zz"))
-            
-            new RecaptchaPlugin(warningApplication).enabled must equalTo(true)
+        "be enabled if language unsupported" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "1",
+			            RecaptchaConfiguration.defaultLanguage -> "zz"))) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(true)
+            RecaptchaPlugin.isEnabled must equalTo(true)
+        }
+        
+        "api version 1 enabled if valid" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,    
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "1"))) {            
+            new RecaptchaPlugin(Play.current).isApiVersion1 must equalTo(true)
+            RecaptchaPlugin.isApiVersion1 must equalTo(true)
         }
     }    
+    
+    "RecaptchaPlugin (api v2)" should {
+        
+        "not be enabled if mandatory configuration missing" in
+                new WithApplication(new FakeApplication(additionalPlugins = plugins)) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(false)
+            RecaptchaPlugin.isEnabled must equalTo(false)
+        }
+        
+        "be enabled if mandatory configuration present" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "2"))) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(true)
+            RecaptchaPlugin.isEnabled must equalTo(true)
+        }
+        
+        "api version 2 enabled if valid" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "2"))) {            
+            new RecaptchaPlugin(Play.current).isApiVersion1 must equalTo(false)
+            RecaptchaPlugin.isApiVersion1 must equalTo(false)
+        }
+    }
+    
+    "RecaptchaPlugin (invalid api version)" should {
+        
+        "not be enabled if api version invalid" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "wibble"))) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(false)
+            RecaptchaPlugin.isEnabled must equalTo(false)
+        }
+        
+        "not be enabled if api version unsupported" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "3"))) {            
+            new RecaptchaPlugin(Play.current).isEnabled must equalTo(false)
+            RecaptchaPlugin.isEnabled must equalTo(false)
+        }
+        
+        "api version 1 not enabled if api version unsupported" in
+                new WithApplication(new FakeApplication(
+                    additionalPlugins = plugins,
+                    additionalConfiguration = Map(
+			            RecaptchaConfiguration.privateKey -> "private-key",
+			            RecaptchaConfiguration.publicKey -> "public-key",
+			            RecaptchaConfiguration.apiVersion -> "3"))) {            
+            new RecaptchaPlugin(Play.current).isApiVersion1 must equalTo(false)
+            RecaptchaPlugin.isApiVersion1 must equalTo(false)
+        }
+    }
 }

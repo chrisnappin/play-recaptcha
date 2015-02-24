@@ -34,15 +34,39 @@ object WidgetHelper {
     val logger = Logger(this.getClass())
     
     /**
-     * Returns the widget script URL, with public key and error code (if any).
+     * Determines whether API version 1 has been configured.
+     * @return <code>true</code> if configured
+     */
+    def isApiVersion1(): Boolean = {
+        RecaptchaPlugin.isApiVersion1
+    }
+    
+    /**
+     * Returns the configured public key.
+     * @return The public key
+     */
+    def getPublicKey(): String = {
+        current.configuration.getString(RecaptchaConfiguration.publicKey).getOrElse("")
+    }
+    
+    /**
+     * Returns the widget script URL, with parameters (if applicable).
      * @param error			The error code (if any)
      * @return The URL
      */
-    def getWidgetScriptUrl(error: Option[String]): String = {
-        val errorSuffix = error.map("&error=" + _).getOrElse("")
-        val publicKey = current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("")
-        
-        RecaptchaUrls.getWidgetScriptUrl + publicKey + errorSuffix
+    def getWidgetScriptUrl(error: Option[String] = None): String = {
+        if (isApiVersion1) {
+            // API v1 includes public key and error code (if any) 
+	        val errorSuffix = error.map("&error=" + _).getOrElse("")
+	        val publicKey = current.configuration.getString(RecaptchaConfiguration.publicKey)
+	                .map("?k=" + _).getOrElse("")
+	        
+	        RecaptchaUrls.getWidgetScriptUrl + publicKey + errorSuffix
+	        
+        } else {
+            // API v2 doesn't include any URL parameters
+            RecaptchaUrls.getWidgetScriptUrl
+        }
     }
     
     /**
@@ -50,11 +74,20 @@ object WidgetHelper {
      * @param error			The error code (if any)
      * @return The URL
      */
-    def getWidgetNoScriptUrl(error: Option[String]): String = {
-        val errorSuffix = error.map("&error=" + _).getOrElse("")
-        val publicKey = current.configuration.getString(RecaptchaConfiguration.publicKey).map("?k=" + _).getOrElse("")
+    def getWidgetNoScriptUrl(error: Option[String] = None): String = {
+        val publicKey = current.configuration.getString(RecaptchaConfiguration.publicKey)
+                .map("?k=" + _).getOrElse("")
         
-        RecaptchaUrls.getWidgetNoScriptUrl + publicKey + errorSuffix
+        if (isApiVersion1) {
+            // API v1 includes public key and error code (if any)
+            val errorSuffix = error.map("&error=" + _).getOrElse("")
+            
+            RecaptchaUrls.getWidgetNoScriptUrl + publicKey + errorSuffix
+            
+        } else {
+            // API v2 only includes public key
+            RecaptchaUrls.getWidgetNoScriptUrl + publicKey
+        }
     }
     
     /**

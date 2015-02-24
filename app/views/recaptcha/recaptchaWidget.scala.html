@@ -1,15 +1,20 @@
 @****************************************************************************************
  * Low-level API: Renders a Google Recaptcha Widget, independent of the Play Forms API.
  *
- * @param error         The error code (if any)
- * @param tabindex      The tabindex of the field (if any)
- * @param request       (Implicit) The current request
- * @param lang          (Implicit) The current language
+ * @param includeNoScript   (v2 API) Whether to include the noscript block, default is true
+ * @param error             (v1 API) The error code (if any), default is None
+ * @param tabindex          (v1 API) The tabindex of the field (if any), default is None
+ * @param request           (Implicit) The current request
+ * @param lang              (Implicit) The current language
  ****************************************************************************************@
-@(error: Option[String] = None, tabindex: Option[Int] = None)(implicit request: Request[AnyContent], lang: Lang)
+@(includeNoScript: Boolean = true, error: Option[String] = None, 
+    tabindex: Option[Int] = None)(implicit request: Request[AnyContent], lang: Lang)
 
 @import com.nappin.play.recaptcha.WidgetHelper
+@import play.api.Play.current
 
+@if(WidgetHelper.isApiVersion1) {
+    
 <script type="text/javascript">
 @Html(WidgetHelper.getRecaptchaOptions(tabindex))
 </script>
@@ -23,3 +28,29 @@
    </textarea>
    <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
 </noscript>
+
+} else {
+
+<script type="text/javascript" src="@Html(WidgetHelper.getWidgetScriptUrl())" async defer></script>
+<div class="g-recaptcha" data-sitekey="@Html(WidgetHelper.getPublicKey)"></div>
+    @if(includeNoScript) {
+<noscript>
+  <div style="width: 302px; height: 352px;">
+    <div style="width: 302px; height: 352px; position: relative;">
+      <div style="width: 302px; height: 352px; position: absolute;">
+        <iframe src="@Html(WidgetHelper.getWidgetNoScriptUrl())" frameborder="0" scrolling="no"
+            style="width: 302px; height:352px; border-style: none;">
+        </iframe>
+      </div>
+      <div style="width: 250px; height: 80px; position: absolute; border-style: none;
+                  bottom: 21px; left: 25px; margin: 0px; padding: 0px; right: 25px;">
+        <textarea id="g-recaptcha-response" name="g-recaptcha-response" class="g-recaptcha-response"
+            style="width: 250px; height: 80px; border: 1px solid #c1c1c1;
+                   margin: 0px; padding: 0px; resize: none;" value="">
+        </textarea>
+      </div>
+    </div>
+  </div>
+</noscript>
+    }
+}

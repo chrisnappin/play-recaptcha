@@ -50,6 +50,22 @@ object WidgetHelper {
     }
     
     /**
+     * Returns the configured theme, or "light" if none defined
+     * @return The theme to use
+     */
+    def getV2Theme(): String = {
+        current.configuration.getString(RecaptchaConfiguration.theme).getOrElse("light")
+    }
+    
+    /**
+     * Returns the configured captcha type, or "image" if none defined
+     * @return The type to use
+     */
+    def getV2Type(): String = {
+        current.configuration.getString(RecaptchaConfiguration.captchaType).getOrElse("image")
+    }
+    
+    /**
      * Returns the widget script URL, with parameters (if applicable).
      * @param error			The error code (if any)
      * @return The URL

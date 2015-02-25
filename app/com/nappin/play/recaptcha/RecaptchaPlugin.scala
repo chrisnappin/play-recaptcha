@@ -209,13 +209,13 @@ object RecaptchaConfiguration {
     /** The version of recaptcha API to use. */    
     val apiVersion = "recaptcha.apiVersion"    
         
-    /** The millisecond duration to use as request timeout, when connecting to the recaptcha web API. */    
+    /** The millisecond request timeout duration, when connecting to the recaptcha web API. */    
     val requestTimeout = "recaptcha.requestTimeout"
     
     /** The theme for the recaptcha widget to use (if any). */
     val theme = "recaptcha.theme"
         
-    /** The default language (if any) to use if browser doesn't support any languages supported by reCAPTCHA. */    
+    /** The language (if any) to use if browser doesn't support any languages supported by reCAPTCHA. */    
     val defaultLanguage = "recaptcha.defaultLanguage" 
         
     /** Whether to use the secure (SSL) URL to access the verify API. */    
@@ -223,6 +223,9 @@ object RecaptchaConfiguration {
         
     /** Whether to use the secure (SSL) URL to render the reCAPCTHA widget. */    
     val useSecureWidgetUrl = "recaptcha.useSecureWidgetUrl"     
+        
+    /** The v2 captcha type to use (if any). */    
+    val captchaType = "recaptcha.type"    
         
     /** The mandatory configuration items that must exist for this module to work. */    
     private[recaptcha] val mandatoryConfiguration = Seq(privateKey, publicKey, apiVersion)   

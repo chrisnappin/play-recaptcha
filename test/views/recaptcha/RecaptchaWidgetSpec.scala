@@ -162,6 +162,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("g-recaptcha")
             html must contain("data-sitekey=\"public-key\"")
             
+            // default theme and type
+            html must contain("data-theme=\"light\"")
+            html must contain("data-type=\"image\"")
+            
             // includes noscript block
             html must contain("<noscript")
             html must contain("g-recaptcha-response")
@@ -176,20 +180,62 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("g-recaptcha")
             html must contain("data-sitekey=\"public-key\"")
             
-            // includes noscript block
+            // default theme and type
+            html must contain("data-theme=\"light\"")
+            html must contain("data-type=\"image\"")
+            
+            // doesn't include noscript block
             html must not contain("<noscript")
             html must not contain("g-recaptcha-response")
             html must not contain("fallback?k=public-key")
+        }
+        
+        "render v2 widget with theme" in new WithApplication(getApplication(2, Some("dark"))) {
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget())
+            
+            // includes script
+            html must contain("<script")
+            html must contain("g-recaptcha")
+            html must contain("data-sitekey=\"public-key\"")
+            
+            // explicit theme, default type
+            html must contain("data-theme=\"dark\"")
+            html must contain("data-type=\"image\"")
+            
+            // includes noscript block
+            html must contain("<noscript")
+            html must contain("g-recaptcha-response")
+            html must contain("fallback?k=public-key")
+        }
+        
+        "render v2 widget with type" in new WithApplication(getApplication(2, None, Some("audio"))) {
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget())
+            
+            // includes script
+            html must contain("<script")
+            html must contain("g-recaptcha")
+            html must contain("data-sitekey=\"public-key\"")
+            
+            // default theme, explicit type
+            html must contain("data-theme=\"light\"")
+            html must contain("data-type=\"audio\"")
+            
+            // includes noscript block
+            html must contain("<noscript")
+            html must contain("g-recaptcha-response")
+            html must contain("fallback?k=public-key")
         }
     }
     
     /**
      * Get the fake application context.
-     * @param version	The API version to use
-     * @param theme		The configured theme (if any)
+     * @param version		The API version to use
+     * @param theme			The configured theme (if any)
+     * @param captchaType	The captcha type (if any)
      * @return The application
      */
-    private def getApplication(version: Int, theme: Option[String] = None): FakeApplication = {
+    private def getApplication(version: Int, theme: Option[String] = None,
+            captchaType: Option[String] = None): FakeApplication = {
         var config = Map(
                 RecaptchaConfiguration.privateKey -> "private-key",
                 RecaptchaConfiguration.publicKey -> "public-key",
@@ -198,6 +244,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         if (theme.isDefined) {
             config += RecaptchaConfiguration.theme -> theme.get
         }        
+        
+        if (captchaType.isDefined) {
+            config += RecaptchaConfiguration.captchaType -> captchaType.get
+        }
         
         new FakeApplication(
                 additionalPlugins = Seq("com.nappin.play.recaptcha.RecaptchaPlugin"),

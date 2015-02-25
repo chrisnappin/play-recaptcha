@@ -32,7 +32,8 @@
 } else {
 
 <script type="text/javascript" src="@Html(WidgetHelper.getWidgetScriptUrl())" async defer></script>
-<div class="g-recaptcha" data-sitekey="@Html(WidgetHelper.getPublicKey)"></div>
+<div class="g-recaptcha" data-sitekey="@Html(WidgetHelper.getPublicKey)"
+        data-theme="@Html(WidgetHelper.getV2Theme)" data-type="@Html(WidgetHelper.getV2Type)"></div>
     @if(includeNoScript) {
 <noscript>
   <div style="width: 302px; height: 352px;">

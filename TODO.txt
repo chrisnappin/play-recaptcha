@@ -38,6 +38,9 @@ todo list for version 1.0
     - support themes
   - verify captcha - see https://developers.google.com/recaptcha/docs/verify
     (with JSON parser)
+  - update docs
+    - new v2 docs
+    - update v1 docs, add new config, renamed methods
   
 
 todo list for after version 1.0

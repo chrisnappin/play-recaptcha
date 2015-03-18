@@ -36,8 +36,6 @@ todo list for version 1.0
 - custom form field html, like the standard form view templates??
 
 - add recaptcha 2.0 support
-    - support languages (explicit and from play) 
-      (see https://developers.google.com/recaptcha/docs/language for larger list)
   - update docs
     - new v2 docs
     - update v1 docs, add new config, renamed methods
@@ -108,8 +106,8 @@ Name: Chris Nappin
 email: chris@nappin.com
 passphrase: ..
   
-Public key := $home\.sbt\gpg\pubring.asc
-Secret key := $home\.sbt\gpg\secring.asc
+Public key is pubring.asc
+Secret key is secring.asc
 
 - then publish the public key:
   pgp-cmd send-key chris@nappin.com hkp://pool.sks-keyservers.net/
@@ -126,10 +124,6 @@ Secret key := $home\.sbt\gpg\secring.asc
 
 - run:
   activator + publish-signed 
-
-(works fine from home)  
-(in work, tried SBT_OPTS="-Dhttp.proxyHost=proxy.capita.zone -Dhttp.proxyPort=80" but still gave connection refused)
-(also tried credentials property file format, still doesn't work)
 
 
 workflow
@@ -159,17 +153,3 @@ make "full releases" using a regular version number (e.g. "a.b")
 
 - Maven central syncs to release repo, takes about 2 hours
     - cannot update or delete artifacts from this point!
-
-
-
-to use module in example project
---------------------------------
-add to build.sbt:
-
-libraryDependencies ++= Seq(
-  "com.nappin" %% "play-recaptcha" % "0.1-SNAPSHOT" 
-)
-
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-
-  

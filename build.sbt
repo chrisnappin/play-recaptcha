@@ -8,12 +8,17 @@ version := "1.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-crossScalaVersions := Seq("2.10.4", "2.11.5")
+crossScalaVersions := Seq("2.11.6", "2.10.4")
 
 libraryDependencies ++= Seq(
   ws,
   "org.mockito" % "mockito-core" % "1.+" % "test"
 )
+
+// latest sbt-gpg plugin needs to know these explicitly
+pgpSecretRing := file("/home/chris/Development/SonatypeKey/secring.asc")
+
+pgpPublicRing := file("/home/chris/Development/SonatypeKey/pubring.asc")
 
 // adds "test-conf" to the test classpath (for message resolving)
 unmanagedClasspath in Test <+= baseDirectory map { bd => Attributed.blank(bd / "test-conf") }

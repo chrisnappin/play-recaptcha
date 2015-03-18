@@ -2,6 +2,11 @@
 This is a [Play Framework](http://www.playframework.com) module, for Scala and Play 2.x, to provide integration 
 with [Google reCAPTCHA](http://www.google.com/recaptcha) in a reactive (non-blocking) manner.
 
+Both reCAPTCHA versions 1 and 2 are supported.
+
+![reCAPTCHA version 2](recaptcha-example-v2.png "reCAPTCHA version 2")
+![reCAPTCHA version 1](recaptcha-example-v1.png "reCAPTCHA version 1")
+
 ##Module Dependency
 The play-recaptcha module is distributed using Maven Central so it can be easily added as a library dependency in your
 Play Application's SBT build scripts.

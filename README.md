@@ -1,4 +1,6 @@
-#Play reCAPTCHA Module
+#Play reCAPTCHA Module 
+![Travis CI Build Status](https://travis-ci.org/chrisnappin/play-recaptcha.svg?branch=master "Travis CI Build Status")
+
 This is a [Play Framework](http://www.playframework.com) module, for Scala and Play 2.x, to provide integration 
 with [Google reCAPTCHA](http://www.google.com/recaptcha) in a reactive (non-blocking) manner.
 

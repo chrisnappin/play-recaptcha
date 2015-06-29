@@ -1,0 +1,13 @@
+language: scala
+
+scala:
+  - 2.10.4
+  - 2.11.6
+
+jdk:
+  - oraclejdk7
+  - openjdk7
+  
+notifications:
+  email:
+    - chris@nappin.com

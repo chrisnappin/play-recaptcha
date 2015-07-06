@@ -286,7 +286,7 @@ class RecaptchaVerifier private[recaptcha] (parser: ResponseParser, wsRequest: W
             }
             
             // e.g. various JSON parsing errors are possible
-            case other => {
+            case other: Any => {
                 logger.error("Error calling recaptcha v2 API: " + other.getMessage())
                 Left(Error(RecaptchaErrorCode.apiError))
             }

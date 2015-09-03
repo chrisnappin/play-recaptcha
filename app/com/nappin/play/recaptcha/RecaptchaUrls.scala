@@ -19,7 +19,7 @@ import play.api.Play.current
 
 /**
  * Handles secure and in-secure variants of all reCAPTCHA widget, script and API URLs.
- * 
+ *
  * @author @author Chris Nappin
  */
 object RecaptchaUrls {
@@ -29,45 +29,45 @@ object RecaptchaUrls {
      * @return The URL
      */
     def getVerifyUrl(): String = {
-        if (RecaptchaPlugin.isApiVersion1) {
-            getPrefix(RecaptchaConfiguration.useSecureVerifyUrl) + 
+        if (RecaptchaModule.isApiVersion1) {
+            getPrefix(RecaptchaConfiguration.useSecureVerifyUrl) +
                 "://www.google.com/recaptcha/api/verify"
-            
+
         } else {
             "https://www.google.com/recaptcha/api/siteverify"
         }
     }
-    
+
     /**
      * Get the URL (secure or insecure if v1, always secure if v2) for the widget (script).
      * @return The URL
      */
     def getWidgetScriptUrl(): String = {
-        if (RecaptchaPlugin.isApiVersion1) {
-            getPrefix(RecaptchaConfiguration.useSecureWidgetUrl) + 
+        if (RecaptchaModule.isApiVersion1) {
+            getPrefix(RecaptchaConfiguration.useSecureWidgetUrl) +
                 "://www.google.com/recaptcha/api/challenge"
-                
+
         } else {
             "https://www.google.com/recaptcha/api.js"
         }
     }
-    
+
     /**
      * Get the URL (secure or insecure if v1, always secure if v2) for the widget (no script).
      * @return The URL
      */
     def getWidgetNoScriptUrl(): String = {
-        if (RecaptchaPlugin.isApiVersion1) {
-            getPrefix(RecaptchaConfiguration.useSecureWidgetUrl) + 
+        if (RecaptchaModule.isApiVersion1) {
+            getPrefix(RecaptchaConfiguration.useSecureWidgetUrl) +
                 "://www.google.com/recaptcha/api/noscript"
-            
+
         } else {
             "https://www.google.com/recaptcha/api/fallback"
         }
     }
-    
+
     /**
-     * Get the URL prefix (secure or insecure) as specified by the configuration setting, 
+     * Get the URL prefix (secure or insecure) as specified by the configuration setting,
      * defaulting to insecure if configuration not set.
      * @param setting		The configuration setting key to check
      * @return The prefix

@@ -5,10 +5,10 @@
  * @param error             (v1 API) The error code (if any), default is None
  * @param tabindex          (v1 API) The tabindex of the field (if any), default is None
  * @param request           (Implicit) The current request
- * @param lang              (Implicit) The current language
+ * @param messages          (Implicit) The current I18n messages
  ****************************************************************************************@
 @(includeNoScript: Boolean = true, error: Option[String] = None, 
-    tabindex: Option[Int] = None)(implicit request: Request[AnyContent], lang: Lang)
+    tabindex: Option[Int] = None)(implicit request: Request[AnyContent], messages: Messages)
 
 @import com.nappin.play.recaptcha.WidgetHelper
 @import play.api.Play.current

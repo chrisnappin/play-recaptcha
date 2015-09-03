@@ -31,18 +31,13 @@ done for version 1.0
 --------------------
 - show and verify recaptcha v2, with theme and type
 
-todo list for version 1.0
--------------------------
-- custom form field html, like the standard form view templates??
+done for version 1.5
+---------------------
+- upgrade from Play 2.3.x APIs to Play 2.4.x
+- convert from Plugin to DI Module
 
-- add recaptcha 2.0 support
-  - update docs
-    - new v2 docs
-    - update v1 docs, add new config, renamed methods
-  
-
-todo list for after version 1.0
--------------------------------
+todo list for future releases
+-----------------------------
 - extras: ajax api, allow custom recaptcha themes, translations etc...
 - refactor WS to use new ning class with config.
 - typesafe activator?

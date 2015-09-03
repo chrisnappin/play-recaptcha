@@ -7,20 +7,20 @@
  * @param includeNoScript   (v2 API) Whether to include the noscript block, default is true 
  * @param isRequired        Whether the field is to be shown as required (default is true)
  * @param request           (Implicit) The current request
- * @param lang              (Implicit) The current language
+ * @param messages          (Implicit) The current I18n messages
  ****************************************************************************************@
 @(form: Form[_], fieldName: String, tabindex: Option[Int] = None, includeNoScript: Boolean = true,
-    isRequired: Boolean = true)(implicit request: Request[AnyContent], lang: Lang)
+    isRequired: Boolean = true)(implicit request: Request[AnyContent], messages: Messages)
 
 @import com.nappin.play.recaptcha.RecaptchaVerifier
 @import com.nappin.play.recaptcha.RecaptchaErrorCode
 
-@messageOrDefault(key: String, default: String) = @{ if (Messages.isDefinedAt(key)) { Messages(key) } else { default } }
+@messageOrDefault(key: String, default: String) = @{ if (messages.isDefinedAt(key)) { messages(key) } else { default } }
 @errorCode = @{ form.error(RecaptchaVerifier.formErrorKey).map(e => { Some(e.message) }).getOrElse(None) }
 @recaptchaError = @{ errorCode.filter(code => !RecaptchaErrorCode.isInternalErrorCode(code)) }
 
 <dl class="error" id="@{fieldName}_field">
-    <dt><label for="@fieldName">@Messages(fieldName)</label></dt>
+    <dt><label for="@fieldName">@messages(fieldName)</label></dt>
     <dd>@recaptchaWidget(error = recaptchaError, tabindex = tabindex, includeNoScript = includeNoScript)</dd>
 
 @errorCode match {
@@ -38,13 +38,13 @@
     }
     
     case Some(RecaptchaErrorCode.responseMissing) => {
-        <dd class="error">@Messages("error.required")</dd>
+        <dd class="error">@messages("error.required")</dd>
     }
     
     case _ => {}
 }
     
 @if(isRequired) {    
-    <dd class="info">@Messages("constraint.required")</dd>
+    <dd class="info">@messages("constraint.required")</dd>
 }
 </dl>

@@ -1,23 +1,24 @@
 name := "play-recaptcha"
-
 description := "Google reCAPTCHA integration for Play Framework"
-
 organization := "com.nappin"
-
-version := "1.0"
+version := "1.5"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // default Scala binary compatibility
-crossScalaVersions := Seq("2.11.6", "2.10.4")
+crossScalaVersions := Seq("2.11.6", "2.10.5")
 
 // replace the above with this if using scoverage (as doesn't work with Scala 2.10.x)
 //scalaVersion := "2.11.6"
 
 libraryDependencies ++= Seq(
   ws,
-  "org.mockito" % "mockito-core" % "1.+" % "test"
+  specs2 % Test,
+  "org.mockito" % "mockito-core" % "1.+" % Test
 )
+
+// specs2 dependency not in maven central
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 // latest sbt-gpg plugin needs to know these explicitly
 pgpSecretRing := file("/home/chris/Development/SonatypeKey/secring.asc")
@@ -39,7 +40,6 @@ publishTo := {
 }
 
 publishArtifact in Test := false
-
 pomIncludeRepository := { _ => false }
 
 pomExtra := (

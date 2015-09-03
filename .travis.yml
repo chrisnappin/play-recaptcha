@@ -5,12 +5,12 @@ language: scala
 
 # need to keep this in step with build.sbt
 scala:
-  - 2.10.4
+  - 2.10.5
   - 2.11.6
 
 jdk:
-  - oraclejdk7
-  - openjdk7
+  - oraclejdk8
+  - openjdk8
   
 notifications:
   email:

@@ -126,7 +126,7 @@ object RecaptchaModule {
      * Obtains the recaptcha API version configured.
      * @return The version number, or <code>None</code> if invalid (error will have been logged).
      */
-    def getApiVersion(): Option[Int] = {
+    private def getApiVersion(): Option[Int] = {
         var apiVersion = 0
         var versionString =
             current.configuration.getString(RecaptchaConfiguration.apiVersion).getOrElse("0")

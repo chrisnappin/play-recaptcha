@@ -17,8 +17,8 @@ package com.nappin.play.recaptcha
 
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
-import play.api.{Environment, Play}
-import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Messages, MessagesApi}
+import play.api.Play
+import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.{FakeApplication, FakeHeaders, FakeRequest, PlaySpecification, WithApplication}
 
@@ -128,8 +128,11 @@ class WidgetHelperSpec extends PlaySpecification {
 	        		RecaptchaConfiguration.publicKey -> "public-key",
 	        		RecaptchaConfiguration.apiVersion -> "1"))
 
+        val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
+
         "handle language only" in new WithApplication(v1Application) {
-            val (request, messages) = getRequestAndMessages()
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             WidgetHelper.getRecaptchaOptions(None)(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
@@ -157,7 +160,8 @@ class WidgetHelperSpec extends PlaySpecification {
                 		RecaptchaConfiguration.publicKey -> "public-key",
                 		RecaptchaConfiguration.theme -> "red",
                 		RecaptchaConfiguration.apiVersion -> "1"))) {
-            val (request, messages) = getRequestAndMessages()
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             WidgetHelper.getRecaptchaOptions(None)(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
@@ -186,7 +190,8 @@ class WidgetHelperSpec extends PlaySpecification {
                 		RecaptchaConfiguration.publicKey -> "public-key",
                 		RecaptchaConfiguration.theme -> "red",
                 		RecaptchaConfiguration.apiVersion -> "1"))) {
-            val (request, messages) = getRequestAndMessages()
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             WidgetHelper.getRecaptchaOptions(Some(42))(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
@@ -209,7 +214,8 @@ class WidgetHelperSpec extends PlaySpecification {
         }
 
         "handle language and tabindex" in new WithApplication(v1Application) {
-            val (request, messages) = getRequestAndMessages()
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             WidgetHelper.getRecaptchaOptions(Some(42))(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
@@ -229,22 +235,6 @@ class WidgetHelperSpec extends PlaySpecification {
                     "  }\n" +
                     "};")
         }
-    }
-
-    /**
-     * Create the request and messages instances needed for the above tests, using the current
-     * Play application.
-     * @return The request and messages
-     */
-    private def getRequestAndMessages(): (Request[AnyContent], Messages) = {
-        val app = Play.current
-        val env = new Environment(app.path, app.classloader, app.mode)
-        val messagesApi = new DefaultMessagesApi(env, app.configuration,
-                new DefaultLangs(app.configuration))
-
-        val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
-        val messages = messagesApi.preferred(request)
-        (request, messages)
     }
 
     "getWidgetScriptUrl" should {

@@ -20,8 +20,8 @@ import com.nappin.play.recaptcha.RecaptchaConfiguration
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 
-import play.api.{Environment, Play}
-import play.api.i18n.{DefaultLangs, DefaultMessagesApi, Messages, MessagesApi}
+import play.api.Play
+import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithApplication}
 
@@ -43,8 +43,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     "recaptchaWidget (v1)" should {
 
         "render v1 widget without error message" in new WithApplication(getApplication(1)) {
-            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(
-                    request, getMessages(request)))
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -59,9 +60,11 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v1 widget with error message" in new WithApplication(getApplication(1)) {
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             val html = contentAsString(
                     views.html.recaptcha.recaptchaWidget(error = Some("my-error-key"))(
-                        request, getMessages(request)))
+                        request, messages))
 
             // error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key&error=my-error-key")
@@ -76,8 +79,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v1 widget with theme" in new WithApplication(getApplication(1, Some("my-theme"))) {
-            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(
-                    request, getMessages(request)))
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -94,8 +98,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v1 widget with tabindex" in new WithApplication(getApplication(1)) {
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(tabindex = Some(42))(
-                    request, getMessages(request)))
+                    request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -113,8 +119,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         "render v1 widget with theme and tabindex" in
                 new WithApplication(getApplication(1, Some("my-theme"))) {
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(tabindex = Some(42))(
-                    request, getMessages(request)))
+                    request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -128,9 +136,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         "render v1 widget with error message, theme and tabindex" in
                 new WithApplication(getApplication(1, Some("my-theme"))) {
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(
-                    error = Some("my-error-key"), tabindex = Some(42))(
-                        request, getMessages(request)))
+                    error = Some("my-error-key"), tabindex = Some(42))(request, messages))
 
             // error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key&error=my-error-key")
@@ -145,11 +154,12 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         "render v1 widget with error message, theme and tabindex (en)" in
                 new WithApplication(getApplication(1, Some("my-theme"))) {
             // browser prefers english then french
-            implicit val request = FakeRequest().withHeaders(("Accept-Language", "en; q=1.0, fr; q=0.5"))
+            val request = FakeRequest().withHeaders(("Accept-Language", "en; q=1.0, fr; q=0.5"))
+
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(
-                    error = Some("my-error-key"), tabindex = Some(42))(
-                        request, getMessages(request)))
+                    error = Some("my-error-key"), tabindex = Some(42))(request, messages))
 
             // error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key&error=my-error-key")
@@ -165,8 +175,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     "recaptchaWidget (v2)" should {
 
         "render v2 widget with noscript block" in new WithApplication(getApplication(2)) {
-            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(
-                    request, getMessages(request)))
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(request, messages))
 
             // includes script
             html must contain("<script")
@@ -184,8 +195,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v2 widget without noscript" in new WithApplication(getApplication(2)) {
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(includeNoScript = false)(
-                    request, getMessages(request)))
+                    request, messages))
 
             // includes script
             html must contain("<script")
@@ -203,8 +216,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v2 widget with theme" in new WithApplication(getApplication(2, Some("dark"))) {
-            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(
-                    request, getMessages(request)))
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(request, messages))
 
             // includes script
             html must contain("<script")
@@ -222,8 +236,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v2 widget with type" in new WithApplication(getApplication(2, None, Some("audio"))) {
-            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(
-                    request, getMessages(request)))
+            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(request, messages))
 
             // includes script
             html must contain("<script")
@@ -264,19 +279,5 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         new FakeApplication(additionalConfiguration = config)
-    }
-
-    /**
-     * Create the messages instance needed for the above tests, using the current Play application.
-     * @param request           The current request
-     * @return The messages
-     */
-    private def getMessages(request: Request[AnyContent]): (Messages) = {
-        val app = Play.current
-        val env = new Environment(app.path, app.classloader, app.mode)
-        val messagesApi = new DefaultMessagesApi(env, app.configuration,
-                new DefaultLangs(app.configuration))
-
-        messagesApi.preferred(request)
     }
 }

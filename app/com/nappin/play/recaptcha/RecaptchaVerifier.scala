@@ -15,9 +15,8 @@
  */
 package com.nappin.play.recaptcha
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
-import play.api.Play.current
 import play.api.Logger
 import play.api.mvc.{AnyContent, Request}
 import play.api.data.Form
@@ -48,19 +47,14 @@ object RecaptchaVerifier {
  *
  * @author Chris Nappin
  * @constructor Creates a new instance.
+ * @param settings     The Recaptcha settings
  * @param parser        The response parser to use
  * @param wsClient      The web service client to use
- * @throws RecaptchaConfigurationException If configuration is invalid
  */
-class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
+@Singleton
+class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: ResponseParser, wsClient: WSClient) {
 
-    val logger = Logger(this.getClass())
-
-    /**
-     * Sanity check the configuration, and throw an exception (preventing this object being
-     * constructed) if invalid.
-     */
-    RecaptchaModule.checkConfiguration()
+    val logger = Logger(this.getClass)
 
     /**
      * High level API (using Play forms).
@@ -90,12 +84,12 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
 
         val boundForm = form.bindFromRequest
 
-        val challenge = if (RecaptchaModule.isApiVersion1)
+        val challenge = if (settings.isApiVersion1)
                 readChallenge(request.body.asFormUrlEncoded.get) else ""
 
-        val response =  readResponse(request.body.asFormUrlEncoded.get)
+        val response =  readResponse(settings.isApiVersion1, request.body.asFormUrlEncoded.get)
 
-        if (response.size < 1) {
+        if (response.length < 1) {
             // probably an end user error
             logger.debug("User did not enter a captcha response in the form POST submitted")
 
@@ -115,7 +109,7 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
             // form binding succeeded, so verify the captcha response
             success => {
 		        val result =
-		            if (RecaptchaModule.isApiVersion1)
+		            if (settings.isApiVersion1)
 		                verifyV1(challenge, response, request.remoteAddress)
 		            else verifyV2(response, request.remoteAddress)
 
@@ -151,24 +145,26 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
             logger.error(message)
             throw new IllegalStateException(message)
 
-        } else if (params(RecaptchaVerifier.recaptchaChallengeField)(0).size < 1) {
+        } else if (params(RecaptchaVerifier.recaptchaChallengeField).head.length < 1) {
             // probably a developer error
             val message = "Recaptcha challenge was empty, check the form submitted was valid"
             logger.error(message)
             throw new IllegalStateException(message)
         }
-        params(RecaptchaVerifier.recaptchaChallengeField)(0)
+        params(RecaptchaVerifier.recaptchaChallengeField).head
     }
 
     /**
      * Read the response field from the POST'ed response.
+     *
+     * @param isApiVersion1 indicates which recaptcha version we are using
      * @param params		The POST parameters
      * @return The response
      * @throws IllegalStateException If response missing or multiple
      */
-    private def readResponse(params: Map[String, Seq[String]]): String = {
+    private def readResponse(isApiVersion1: Boolean, params: Map[String, Seq[String]]): String = {
         val fieldName =
-            if (RecaptchaModule.isApiVersion1) RecaptchaVerifier.recaptchaResponseField
+            if (isApiVersion1) RecaptchaVerifier.recaptchaResponseField
                 else RecaptchaVerifier.recaptchaV2ResponseField
 
         if (!params.contains(fieldName)) {
@@ -183,7 +179,7 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
             logger.error(message)
             throw new IllegalStateException(message)
         }
-        params(fieldName)(0)
+        params(fieldName).head
     }
 
     /**
@@ -203,23 +199,17 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
     def verifyV1(challenge: String, response: String, remoteIp: String)(
             implicit context: ExecutionContext): Future[Either[Error, Success]] = {
 
-        import scala.concurrent.duration._
-
         // create the v1 POST payload
         val payload = Map(
-            "privatekey" -> Seq(
-                current.configuration.getString(RecaptchaConfiguration.privateKey).get),
-	        "remoteip" -> Seq(remoteIp),
-	        "challenge" -> Seq(challenge),
-	        "response" -> Seq(response)
+            "privatekey" -> Seq(settings.privateKey),
+            "remoteip" -> Seq(remoteIp),
+	          "challenge" -> Seq(challenge),
+	          "response" -> Seq(response)
         )
 
-        val requestTimeout = current.configuration.getMilliseconds(
-                RecaptchaConfiguration.requestTimeout).getOrElse(10.seconds.toMillis)
-
         logger.info(s"Verifying v1 recaptcha ($response) for $remoteIp")
-        val futureResponse = wsClient.url(RecaptchaUrls.getVerifyUrl)
-                .withRequestTimeout(requestTimeout.toInt).post(payload)
+        val futureResponse = wsClient.url(settings.verifyUrl)
+                .withRequestTimeout(settings.requestTimeoutMs).post(payload)
 
         futureResponse.map { response => {
                 if (response.status == play.api.http.Status.OK) {
@@ -232,10 +222,9 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
             }
 
         } recover {
-            case ex: java.io.IOException => {
+            case ex: java.io.IOException =>
                 logger.error("Unable to call recaptcha v1 API" , ex)
                 Left(Error(RecaptchaErrorCode.recaptchaNotReachable))
-            }
         }
     }
 
@@ -255,22 +244,16 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
     def verifyV2(response: String, remoteIp: String)(
             implicit context: ExecutionContext): Future[Either[Error, Success]] = {
 
-        import scala.concurrent.duration._
-
         // create the v2 POST payload
         val payload = Map(
-            "secret" -> Seq(
-                current.configuration.getString(RecaptchaConfiguration.privateKey).get),
-	        "response" -> Seq(response),
-	        "remoteip" -> Seq(remoteIp)
+            "secret" -> Seq(settings.privateKey),
+	          "response" -> Seq(response),
+	          "remoteip" -> Seq(remoteIp)
         )
 
-        val requestTimeout = current.configuration.getMilliseconds(
-                RecaptchaConfiguration.requestTimeout).getOrElse(10.seconds.toMillis)
-
         logger.info(s"Verifying v2 recaptcha ($response) for $remoteIp")
-        val futureResponse = wsClient.url(RecaptchaUrls.getVerifyUrl)
-                .withRequestTimeout(requestTimeout.toInt).post(payload)
+        val futureResponse = wsClient.url(settings.verifyUrl)
+                .withRequestTimeout(settings.requestTimeoutMs).post(payload)
 
         futureResponse.map { response => {
                 if (response.status == play.api.http.Status.OK) {
@@ -283,16 +266,14 @@ class RecaptchaVerifier @Inject() (parser: ResponseParser, wsClient: WSClient) {
             }
 
         } recover {
-            case ex: java.io.IOException => {
+            case ex: java.io.IOException =>
                 logger.error("Unable to call recaptcha v2 API" , ex)
                 Left(Error(RecaptchaErrorCode.recaptchaNotReachable))
-            }
 
             // e.g. various JSON parsing errors are possible
-            case other: Any => {
-                logger.error("Error calling recaptcha v2 API: " + other.getMessage())
+            case other: Any =>
+                logger.error("Error calling recaptcha v2 API: " + other.getMessage)
                 Left(Error(RecaptchaErrorCode.apiError))
-            }
         }
     }
 }
@@ -325,7 +306,6 @@ object RecaptchaErrorCode {
      * @param errorCode		The error code
      * @return <code>true</code> if internal
      */
-    def isInternalErrorCode(errorCode: String): Boolean = {
-        internalErrorCodes.contains(errorCode)
-    }
+    def isInternalErrorCode(errorCode: String): Boolean = internalErrorCodes.contains(errorCode)
+
 }

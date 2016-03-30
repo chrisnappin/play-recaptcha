@@ -15,12 +15,13 @@
  */
 package com.nappin.play.recaptcha
 
+import RecaptchaSettings._
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
-import play.api.Play
-import play.api.i18n.MessagesApi
-import play.api.mvc.{AnyContent, Request}
-import play.api.test.{FakeApplication, FakeHeaders, FakeRequest, PlaySpecification, WithApplication}
+import org.specs2.specification.Scope
+import play.api.{Mode, Environment, Configuration}
+import play.api.i18n.{MessagesApi, I18nComponents}
+import play.api.test.{FakeApplication, WithApplication, FakeRequest, PlaySpecification}
 
 /**
  * Tests the <code>WidgetHelper</code> object.
@@ -30,110 +31,98 @@ import play.api.test.{FakeApplication, FakeHeaders, FakeRequest, PlaySpecificati
 @RunWith(classOf[JUnitRunner])
 class WidgetHelperSpec extends PlaySpecification {
 
-    val v1Application = new FakeApplication(
-            additionalConfiguration = Map(
-                RecaptchaConfiguration.privateKey -> "private-key",
-                RecaptchaConfiguration.publicKey -> "public-key",
-                RecaptchaConfiguration.apiVersion -> "1"))
+    val validV1Settings: Map[String, AnyRef] = Map(
+        PrivateKeyConfigProp -> "private-key",
+        PublicKeyConfigProp -> "public-key",
+        ApiVersionConfigProp -> "1",
+        RequestTimeoutConfigProp -> "5 seconds")
 
-    val v2Application = new FakeApplication(
-            additionalConfiguration = Map(
-                RecaptchaConfiguration.privateKey -> "private-key",
-                RecaptchaConfiguration.publicKey -> "public-key",
-                RecaptchaConfiguration.apiVersion -> "2"))
+    val validV2Settings: Map[String, AnyRef] =  Map(
+        PrivateKeyConfigProp -> "private-key",
+        PublicKeyConfigProp -> "public-key",
+        ApiVersionConfigProp -> "2",
+        RequestTimeoutConfigProp -> "5 seconds")
 
+    abstract class WithWidgetHelper(configProps: Map[String, AnyRef]) extends WithApplication(
+        FakeApplication(additionalConfiguration = configProps)) with Scope {
+
+        val settings = new RecaptchaSettings(app.configuration)
+        val widgetHelper = new WidgetHelper(settings)
+    }
+    
     "getPreferredLanguage" should {
 
-        "return first matching language (en)" in new WithApplication(v1Application) {
+        "return first matching language (en)" in new WithWidgetHelper(validV1Settings) {
             // browser prefers english then french
             val request = FakeRequest().withHeaders(("Accept-Language", "en; q=1.0, fr; q=0.5"))
 
             // should return english
-            WidgetHelper.getPreferredLanguage()(request) must equalTo("en")
+            widgetHelper.preferredLanguage()(request) must equalTo("en")
         }
 
-        "return first matching language (fr)" in new WithApplication(v1Application) {
+        "return first matching language (fr)" in new WithWidgetHelper(validV1Settings) {
             // browser prefers french then english
             val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
 
             // should return french
-            WidgetHelper.getPreferredLanguage()(request) must equalTo("fr")
+            widgetHelper.preferredLanguage()(request) must equalTo("fr")
         }
 
-        "return next matching language" in new WithApplication(v1Application) {
+        "return next matching language" in new WithWidgetHelper(validV1Settings) {
             // browser prefers welsh (not supported) then french
             val request = FakeRequest().withHeaders(("Accept-Language", "cy; q=1.0, fr; q=0.5"))
 
             // should return french
-            WidgetHelper.getPreferredLanguage()(request) must equalTo("fr")
+            widgetHelper.preferredLanguage()(request) must equalTo("fr")
         }
 
         "return default language if none supported - no default set" in
-                new WithApplication(v1Application) {
+                new WithWidgetHelper(validV1Settings) {
             // browser prefers welsh (not supported)
             val request = FakeRequest().withHeaders(("Accept-Language", "cy; q=1.0"))
 
             // should return default language
-            WidgetHelper.getPreferredLanguage()(request) must equalTo("en")
+            widgetHelper.preferredLanguage()(request) must equalTo("en")
         }
 
-        "return default language if none supported - alt default set" in new WithApplication(
-                new FakeApplication(additionalConfiguration = Map(
-                		RecaptchaConfiguration.privateKey -> "private-key",
-                		RecaptchaConfiguration.publicKey -> "public-key",
-                		RecaptchaConfiguration.defaultLanguage -> "sw"))) {
-
-            // browser prefers welsh (not supported)
-            val request = FakeRequest().withHeaders(("Accept-Language", "cy; q=1.0"))
-
-            // should return configured default language
-            WidgetHelper.getPreferredLanguage()(request) must equalTo("sw")
-        }
-
-        "return default language if no accept-language set" in new WithApplication(v1Application) {
+        "return default language if no accept-language set" in new WithWidgetHelper(validV1Settings) {
             // no accept-language preference at all
             val request = FakeRequest()
 
             // should return default language
-            WidgetHelper.getPreferredLanguage()(request) must equalTo("en")
+            widgetHelper.preferredLanguage()(request) must equalTo("en")
         }
     }
 
     // only test combinations used in tests above
-    "isSupportedLanguage" should {
+    "isSupportedLanguage" should new WithWidgetHelper(validV1Settings) {
 
         "match en" in {
-            WidgetHelper.isSupportedLanguage("en") must beTrue
+            widgetHelper.isSupportedLanguage("en") must beTrue
         }
 
         "match fr" in {
-            WidgetHelper.isSupportedLanguage("fr") must beTrue
+            widgetHelper.isSupportedLanguage("fr") must beTrue
         }
 
         "not match cy" in {
-            WidgetHelper.isSupportedLanguage("cy") must beFalse
+            widgetHelper.isSupportedLanguage("cy") must beFalse
         }
 
         "not match sw" in {
-            WidgetHelper.isSupportedLanguage("sw") must beFalse
+            widgetHelper.isSupportedLanguage("sw") must beFalse
         }
     }
 
     "getRecaptchaOptions" should {
 
-        val v1Application = new FakeApplication(
-                additionalConfiguration = Map(
-	                "play.i18n.langs" -> Seq("en", "fr"),
-	        		RecaptchaConfiguration.privateKey -> "private-key",
-	        		RecaptchaConfiguration.publicKey -> "public-key",
-	        		RecaptchaConfiguration.apiVersion -> "1"))
-
+        val v1SettingsWithFrench = validV1Settings + ("play.i18n.langs" -> Seq("en", "fr"))
         val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
 
-        "handle language only" in new WithApplication(v1Application) {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+        "handle language only" in new WithWidgetHelper(v1SettingsWithFrench) {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            WidgetHelper.getRecaptchaOptions(None)(request, messages) must equalTo(
+            widgetHelper.recaptchaOptions(None)(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
                     "  custom_translations : {\n" +
@@ -152,17 +141,11 @@ class WidgetHelperSpec extends PlaySpecification {
                     "};")
         }
 
-        "handle language and theme" in new WithApplication(
-                new FakeApplication(
-                    additionalConfiguration = Map(
-                        "play.i18n.langs" -> Seq("en", "fr"),
-                		RecaptchaConfiguration.privateKey -> "private-key",
-                		RecaptchaConfiguration.publicKey -> "public-key",
-                		RecaptchaConfiguration.theme -> "red",
-                		RecaptchaConfiguration.apiVersion -> "1"))) {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+        "handle language and theme" in new WithWidgetHelper(
+            v1SettingsWithFrench ++ Map(ThemeConfigProp -> "red")) {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            WidgetHelper.getRecaptchaOptions(None)(request, messages) must equalTo(
+            widgetHelper.recaptchaOptions(None)(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
                     "  theme : 'red',\n" +
@@ -182,17 +165,11 @@ class WidgetHelperSpec extends PlaySpecification {
                     "};")
         }
 
-        "handle language, theme and tabindex" in new WithApplication(
-                new FakeApplication(
-                    additionalConfiguration = Map(
-                        "play.i18n.langs" -> Seq("en", "fr"),
-                		RecaptchaConfiguration.privateKey -> "private-key",
-                		RecaptchaConfiguration.publicKey -> "public-key",
-                		RecaptchaConfiguration.theme -> "red",
-                		RecaptchaConfiguration.apiVersion -> "1"))) {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+        "handle language, theme and tabindex" in new WithWidgetHelper(
+            v1SettingsWithFrench ++ Map(ThemeConfigProp -> "red")) {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            WidgetHelper.getRecaptchaOptions(Some(42))(request, messages) must equalTo(
+            widgetHelper.recaptchaOptions(Some(42))(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
                     "  theme : 'red',\n" +
@@ -213,10 +190,10 @@ class WidgetHelperSpec extends PlaySpecification {
                     "};")
         }
 
-        "handle language and tabindex" in new WithApplication(v1Application) {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+        "handle language and tabindex" in new WithWidgetHelper(v1SettingsWithFrench) {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            WidgetHelper.getRecaptchaOptions(Some(42))(request, messages) must equalTo(
+            widgetHelper.recaptchaOptions(Some(42))(request, messages) must equalTo(
                     "var RecaptchaOptions = {\n" +
                     "  lang : 'fr',\n" +
                     "  tabindex : 42,\n" +
@@ -239,64 +216,64 @@ class WidgetHelperSpec extends PlaySpecification {
 
     "getWidgetScriptUrl" should {
 
-        "(v1) include public key" in new WithApplication(v1Application) {
-            WidgetHelper.getWidgetScriptUrl(None) must endWith("challenge?k=public-key")
+        "(v1) include public key" in new WithWidgetHelper(validV1Settings) {
+            widgetHelper.widgetScriptUrl(None) must endWith("challenge?k=public-key")
         }
 
-        "(v1) include error code if specified" in new WithApplication(v1Application) {
-            WidgetHelper.getWidgetScriptUrl(Some("error-code")) must
+        "(v1) include error code if specified" in new WithWidgetHelper(validV1Settings) {
+            widgetHelper.widgetScriptUrl(Some("error-code")) must
                 endWith("challenge?k=public-key&error=error-code")
         }
 
-        "(v2) exclude public key" in new WithApplication(v2Application) {
-            WidgetHelper.getWidgetScriptUrl(None) must endWith("api.js")
+        "(v2) exclude public key" in new WithWidgetHelper(validV2Settings) {
+            widgetHelper.widgetScriptUrl(None) must endWith("api.js")
         }
 
-        "(v2) exclude error code if specified" in new WithApplication(v2Application) {
-            WidgetHelper.getWidgetScriptUrl(Some("error-code")) must endWith("api.js")
+        "(v2) exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
+            widgetHelper.widgetScriptUrl(Some("error-code")) must endWith("api.js")
         }
     }
 
     "getWidgetNoScriptUrl" should {
 
-        "(v1) include public key" in new WithApplication(v1Application) {
-            WidgetHelper.getWidgetNoScriptUrl(None) must endWith("noscript?k=public-key")
+        "(v1) include public key" in new WithWidgetHelper(validV1Settings) {
+            widgetHelper.widgetNoScriptUrl(None) must endWith("noscript?k=public-key")
         }
 
-        "(v1) include error code if specified" in new WithApplication(v1Application) {
-            WidgetHelper.getWidgetNoScriptUrl(Some("error-code")) must
+        "(v1) include error code if specified" in new WithWidgetHelper(validV1Settings) {
+            widgetHelper.widgetNoScriptUrl(Some("error-code")) must
                 endWith("noscript?k=public-key&error=error-code")
         }
 
-        "(v2) include public key" in new WithApplication(v2Application) {
-            WidgetHelper.getWidgetNoScriptUrl(None) must endWith("fallback?k=public-key")
+        "(v2) include public key" in new WithWidgetHelper(validV2Settings) {
+            widgetHelper.widgetNoScriptUrl(None) must endWith("fallback?k=public-key")
         }
 
-        "(v2) exclude error code if specified" in new WithApplication(v2Application) {
-            WidgetHelper.getWidgetNoScriptUrl(Some("error-code")) must
+        "(v2) exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
+            widgetHelper.widgetNoScriptUrl(Some("error-code")) must
                 endWith("fallback?k=public-key")
         }
     }
 
     "isApiVersion1" should {
 
-        "identify version 1" in new WithApplication(v1Application) {
-            WidgetHelper.isApiVersion1 must equalTo(true)
+        "identify version 1" in new WithWidgetHelper(validV1Settings) {
+            widgetHelper.isApiVersion1 must equalTo(true)
         }
 
-        "identify version 2" in new WithApplication(v2Application) {
-            WidgetHelper.isApiVersion1 must equalTo(false)
+        "identify version 2" in new WithWidgetHelper(validV2Settings) {
+            widgetHelper.isApiVersion1 must equalTo(false)
         }
     }
 
     "getPublicKey" should {
 
-        "(v1) return the public key" in new WithApplication(v1Application) {
-            WidgetHelper.getPublicKey must equalTo("public-key")
+        "(v1) return the public key" in new WithWidgetHelper(validV1Settings) {
+            widgetHelper.publicKey must equalTo("public-key")
         }
 
-        "(v2) return the public key" in new WithApplication(v2Application) {
-            WidgetHelper.getPublicKey must equalTo("public-key")
+        "(v2) return the public key" in new WithWidgetHelper(validV2Settings) {
+            widgetHelper.publicKey must equalTo("public-key")
         }
     }
 }

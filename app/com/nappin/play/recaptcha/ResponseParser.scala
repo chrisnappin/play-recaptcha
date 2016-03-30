@@ -17,6 +17,7 @@ package com.nappin.play.recaptcha
 
 import play.api.Logger
 import play.api.libs.json.{JsResultException, JsValue}
+import javax.inject.{Inject, Singleton}
 
 /**
  * Used to parse verify API responses.
@@ -28,9 +29,10 @@ import play.api.libs.json.{JsResultException, JsValue}
  * 
  * @author Chris Nappin
  */
-class ResponseParser {
+@Singleton
+class ResponseParser @Inject() (){
     
-    val logger = Logger(this.getClass())
+    val logger = Logger(this.getClass)
     
     /**
      * Parses a verify API V1 response, which is a series of newline-separated strings.
@@ -38,32 +40,32 @@ class ResponseParser {
      * @return Either an Error (with a populated error code) or a Success
      */
     def parseV1Response(response: String): Either[Error, Success] = {
-        if (response.size < 1) {
+        if (response.length < 1) {
             // empty response
             logger.error("API Error: response was empty")
-            return Left(Error(RecaptchaErrorCode.apiError))
+            Left(Error(RecaptchaErrorCode.apiError))
             
         } else {
 	        // split by newlines
 	        val lines = response.split("\n")
-	        
-	        if ("true" == lines(0)) {
-	            // true denotes the recaptcha response was correct
-	            // (Note: we ignore any further lines in the response)
-	            logger.info("Response was: success")
-	            return Right(Success())
-	        
-	        } else if ("false" == lines(0) && lines.size > 1) {
-	            // false with an error code on the following line denotes an error
-	            // (Note: we ignore any further lines in the response)
-	            val errorCode = lines(1)
-	            logger.info(s"Response was: error => $errorCode")
-	            return Left(Error(errorCode))
-	        }
-	        
-	        // anything else doesn't meet the API definition
-	        logger.error("Invalid response: " + response)
-	        return Left(Error(RecaptchaErrorCode.apiError))
+
+					lines(0) match {
+							case "true" =>
+								// true denotes the recaptcha response was correct
+								// (Note: we ignore any further lines in the response)
+								logger.info("Response was: success")
+								Right(Success())
+							case "false" if lines.size > 1 =>
+								// false with an error code on the following line denotes an error
+								// (Note: we ignore any further lines in the response)
+								val errorCode = lines(1)
+								logger.info(s"Response was: error => $errorCode")
+								Left(Error(errorCode))
+							case _ =>
+								// anything else doesn't meet the API definition
+								logger.error("Invalid response: " + response)
+								Left(Error(RecaptchaErrorCode.apiError))
+					}
         }
     }
     
@@ -76,29 +78,26 @@ class ResponseParser {
         try {
             // success boolean flag is mandatory
             val success = (response \ "success").as[Boolean] 
-	        if (success) {
-	            // success
-	            return Right(Success())
-	        
-	        } else {
+	        if (success) Right(Success())
+	        else {
 	            // error codes are optional
 	            val errorCodes = (response \ "error-codes").asOpt[Seq[String]]
 	            if (errorCodes.isDefined) {
 	                // use the first error code, ignore the rest (if any)
 	                logger.info(s"Response was: error => $errorCodes")
-	                return Left(Error((errorCodes.get)(0)))
+	                Left(Error(errorCodes.get.head))
 	            
 	            } else {
 		            // no specific error code supplied
 			        logger.info(s"Response was: error")
-	                return Left(Error(""))
+	                Left(Error(""))
 	            }
 	        }
         } catch {
             case ex: JsResultException => 
                 // anything else doesn't meet the API definition
 		        logger.error("Invalid response: " + response)
-		        return Left(Error(RecaptchaErrorCode.apiError))
+		        Left(Error(RecaptchaErrorCode.apiError))
         }
     }
 }

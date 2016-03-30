@@ -15,10 +15,11 @@
  */
 package views.recaptcha
 
-import com.nappin.play.recaptcha.{RecaptchaConfiguration, RecaptchaErrorCode, RecaptchaVerifier}
+import com.nappin.play.recaptcha.{WidgetHelper, RecaptchaSettings, RecaptchaErrorCode, RecaptchaVerifier}
 
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
+import org.specs2.specification.Scope
 
 import play.api.Play
 import play.api.data._
@@ -41,9 +42,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
         new FakeApplication(path = new java.io.File("test-conf/"),
             additionalConfiguration = Map(
                 "play.i18n.langs" -> Seq("en", "fr"),
-                RecaptchaConfiguration.privateKey -> "private-key",
-                RecaptchaConfiguration.publicKey -> "public-key",
-                RecaptchaConfiguration.apiVersion -> "1"))
+                RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
+                RecaptchaSettings.PublicKeyConfigProp -> "public-key",
+                RecaptchaSettings.ApiVersionConfigProp -> "1"))
 
     // used to bind with
     case class Model(field1: String, field2: Option[Int])
@@ -59,11 +60,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
     "(v1) recaptchaField" should {
 
         "render field without errors, is required default" in
-                new WithApplication(validApplication) {
+                new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm, fieldName = "myCaptcha")(request, messages))
+                    form = modelForm, fieldName = "myCaptcha")(widgetHelper, request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -76,11 +77,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("<dd class=\"info\">Fr-Constraint-Required</dd>")
         }
 
-        "render field without errors, is required true" in new WithApplication(validApplication) {
+        "render field without errors, is required true" in new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm, fieldName = "myCaptcha", isRequired = true)(request, messages))
+                    form = modelForm, fieldName = "myCaptcha", isRequired = true)(widgetHelper, request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -93,11 +94,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("<dd class=\"info\">Fr-Constraint-Required</dd>")
         }
 
-        "render field without errors, is required false" in new WithApplication(validApplication) {
+        "render field without errors, is required false" in new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm, fieldName = "myCaptcha", isRequired = false)(request, messages))
+                    form = modelForm, fieldName = "myCaptcha", isRequired = false)(widgetHelper, request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -111,12 +112,12 @@ class RecaptchaFieldSpec extends PlaySpecification {
         }
 
         "treat unknown error as external, not shown to end user" in
-                new WithApplication(validApplication) {
+                new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm.withError(RecaptchaVerifier.formErrorKey, "my-error-key"),
-                    	fieldName = "myCaptcha")(request, messages))
+                    	fieldName = "myCaptcha")(widgetHelper, request, messages))
 
             // error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key&error=my-error-key")
@@ -127,13 +128,13 @@ class RecaptchaFieldSpec extends PlaySpecification {
         }
 
         "treat responseMissing as internal, showing error.required" in
-                new WithApplication(validApplication) {
+                new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm.withError(
                             RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing),
-                    	fieldName = "myCaptcha")(request, messages))
+                    	fieldName = "myCaptcha")(widgetHelper, request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -144,13 +145,13 @@ class RecaptchaFieldSpec extends PlaySpecification {
         }
 
         "treat captchaIncorrect as external, showing error.captchaIncorrect" in
-                new WithApplication(validApplication) {
+                new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm.withError(
                             RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect),
-                    	fieldName = "myCaptcha")(request, messages))
+                    	fieldName = "myCaptcha")(widgetHelper, request, messages))
 
             // error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key&error=incorrect-captcha-sol")
@@ -161,13 +162,13 @@ class RecaptchaFieldSpec extends PlaySpecification {
         }
 
         "treat recaptchaNotReachable as internal, showing error.recaptchaNotReachable" in
-                new WithApplication(validApplication) {
+                new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm.withError(
                             RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable),
-                    	fieldName = "myCaptcha")(request, messages))
+                    	fieldName = "myCaptcha")(widgetHelper, request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -178,13 +179,13 @@ class RecaptchaFieldSpec extends PlaySpecification {
         }
 
         "treat apiError as internal, showing error.apiError" in
-                new WithApplication(validApplication) {
+                new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm.withError(
                             RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError),
-                    	fieldName = "myCaptcha")(request, messages))
+                    	fieldName = "myCaptcha")(widgetHelper, request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -194,12 +195,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("<dd class=\"error\">Fr-Error-ApiError</dd>")
         }
 
-        "pass tabindex to recaptcha widget" in new WithApplication(validApplication) {
+        "pass tabindex to recaptcha widget" in new WithApplication(validApplication) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm, fieldName = "myCaptcha", tabindex = Some(21))(
-                            request, messages))
+                    form = modelForm, fieldName = "myCaptcha", tabindex = Some(21))(widgetHelper, request, messages))
 
             // no error passed to recaptcha
             html must contain(s"$scriptApi?k=public-key")
@@ -223,15 +223,15 @@ class RecaptchaFieldSpec extends PlaySpecification {
 	        new FakeApplication(path = new java.io.File("test-conf/"),
 	            additionalConfiguration = Map(
 	                "play.i18n.langs" -> Seq("en", "fr"),
-	                RecaptchaConfiguration.privateKey -> "private-key",
-	                RecaptchaConfiguration.publicKey -> "public-key",
-	                RecaptchaConfiguration.apiVersion -> "2"))
+                  RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
+                  RecaptchaSettings.PublicKeyConfigProp -> "public-key",
+                  RecaptchaSettings.ApiVersionConfigProp -> "2"))
 
-        "default to including noscript" in new WithApplication(validV2Application) {
+        "default to including noscript" in new WithApplication(validV2Application) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
-                    form = modelForm, fieldName = "myCaptcha")(request, messages))
+                    form = modelForm, fieldName = "myCaptcha")(widgetHelper, request, messages))
 
             // include v2 recaptcha widget
             html must contain("api.js")
@@ -245,12 +245,12 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("g-recaptcha-response")
         }
 
-        "pass includeNoScript to recaptcha widget" in new WithApplication(validV2Application) {
+        "pass includeNoScript to recaptcha widget" in new WithApplication(validV2Application) with WithWidgetHelper {
             val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
                     form = modelForm, fieldName = "myCaptcha", includeNoScript = false)(
-                            request, messages))
+                            widgetHelper, request, messages))
 
             // include v2 recaptcha widget
             html must contain("api.js")
@@ -263,5 +263,11 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must not contain("<noscript")
             html must not contain("g-recaptcha-response")
         }
+    }
+
+    trait WithWidgetHelper extends Scope {
+        def app: play.api.Application
+        lazy val settings = new RecaptchaSettings(app.configuration)
+        lazy val widgetHelper = new WidgetHelper(settings)
     }
 }

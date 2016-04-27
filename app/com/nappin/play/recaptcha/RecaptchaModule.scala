@@ -15,13 +15,14 @@
  */
 package com.nappin.play.recaptcha
 
-import play.api.{Application, Configuration, Logger}
-import play.api.Play.current
+import javax.inject.{Inject, Singleton}
+
+import play.api.{Configuration, Logger}
 
 /**
  * Encapsulates a fatal configuration error.
  * @constructor Creates a new instance
- * @param message       The error message
+ * @param message The error message
  */
 class RecaptchaConfigurationException(message: String) extends RuntimeException(message)
 
@@ -30,17 +31,18 @@ class RecaptchaConfigurationException(message: String) extends RuntimeException(
  *
  * @author Chris Nappin
  */
-object RecaptchaModule {
+@Singleton
+class RecaptchaModule @Inject() (configuration: Configuration, widgetHelper: WidgetHelper) {
 
-    val logger = Logger(this.getClass())
+    val logger = Logger(this.getClass)
 
     /**
      * Sanity check the configuration.
      * @throws RecaptchaConfigurationException If configuration is invalid
      */
-    def checkConfiguration(): Unit = {
-        checkMandatoryConfigurationPresent(current.configuration)
-        checkConfigurationValid(current.configuration)
+    def checkConfiguration: Unit = {
+        checkMandatoryConfigurationPresent(configuration)
+        checkConfigurationValid(configuration)
     }
 
     /**
@@ -50,9 +52,7 @@ object RecaptchaModule {
      * Result is not cached so it can be checked repeatedly at runtime under unit tests (with
      * different current applications).
      */
-    def isApiVersion1(): Boolean = {
-        getApiVersion() == Some(1)
-    }
+    def isApiVersion1: Boolean = getApiVersion == Some(1)
 
     /**
      * Check whether the mandatory configuration is present. If not a suitable error log
@@ -90,7 +90,7 @@ object RecaptchaModule {
         var configurationValid = true
 
         // check the api version first
-        var apiVersion = getApiVersion()
+        val apiVersion = getApiVersion
         if (apiVersion.isEmpty) {
             // error already logged
             configurationValid = false
@@ -108,7 +108,7 @@ object RecaptchaModule {
 	        // sanity check the default language (if set) is a supported one
 	        // only log as a warning since the supported languages might be out of date
 	        configuration.getString(RecaptchaConfiguration.defaultLanguage).foreach(key => {
-	        	if (!WidgetHelper.isSupportedLanguage(key)) {
+	        	if (!widgetHelper.isSupportedLanguage(key)) {
 	        	    logger.warn(s"The default language you have set ($key) is not supported by reCAPTCHA")
 	        	}
 	        })
@@ -126,10 +126,10 @@ object RecaptchaModule {
      * Obtains the recaptcha API version configured.
      * @return The version number, or <code>None</code> if invalid (error will have been logged).
      */
-    private def getApiVersion(): Option[Int] = {
+    private def getApiVersion: Option[Int] = {
         var apiVersion = 0
-        var versionString =
-            current.configuration.getString(RecaptchaConfiguration.apiVersion).getOrElse("0")
+        val versionString =
+            configuration.getString(RecaptchaConfiguration.apiVersion).getOrElse("0")
 
         try {
             apiVersion = versionString.toInt
@@ -143,7 +143,7 @@ object RecaptchaModule {
             return None
         }
 
-        return Some(apiVersion)
+        Some(apiVersion)
     }
 
     /**
@@ -158,10 +158,10 @@ object RecaptchaModule {
         configuration.getString(setting).map { value => {
             if (!validValues.contains(value)) {
 	            logger.error(setting + " must be true/false/yes/no, not " + value)
-	            return false
+	            false
             }
         }}
-        return true
+        true
     }
 }
 
@@ -169,8 +169,6 @@ object RecaptchaModule {
  * Defines the configuration keys used by the module.
  */
 object RecaptchaConfiguration {
-
-    import scala.concurrent.duration._
 
     /** The application's recaptcha private key. */
     val privateKey = "recaptcha.privateKey"

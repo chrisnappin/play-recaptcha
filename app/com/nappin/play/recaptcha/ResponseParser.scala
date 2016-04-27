@@ -41,7 +41,7 @@ class ResponseParser {
         if (response.size < 1) {
             // empty response
             logger.error("API Error: response was empty")
-            return Left(Error(RecaptchaErrorCode.apiError))
+            Left(Error(RecaptchaErrorCode.apiError))
             
         } else {
 	        // split by newlines
@@ -63,7 +63,7 @@ class ResponseParser {
 	        
 	        // anything else doesn't meet the API definition
 	        logger.error("Invalid response: " + response)
-	        return Left(Error(RecaptchaErrorCode.apiError))
+	        Left(Error(RecaptchaErrorCode.apiError))
         }
     }
     
@@ -78,7 +78,7 @@ class ResponseParser {
             val success = (response \ "success").as[Boolean] 
 	        if (success) {
 	            // success
-	            return Right(Success())
+	            Right(Success())
 	        
 	        } else {
 	            // error codes are optional
@@ -86,19 +86,19 @@ class ResponseParser {
 	            if (errorCodes.isDefined) {
 	                // use the first error code, ignore the rest (if any)
 	                logger.info(s"Response was: error => $errorCodes")
-	                return Left(Error((errorCodes.get)(0)))
+	                Left(Error((errorCodes.get)(0)))
 	            
 	            } else {
 		            // no specific error code supplied
 			        logger.info(s"Response was: error")
-	                return Left(Error(""))
+	                Left(Error(""))
 	            }
 	        }
         } catch {
             case ex: JsResultException => 
                 // anything else doesn't meet the API definition
 		        logger.error("Invalid response: " + response)
-		        return Left(Error(RecaptchaErrorCode.apiError))
+		        Left(Error(RecaptchaErrorCode.apiError))
         }
     }
 }

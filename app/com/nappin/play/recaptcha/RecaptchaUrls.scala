@@ -15,21 +15,25 @@
  */
 package com.nappin.play.recaptcha
 
-import play.api.Play.current
+import javax.inject.{Inject, Singleton}
+
+import play.api.Configuration
+
 
 /**
  * Handles secure and in-secure variants of all reCAPTCHA widget, script and API URLs.
  *
  * @author @author Chris Nappin
  */
-object RecaptchaUrls {
+@Singleton
+class RecaptchaUrls @Inject() (recaptchaModule: RecaptchaModule, configuration: Configuration) {
 
     /**
      * Get the URL (secure or insecure) for the verify API.
      * @return The URL
      */
-    def getVerifyUrl(): String = {
-        if (RecaptchaModule.isApiVersion1) {
+    def getVerifyUrl: String = {
+        if (recaptchaModule.isApiVersion1) {
             getPrefix(RecaptchaConfiguration.useSecureVerifyUrl) +
                 "://www.google.com/recaptcha/api/verify"
 
@@ -42,8 +46,8 @@ object RecaptchaUrls {
      * Get the URL (secure or insecure if v1, always secure if v2) for the widget (script).
      * @return The URL
      */
-    def getWidgetScriptUrl(): String = {
-        if (RecaptchaModule.isApiVersion1) {
+    def getWidgetScriptUrl: String = {
+        if (recaptchaModule.isApiVersion1) {
             getPrefix(RecaptchaConfiguration.useSecureWidgetUrl) +
                 "://www.google.com/recaptcha/api/challenge"
 
@@ -56,8 +60,8 @@ object RecaptchaUrls {
      * Get the URL (secure or insecure if v1, always secure if v2) for the widget (no script).
      * @return The URL
      */
-    def getWidgetNoScriptUrl(): String = {
-        if (RecaptchaModule.isApiVersion1) {
+    def getWidgetNoScriptUrl: String = {
+        if (recaptchaModule.isApiVersion1) {
             getPrefix(RecaptchaConfiguration.useSecureWidgetUrl) +
                 "://www.google.com/recaptcha/api/noscript"
 
@@ -73,7 +77,7 @@ object RecaptchaUrls {
      * @return The prefix
      */
     private def getPrefix(setting: String): String = {
-        val isSecure = current.configuration.getBoolean(setting).getOrElse(false)
+        val isSecure = configuration.getBoolean(setting).getOrElse(false)
         if (isSecure) "https" else "http"
     }
 }

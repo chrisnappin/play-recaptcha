@@ -16,11 +16,13 @@
 package com.nappin.play.recaptcha
 
 import java.io.IOException
+import javax.inject.Provider
 
 import org.mockito.ArgumentCaptor
 import org.specs2.mock.Mockito
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
+import play.api.{Configuration, Application}
 
 import play.api.data._
 import play.api.data.Forms._
@@ -56,6 +58,13 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
                 RecaptchaConfiguration.publicKey -> "public-key",
                 RecaptchaConfiguration.apiVersion -> "2",
                 RecaptchaConfiguration.requestTimeout -> "5 seconds"))
+
+    def recaptchaUrls(implicit application: Application) = application.injector.instanceOf[RecaptchaUrls]
+    def recaptchaModuleProv(implicit application: Application) = new Provider[RecaptchaModule]() {
+        override def get(): RecaptchaModule = application.injector.instanceOf[RecaptchaModule]
+    }
+    def configuration(implicit application: Application) = application.injector.instanceOf[Configuration]
+
 
     /** Has mandatory configuration missing. */
     val invalidApplication = new FakeApplication()
@@ -439,7 +448,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
     private def createMocks(recaptchaResponseCode: Int,
             v1bodyAndParserResult: Option[(String, Either[Error, Success])],
             v2bodyAndParserResult: Option[(JsValue, Either[Error, Success])],
-                futureThrowsError: Boolean): (RecaptchaVerifier, WSRequest) = {
+                futureThrowsError: Boolean)(implicit application: Application): (RecaptchaVerifier, WSRequest) = {
         val mockWSClient = mock[WSClient]
         val mockRequest = mock[WSRequest]
         val mockResponse = mock[WSResponse]
@@ -448,8 +457,8 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
         }
         val mockParser = mock[ResponseParser]
 
-        mockWSClient.url(RecaptchaUrls.getVerifyUrl) returns mockRequest
-        mockRequest.withRequestTimeout(5.seconds.toMillis.toInt) returns mockRequest
+        mockWSClient.url(recaptchaUrls.getVerifyUrl) returns mockRequest
+        mockRequest.withRequestTimeout(5.seconds) returns mockRequest
 
         // I'm sure there's a better way of doing this, but this is the only way I can get the
         // post method call to match. Note in mockito we have to match all the implicit params too
@@ -472,9 +481,9 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
             }
         }
 
-        val verifier = new RecaptchaVerifier(mockParser, mockWSClient)
+        val verifier = new RecaptchaVerifier(mockParser, mockWSClient, recaptchaModuleProv, configuration, recaptchaUrls)
 
-        return (verifier, mockRequest)
+        (verifier, mockRequest)
     }
 
     /**

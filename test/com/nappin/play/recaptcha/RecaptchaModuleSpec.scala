@@ -18,148 +18,152 @@ package com.nappin.play.recaptcha
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
+import play.api.Application
 
 import play.api.test.{FakeApplication, WithApplication}
 
 /**
- * Tests the <code>RecaptchaModule</code> class.
+ * Tests the <code>recaptchaModule</code> class.
  *
- * @author Chris Nappin
+ * @author Chris Nappi0n
  */
 @RunWith(classOf[JUnitRunner])
 class RecaptchaModuleSpec extends Specification {
 
-    "RecaptchaModule (api v1)" should {
+  def recaptchaModule(implicit application: Application) = application.injector.instanceOf[RecaptchaModule]
 
-        "not be enabled if mandatory configuration missing" in
-                new WithApplication(new FakeApplication()) {
-            RecaptchaModule.checkConfiguration() must throwA[RecaptchaConfigurationException]
-        }
+  "recaptchaModule (api v1)" should {
 
-        "be enabled if mandatory configuration present" in
-                new WithApplication(new FakeApplication(
-		            additionalConfiguration = Map(
-		                RecaptchaConfiguration.privateKey -> "private-key",
-		                RecaptchaConfiguration.publicKey -> "public-key",
-		                RecaptchaConfiguration.apiVersion -> "1"))) {
-            RecaptchaModule.checkConfiguration()
-        }
+    "not be enabled if mandatory configuration missing" in
+      new WithApplication(new FakeApplication()) {
 
-        "be enabled if booleans are true or false" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "1",
-			            RecaptchaConfiguration.useSecureVerifyUrl -> "true",
-			            RecaptchaConfiguration.useSecureWidgetUrl -> "false"))) {
-            RecaptchaModule.checkConfiguration()
-        }
+        recaptchaModule.checkConfiguration must throwA[RecaptchaConfigurationException]
+      }
 
-        "be enabled if booleans are yes or no" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "1",
-			            RecaptchaConfiguration.useSecureVerifyUrl -> "yes",
-			            RecaptchaConfiguration.useSecureWidgetUrl -> "no"))) {
-            RecaptchaModule.checkConfiguration()
-        }
+    "be enabled if mandatory configuration present" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "1"))) {
+        recaptchaModule.checkConfiguration
+      }
 
-        "not be enabled if useSecureVerifyUrl invalid" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "1",
-			            RecaptchaConfiguration.useSecureVerifyUrl -> "wibble"))) {
-            RecaptchaModule.checkConfiguration() must throwA[RecaptchaConfigurationException]
-        }
+    "be enabled if booleans are true or false" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "1",
+          RecaptchaConfiguration.useSecureVerifyUrl -> "true",
+          RecaptchaConfiguration.useSecureWidgetUrl -> "false"))) {
+        recaptchaModule.checkConfiguration
+      }
 
-        "not be enabled if useSecureWidgetUrl invalid" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "1",
-			            RecaptchaConfiguration.useSecureWidgetUrl -> "wibble"))) {
-            RecaptchaModule.checkConfiguration() must throwA[RecaptchaConfigurationException]
-        }
+    "be enabled if booleans are yes or no" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "1",
+          RecaptchaConfiguration.useSecureVerifyUrl -> "yes",
+          RecaptchaConfiguration.useSecureWidgetUrl -> "no"))) {
+        recaptchaModule.checkConfiguration
+      }
 
-        "be enabled if language unsupported" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "1",
-			            RecaptchaConfiguration.defaultLanguage -> "zz"))) {
-            RecaptchaModule.checkConfiguration()
-        }
+    "not be enabled if useSecureVerifyUrl invalid" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "1",
+          RecaptchaConfiguration.useSecureVerifyUrl -> "wibble"))) {
+        recaptchaModule.checkConfiguration must throwA[RecaptchaConfigurationException]
+      }
 
-        "api version 1 enabled if valid" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "1"))) {
-            RecaptchaModule.isApiVersion1 must equalTo(true)
-        }
-    }
+    "not be enabled if useSecureWidgetUrl invalid" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "1",
+          RecaptchaConfiguration.useSecureWidgetUrl -> "wibble"))) {
+        recaptchaModule.checkConfiguration must throwA[RecaptchaConfigurationException]
+      }
 
-    "RecaptchaModule (api v2)" should {
+    "be enabled if language unsupported" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "1",
+          RecaptchaConfiguration.defaultLanguage -> "zz"))) {
+        recaptchaModule.checkConfiguration
+      }
 
-        "not be enabled if mandatory configuration missing" in
-                new WithApplication(new FakeApplication()) {
-            RecaptchaModule.checkConfiguration() must throwA[RecaptchaConfigurationException]
-        }
+    "api version 1 enabled if valid" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "1"))) {
+        recaptchaModule.isApiVersion1 must equalTo(true)
+      }
+  }
 
-        "be enabled if mandatory configuration present" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "2"))) {
-            RecaptchaModule.checkConfiguration()
-        }
+  "recaptchaModule (api v2)" should {
 
-        "api version 2 enabled if valid" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "2"))) {
-            RecaptchaModule.isApiVersion1 must equalTo(false)
-        }
-    }
+    "not be enabled if mandatory configuration missing" in
+      new WithApplication(new FakeApplication()) {
+        recaptchaModule.checkConfiguration must throwA[RecaptchaConfigurationException]
+      }
 
-    "RecaptchaModule (invalid api version)" should {
+    "be enabled if mandatory configuration present" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "2"))) {
+        recaptchaModule.checkConfiguration
+      }
 
-        "not be enabled if api version invalid" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "wibble"))) {
-            RecaptchaModule.checkConfiguration() must throwA[RecaptchaConfigurationException]
-        }
+    "api version 2 enabled if valid" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "2"))) {
+        recaptchaModule.isApiVersion1 must equalTo(false)
+      }
+  }
 
-        "not be enabled if api version unsupported" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "3"))) {
-            RecaptchaModule.checkConfiguration() must throwA[RecaptchaConfigurationException]
-        }
+  "recaptchaModule (invalid api version)" should {
 
-        "api version 1 not enabled if api version unsupported" in
-                new WithApplication(new FakeApplication(
-                    additionalConfiguration = Map(
-			            RecaptchaConfiguration.privateKey -> "private-key",
-			            RecaptchaConfiguration.publicKey -> "public-key",
-			            RecaptchaConfiguration.apiVersion -> "3"))) {
-            RecaptchaModule.isApiVersion1 must equalTo(false)
-        }
-    }
+    "not be enabled if api version invalid" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "wibble"))) {
+        recaptchaModule.checkConfiguration must throwA[RecaptchaConfigurationException]
+      }
+
+    "not be enabled if api version unsupported" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "3"))) {
+        recaptchaModule.checkConfiguration must throwA[RecaptchaConfigurationException]
+      }
+
+    "api version 1 not enabled if api version unsupported" in
+      new WithApplication(new FakeApplication(
+        additionalConfiguration = Map(
+          RecaptchaConfiguration.privateKey -> "private-key",
+          RecaptchaConfiguration.publicKey -> "public-key",
+          RecaptchaConfiguration.apiVersion -> "3"))) {
+        recaptchaModule.isApiVersion1 must equalTo(false)
+      }
+  }
 }

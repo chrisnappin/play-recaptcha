@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chris Nappin
+ * Copyright 2016 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ object RecaptchaVerifier {
  * Follows the API documented at
  * <a href="https://developers.google.com/recaptcha/docs/verify">Verify Without Plugins</a>.
  *
- * @author Chris Nappin
+ * @author chrisnappin
  * @constructor Creates a new instance.
  * @param settings     The Recaptcha settings
  * @param parser        The response parser to use
@@ -76,8 +76,8 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
      * @param request		Implicit - The current web request
      * @param context       Implicit - The execution context used for futures
      * @return A future that will be the form to use, either populated with an error or success
-     * @throws IllegalStateException Developer errors that shouldn't happen - Plugin not
-     * present or not enabled, no recaptcha challenge, or muliple challenges or responses found
+     * @throws IllegalStateException Developer errors that shouldn't happen - no recaptcha
+     *     challenge, or multiple challenges or responses found
      */
     def bindFromRequestAndVerify[T](form: Form[T])(implicit request: Request[AnyContent],
             context: ExecutionContext): Future[Form[T]] = {
@@ -193,8 +193,6 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
      * @param remoteIp		The IP address of the end user
      * @param context       Implicit - The execution context used for futures
      * @return A future that will be either an Error (with a code) or Success
-     * @throws IllegalStateException Developer errors that shouldn't happen - Plugin not present
-     *                               or not enabled
      */
     def verifyV1(challenge: String, response: String, remoteIp: String)(
             implicit context: ExecutionContext): Future[Either[Error, Success]] = {
@@ -238,8 +236,6 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
      * @param remoteIp		The IP address of the end user
      * @param context       Implicit - The execution context used for futures
      * @return A future that will be either an Error (with a code) or Success
-     * @throws IllegalStateException Developer errors that shouldn't happen - Plugin not present
-     *                               or not enabled
      */
     def verifyV2(response: String, remoteIp: String)(
             implicit context: ExecutionContext): Future[Either[Error, Success]] = {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chris Nappin
+ * Copyright 2016 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import play.api.test.{FakeApplication, WithApplication, FakeRequest, PlaySpecifi
 /**
  * Tests the <code>WidgetHelper</code> object.
  *
- * @author Chris Nappin
+ * @author chrisnappin
  */
 @RunWith(classOf[JUnitRunner])
 class WidgetHelperSpec extends PlaySpecification {
@@ -49,7 +49,7 @@ class WidgetHelperSpec extends PlaySpecification {
         val settings = new RecaptchaSettings(app.configuration)
         val widgetHelper = new WidgetHelper(settings)
     }
-    
+
     "getPreferredLanguage" should {
 
         "return first matching language (en)" in new WithWidgetHelper(validV1Settings) {

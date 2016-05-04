@@ -1,4 +1,4 @@
-@import com.nappin.play.recaptcha.WidgetHelper
+@import com.nappin.play.recaptcha.{RecaptchaVerifier, RecaptchaErrorCode, WidgetHelper}
 
 @****************************************************************************************
  * High-level API: Renders a Google Recaptcha Widget, using the Play Forms API.
@@ -14,9 +14,6 @@
  ****************************************************************************************@
 @(form: Form[_], fieldName: String, tabindex: Option[Int] = None, includeNoScript: Boolean = true,
     isRequired: Boolean = true)(implicit widgetHelper: WidgetHelper, request: Request[AnyContent], messages: Messages)
-
-@import com.nappin.play.recaptcha.RecaptchaVerifier
-@import com.nappin.play.recaptcha.RecaptchaErrorCode
 
 @messageOrDefault(key: String, default: String) = @{ if (messages.isDefinedAt(key)) { messages(key) } else { default } }
 @errorCode = @{ form.error(RecaptchaVerifier.formErrorKey).map(e => { Some(e.message) }).getOrElse(None) }

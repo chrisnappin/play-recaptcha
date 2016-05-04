@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chris Nappin
+ * Copyright 2016 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import RecaptchaSettings._
 /**
  * Tests the <code>RecaptchaVerifier</code> class.
  *
- * @author Chris Nappin
+ * @author chrisnappin
  */
 @RunWith(classOf[JUnitRunner])
 class RecaptchaVerifierSpec extends PlaySpecification with Mockito {

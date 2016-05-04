@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chris Nappin
+ * Copyright 2016 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithAppli
 /**
  * Tests the <code>recaptchaWidget</code> view template.
  *
- * @author Chris Nappin
+ * @author chrisnappin
  */
 @RunWith(classOf[JUnitRunner])
 class RecaptchaWidgetSpec extends PlaySpecification {
@@ -259,8 +259,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
     /**
      * Get the fake application context.
-      *
-      * @param version		The API version to use
+     *
+     * @param version		The API version to use
      * @param theme			The configured theme (if any)
      * @param captchaType	The captcha type (if any)
      * @return The application
@@ -268,7 +268,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     private def getApplication(version: Int, theme: Option[String] = None,
             captchaType: Option[String] = None): FakeApplication = {
         var config = Map(
-                RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
+            RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
             RecaptchaSettings.PublicKeyConfigProp -> "public-key",
             RecaptchaSettings.ApiVersionConfigProp -> String.valueOf(version))
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chris Nappin
+ * Copyright 2016 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,13 @@ import com.typesafe.config.ConfigException
 import play.api.Configuration
 import javax.inject.{Inject, Singleton}
 
+/**
+ * Module configuration.
+ *
+ * @author chrisnappin, gmalouf
+ */
 @Singleton
-class RecaptchaSettings @Inject() (
-  configuration: Configuration
-) {
+class RecaptchaSettings @Inject() (configuration: Configuration) {
   import RecaptchaSettings._
 
   /** The application's recaptcha private key. */
@@ -32,8 +35,8 @@ class RecaptchaSettings @Inject() (
   val publicKey: String = configuration.underlying.getString(PublicKeyConfigProp)
 
   /** The version of recaptcha API to use. */
-  val apiVersion: Int = configuration.getString(ApiVersionConfigProp, validValues = Some(Set("1", "2"))).map(_.toInt)
-    .getOrElse(throw new ConfigException.Missing(ApiVersionConfigProp))
+  val apiVersion: Int = configuration.getString(ApiVersionConfigProp, validValues =
+      Some(Set("1", "2"))).map(_.toInt).getOrElse(throw new ConfigException.Missing(ApiVersionConfigProp))
 
   /** The millisecond request timeout duration, when connecting to the recaptcha web API. */
   val requestTimeoutMs: Long = configuration.getMilliseconds(RequestTimeoutConfigProp).getOrElse(RequestTimeoutMsDefault)
@@ -48,14 +51,15 @@ class RecaptchaSettings @Inject() (
 
   /** Whether to use the secure (SSL) URL to access the verify API. */
   val useSecureVerifyUrl: Boolean = configuration.getBoolean(UseSecureVerifyUrlConfigProp).getOrElse(false)
+
   /** Whether to use the secure (SSL) URL to render the reCAPCTHA widget. */
   val useSecureWidgetUrl: Boolean = configuration.getBoolean(UseSecureWidgetUrlConfigProp).getOrElse(false)
   // End V1 Only Settings
 
   // V2 Only Settings
   /** The v2 captcha type to use (if any). */
-  val captchaType: String = configuration.getString(CaptchaTypeConfigProp, validValues = Some(Set("image", "audio")))
-    .getOrElse(CaptchaTypeDefault)
+  val captchaType: String = configuration.getString(CaptchaTypeConfigProp, validValues =
+      Some(Set("image", "audio"))).getOrElse(CaptchaTypeDefault)
   // end V2 Only Settings
 
   val isApiVersion1 = apiVersion == 1
@@ -64,7 +68,7 @@ class RecaptchaSettings @Inject() (
   private val widgetUrlPrefix = toPrefix(useSecureWidgetUrl)
 
   /**
-    * Get the URL prefix (secure or insecure) as specified by the configuration flag
+    * Get the URL prefix (secure or insecure) as specified by the configuration flag.
     *
     * @param isSecure		Flag indicating whether use secure/insecure protocol
     * @return The prefix
@@ -74,7 +78,7 @@ class RecaptchaSettings @Inject() (
 
   /**
     * Get the URL (secure or insecure) for the verify API.
- *
+    *
     * @return The URL
     */
   def verifyUrl: String =
@@ -83,7 +87,7 @@ class RecaptchaSettings @Inject() (
 
   /**
     * Get the URL (secure or insecure if v1, always secure if v2) for the widget (script).
- *
+    *
     * @return The URL
     */
   def widgetScriptUrl: String =
@@ -92,7 +96,7 @@ class RecaptchaSettings @Inject() (
 
   /**
     * Get the URL (secure or insecure if v1, always secure if v2) for the widget (no script).
- *
+    *
     * @return The URL
     */
   def widgetNoScriptUrl: String =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chris Nappin
+ * Copyright 2016 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,11 @@ package com.nappin.play.recaptcha
 import play.api.inject.Module
 import play.api.{Environment, Configuration}
 
+/**
+ * Recaptcha Play DI Module.
+ *
+ * @author chrisnappin, gmalouf
+ */
 class RecaptchaModule extends Module {
   def bindings(environment: Environment, configuration: Configuration) = {
     Seq(

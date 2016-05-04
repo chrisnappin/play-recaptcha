@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Chris Nappin
+ * Copyright 2016 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,19 @@ import javax.inject.{Inject, Singleton}
 
 /**
  * Used to parse verify API responses.
- * 
+ *
  * Follows the API documented at <a href="https://developers.google.com/recaptcha/docs/verify">
- * Verify Without Plugins</a>, (and the later V2 JSON version), but if it encounters any API 
- * errors (e.g. invalid responses) then it returns an error with an artificial error code 
+ * Verify Without Plugins</a>, (and the later V2 JSON version), but if it encounters any API
+ * errors (e.g. invalid responses) then it returns an error with an artificial error code
  * corresponding to <code>apiError</code>.
- * 
- * @author Chris Nappin
+ *
+ * @author chrisnappin
  */
 @Singleton
 class ResponseParser @Inject() (){
-    
+
     val logger = Logger(this.getClass)
-    
+
     /**
      * Parses a verify API V1 response, which is a series of newline-separated strings.
      * @param response		The response to parse
@@ -44,7 +44,7 @@ class ResponseParser @Inject() (){
             // empty response
             logger.error("API Error: response was empty")
             Left(Error(RecaptchaErrorCode.apiError))
-            
+
         } else {
 	        // split by newlines
 	        val lines = response.split("\n")
@@ -68,7 +68,7 @@ class ResponseParser @Inject() (){
 					}
         }
     }
-    
+
     /**
      * Parses a verify API V2 response, which is a very simple JSON object.
      * @param response		The JSON response
@@ -77,7 +77,7 @@ class ResponseParser @Inject() (){
     def parseV2Response(response: JsValue): Either[Error, Success] = {
         try {
             // success boolean flag is mandatory
-            val success = (response \ "success").as[Boolean] 
+            val success = (response \ "success").as[Boolean]
 	        if (success) Right(Success())
 	        else {
 	            // error codes are optional
@@ -86,7 +86,7 @@ class ResponseParser @Inject() (){
 	                // use the first error code, ignore the rest (if any)
 	                logger.info(s"Response was: error => $errorCodes")
 	                Left(Error(errorCodes.get.head))
-	            
+
 	            } else {
 		            // no specific error code supplied
 			        logger.info(s"Response was: error")
@@ -94,7 +94,7 @@ class ResponseParser @Inject() (){
 	            }
 	        }
         } catch {
-            case ex: JsResultException => 
+            case ex: JsResultException =>
                 // anything else doesn't meet the API definition
 		        logger.error("Invalid response: " + response)
 		        Left(Error(RecaptchaErrorCode.apiError))

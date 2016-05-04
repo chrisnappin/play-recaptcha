@@ -31,7 +31,8 @@ import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithAppli
 /**
  * Tests the <code>recaptchaField</code> view template.
  *
- * @author chrisn
+ * @author chrisnappin
+ */
 @RunWith(classOf[JUnitRunner])
 class RecaptchaFieldSpec extends PlaySpecification {
 

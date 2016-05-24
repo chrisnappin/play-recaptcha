@@ -21,14 +21,14 @@ import org.mockito.ArgumentCaptor
 import org.specs2.mock.Mockito
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
-import play.api.Configuration
 
+import play.api.Configuration
 import play.api.data._
 import play.api.data.Forms._
 import play.api.http.{MimeTypes, Writeable}
 import play.api.libs.json.{Json, JsValue}
 import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
-import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithApplication}
+import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -56,9 +56,6 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
               PublicKeyConfigProp -> "public-key",
               ApiVersionConfigProp -> "2",
               RequestTimeoutConfigProp -> "5 seconds")
-
-    /** Has mandatory configuration missing. */
-    val invalidApplication = new FakeApplication()
 
     "(v1) RecaptchaVerifier (low level API)" should {
 
@@ -436,7 +433,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
         val mockParser = mock[ResponseParser]
 
         mockWSClient.url(settings.verifyUrl) returns mockRequest
-        mockRequest.withRequestTimeout(5.seconds.toMillis.toInt) returns mockRequest
+        mockRequest.withRequestTimeout(5.seconds) returns mockRequest
 
         // I'm sure there's a better way of doing this, but this is the only way I can get the
         // post method call to match. Note in mockito we have to match all the implicit params too

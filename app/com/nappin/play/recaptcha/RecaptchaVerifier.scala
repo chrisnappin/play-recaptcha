@@ -23,6 +23,8 @@ import play.api.data.Form
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import java.util.concurrent.TimeUnit
 
 object RecaptchaVerifier {
     /** The artificial form field key used for captcha errors. */
@@ -207,7 +209,8 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
 
         logger.info(s"Verifying v1 recaptcha ($response) for $remoteIp")
         val futureResponse = wsClient.url(settings.verifyUrl)
-                .withRequestTimeout(settings.requestTimeoutMs).post(payload)
+                .withRequestTimeout(Duration(settings.requestTimeoutMs, TimeUnit.MILLISECONDS))
+                    .post(payload)
 
         futureResponse.map { response => {
                 if (response.status == play.api.http.Status.OK) {
@@ -249,7 +252,8 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
 
         logger.info(s"Verifying v2 recaptcha ($response) for $remoteIp")
         val futureResponse = wsClient.url(settings.verifyUrl)
-                .withRequestTimeout(settings.requestTimeoutMs).post(payload)
+                .withRequestTimeout(Duration(settings.requestTimeoutMs, TimeUnit.MILLISECONDS))
+                    .post(payload)
 
         futureResponse.map { response => {
                 if (response.status == play.api.http.Status.OK) {

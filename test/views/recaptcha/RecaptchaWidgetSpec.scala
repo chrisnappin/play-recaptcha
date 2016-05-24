@@ -21,10 +21,11 @@ import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
 
-import play.api.Play
 import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, Request}
-import play.api.test.{FakeApplication, FakeRequest, PlaySpecification, WithApplication}
+import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 
 /**
  * Tests the <code>recaptchaWidget</code> view template.
@@ -44,7 +45,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     "recaptchaWidget (v1)" should {
 
         "render v1 widget without error message" in new WithApplication(getApplication(1)) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget()(widgetHelper, request, messages))
 
@@ -61,7 +62,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v1 widget with error message" in new WithApplication(getApplication(1)) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(
                     views.html.recaptcha.recaptchaWidget(error = Some("my-error-key"))(
@@ -80,7 +81,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v1 widget with theme" in new WithApplication(getApplication(1, Some("my-theme"))) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget()(widgetHelper, request, messages))
 
@@ -99,7 +100,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v1 widget with tabindex" in new WithApplication(getApplication(1)) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(tabindex = Some(42))(
                 widgetHelper, request, messages))
@@ -120,7 +121,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         "render v1 widget with theme and tabindex" in
                 new WithApplication(getApplication(1, Some("my-theme"))) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(tabindex = Some(42))(
                 widgetHelper, request, messages))
@@ -137,7 +138,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         "render v1 widget with error message, theme and tabindex" in
                 new WithApplication(getApplication(1, Some("my-theme"))) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(
                     error = Some("my-error-key"), tabindex = Some(42))(widgetHelper, request, messages))
@@ -157,7 +158,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             // browser prefers english then french
             val request = FakeRequest().withHeaders(("Accept-Language", "en; q=1.0, fr; q=0.5"))
 
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(
                     error = Some("my-error-key"), tabindex = Some(42))(widgetHelper, request, messages))
@@ -176,7 +177,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     "recaptchaWidget (v2)" should {
 
         "render v2 widget with noscript block" in new WithApplication(getApplication(2)) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget()(widgetHelper, request, messages))
 
@@ -196,7 +197,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v2 widget without noscript" in new WithApplication(getApplication(2)) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget(includeNoScript = false)(
                 widgetHelper, request, messages))
@@ -217,7 +218,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         }
 
         "render v2 widget with theme" in new WithApplication(getApplication(2, Some("dark"))) with WithWidgetHelper {
-            val messages = Play.current.injector.instanceOf[MessagesApi].preferred(request)
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget()(widgetHelper, request, messages))
 
@@ -266,7 +267,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
      * @return The application
      */
     private def getApplication(version: Int, theme: Option[String] = None,
-            captchaType: Option[String] = None): FakeApplication = {
+            captchaType: Option[String] = None): Application = {
         var config = Map(
             RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
             RecaptchaSettings.PublicKeyConfigProp -> "public-key",
@@ -280,7 +281,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             config += RecaptchaSettings.CaptchaTypeConfigProp -> captchaType.get
         }
 
-        new FakeApplication(additionalConfiguration = config)
+        new GuiceApplicationBuilder().configure(config).build()
     }
 
     trait WithWidgetHelper extends Scope {

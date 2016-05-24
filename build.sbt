@@ -6,10 +6,7 @@ version := "2.0"
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // default Scala binary compatibility
-crossScalaVersions := Seq("2.11.6", "2.10.5")
-
-// replace the above with this if using scoverage (as doesn't work with Scala 2.10.x)
-//scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
   ws,

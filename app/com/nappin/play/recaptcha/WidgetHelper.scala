@@ -132,7 +132,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
      * @return <code>true</code> if supported
      */
     def isSupportedLanguage(languageCode: String): Boolean = {
-        supportedCodes.contains(languageCode)
+        RecaptchaSettings.supportedV1LanguageCodes.contains(languageCode)
     }
 
     /**
@@ -171,7 +171,4 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
             Some(translations.mkString(",\n"))
         }
     }
-
-    /** As taken from Google reCAPTCHA documentation, 23/07/2014. This needs to be kept up to date. */
-    private val supportedCodes = Seq( "en", "nl", "fr", "de", "pt", "ru", "es", "tr" )
 }

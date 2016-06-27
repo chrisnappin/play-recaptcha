@@ -36,6 +36,10 @@ done for version 1.5
 - upgrade from Play 2.3.x APIs to Play 2.4.x
 - convert from Plugin to DI Module
 
+done for version 2.0
+--------------------
+- upgrade from Play 2.4.x to Play 2.5.x
+
 todo list for future releases
 -----------------------------
 - extras: ajax api, allow custom recaptcha themes, translations etc...

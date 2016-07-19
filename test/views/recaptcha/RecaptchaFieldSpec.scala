@@ -242,6 +242,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // must include noscript block
             html must contain("<noscript")
             html must contain("g-recaptcha-response")
+
+            // no tabindex
+            html must not contain("data-tabindex")
         }
 
         "pass includeNoScript to recaptcha widget" in new WithApplication(validV2Application) with WithWidgetHelper {
@@ -261,6 +264,24 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // must not include noscript block
             html must not contain("<noscript")
             html must not contain("g-recaptcha-response")
+        }
+
+        "pass tabindex to recaptcha widget" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                    form = modelForm, fieldName = "myCaptcha", tabindex = Some(42))(
+                            widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // no error shown to end user
+            html must not contain("<dd class=\"error\">")
+
+            // explicit tabindex
+            html must contain("data-tabindex=\"42\"")
         }
     }
 

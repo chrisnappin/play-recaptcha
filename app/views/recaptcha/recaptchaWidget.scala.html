@@ -5,7 +5,7 @@
  *
  * @param includeNoScript   (v2 API) Whether to include the noscript block, default is true
  * @param error             (v1 API) The error code (if any), default is None
- * @param tabindex          (v1 API) The tabindex of the field (if any), default is None
+ * @param tabindex          The tabindex of the field (if any), default is None
  * @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc
  * @param request           (Implicit) The current request
  * @param messages          (Implicit) The current I18n messages
@@ -33,6 +33,7 @@
 
 <script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
 <div class="g-recaptcha" data-sitekey="@Html(widgetHelper.publicKey)"
+    @if(tabindex) { data-tabindex="@tabindex" }
         data-theme="@Html(widgetHelper.v2Theme)" data-type="@Html(widgetHelper.v2Type)"></div>
     @if(includeNoScript) {
 <noscript>

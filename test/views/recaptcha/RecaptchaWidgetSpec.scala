@@ -190,6 +190,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("data-theme=\"light\"")
             html must contain("data-type=\"image\"")
 
+            // no tabindex
+            html must not contain("data-tabindex")
+
             // includes noscript block
             html must contain("<noscript")
             html must contain("g-recaptcha-response")
@@ -237,7 +240,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("fallback?k=public-key")
         }
 
-        "render v2 widget with type" in new WithApplication(getApplication(2, None, Some("audio"))) with WithWidgetHelper {
+        "render v2 widget with type" in new WithApplication(
+                getApplication(version = 2, captchaType = Some("audio"))) with WithWidgetHelper {
             val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
             val html = contentAsString(views.html.recaptcha.recaptchaWidget()(widgetHelper, request, messages))
@@ -250,6 +254,26 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             // default theme, explicit type
             html must contain("data-theme=\"light\"")
             html must contain("data-type=\"audio\"")
+
+            // includes noscript block
+            html must contain("<noscript")
+            html must contain("g-recaptcha-response")
+            html must contain("fallback?k=public-key")
+        }
+
+        "render v2 widget with tabindex" in new WithApplication(
+                getApplication(version = 2, captchaType = Some("audio"))) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget(tabindex = Some(42))(widgetHelper, request, messages))
+
+            // includes script
+            html must contain("<script")
+            html must contain("g-recaptcha")
+            html must contain("data-sitekey=\"public-key\"")
+
+            // explicit tabindex
+            html must contain("data-tabindex=\"42\"")
 
             // includes noscript block
             html must contain("<noscript")

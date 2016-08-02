@@ -69,6 +69,10 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
   /** The v2 captcha type to use (if any). */
   val captchaType: String = configuration.getString(CaptchaTypeConfigProp, validValues =
       Some(Set("image", "audio"))).getOrElse(CaptchaTypeDefault)
+
+  /** The captcha size to use (if any). */
+  val captchaSize: String = configuration.getString(CaptchaSizeConfigProp, validValues =
+      Some(Set("normal", "compact"))).getOrElse(CaptchaSizeDefault)
   // end V2 Only Settings
 
   val isApiVersion1 = apiVersion == 1
@@ -246,11 +250,15 @@ object RecaptchaSettings {
 	/** The v2 captcha type to use (if any). */
 	val CaptchaTypeConfigProp = s"$root.type"
 
+	/** The captcha size to use (if any). */
+	val CaptchaSizeConfigProp = s"$root.size"
+
 	// Default Values
 	import scala.concurrent.duration._
 	val RequestTimeoutMsDefault = 10.seconds.toMillis
 	val DefaultLanguageDefault = "en"
 	val CaptchaTypeDefault = "image"
+	val CaptchaSizeDefault = "normal"
 
     /** The mandatory configuration items that must exist for this module to work. */
     private[recaptcha] val mandatoryConfiguration =

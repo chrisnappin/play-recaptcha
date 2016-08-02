@@ -32,9 +32,8 @@
 } else {
 
 <script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
-<div class="g-recaptcha" data-sitekey="@Html(widgetHelper.publicKey)"
-    @if(tabindex) { data-tabindex="@tabindex" }
-        data-theme="@Html(widgetHelper.v2Theme)" data-type="@Html(widgetHelper.v2Type)"></div>
+<div class="g-recaptcha" data-sitekey="@Html(widgetHelper.publicKey)" @if(tabindex) { data-tabindex="@tabindex" }
+  data-theme="@Html(widgetHelper.v2Theme)" data-type="@Html(widgetHelper.v2Type)" data-size="@Html(widgetHelper.v2Size)"></div>
     @if(includeNoScript) {
 <noscript>
   <div style="width: 302px; height: 352px;">

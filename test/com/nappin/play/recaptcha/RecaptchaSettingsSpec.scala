@@ -54,6 +54,7 @@ class RecaptchaSettingsSpec extends Specification {
     // V2
     val v2ThemeValue = "dark"
     val captchaTypeValue = "audio"
+    val captchaSizeValue = "compact"
     val mandatoryV2Config = Map (
 		PrivateKeyConfigProp -> privateKeyValue,
 		PublicKeyConfigProp -> publicKeyValue,
@@ -118,7 +119,8 @@ class RecaptchaSettingsSpec extends Specification {
     		val conf = Configuration.from(mandatoryV2Config ++ Map(
     				RequestTimeoutConfigProp -> requestTimeoutValueStr,
     				ThemeConfigProp -> v2ThemeValue,
-    				CaptchaTypeConfigProp -> captchaTypeValue
+    				CaptchaTypeConfigProp -> captchaTypeValue,
+    				CaptchaSizeConfigProp -> captchaSizeValue
     				))
 
 			val s = new RecaptchaSettings(conf)
@@ -131,6 +133,7 @@ class RecaptchaSettingsSpec extends Specification {
 			s.useSecureVerifyUrl ==== false
 			s.useSecureWidgetUrl ==== false
 			s.captchaType ==== captchaTypeValue
+			s.captchaSize === captchaSizeValue
 			s.isApiVersion1 ==== false
     	}
 
@@ -209,6 +212,12 @@ class RecaptchaSettingsSpec extends Specification {
 
     	"fail if captcha type is not one of allowed values" >> {
     		val conf = Configuration.from(mandatoryV2Config + (CaptchaTypeConfigProp -> "movie"))
+
+    		new RecaptchaSettings(conf) must throwAn[PlayException]
+    	}
+
+    	"fail if captcha size is not one of allowed values" >> {
+    		val conf = Configuration.from(mandatoryV2Config + (CaptchaSizeConfigProp -> "wibble"))
 
     		new RecaptchaSettings(conf) must throwAn[PlayException]
     	}

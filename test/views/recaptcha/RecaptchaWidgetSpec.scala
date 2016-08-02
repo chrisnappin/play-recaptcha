@@ -186,9 +186,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("g-recaptcha")
             html must contain("data-sitekey=\"public-key\"")
 
-            // default theme and type
+            // default theme, type, size
             html must contain("data-theme=\"light\"")
             html must contain("data-type=\"image\"")
+            html must contain("data-size=\"normal\"")
 
             // no tabindex
             html must not contain("data-tabindex")
@@ -210,9 +211,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("g-recaptcha")
             html must contain("data-sitekey=\"public-key\"")
 
-            // default theme and type
+            // default theme, type, size
             html must contain("data-theme=\"light\"")
             html must contain("data-type=\"image\"")
+            html must contain("data-size=\"normal\"")
 
             // doesn't include noscript block
             html must not contain("<noscript")
@@ -230,9 +232,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("g-recaptcha")
             html must contain("data-sitekey=\"public-key\"")
 
-            // explicit theme, default type
+            // explicit theme, default type, size
             html must contain("data-theme=\"dark\"")
             html must contain("data-type=\"image\"")
+            html must contain("data-size=\"normal\"")
 
             // includes noscript block
             html must contain("<noscript")
@@ -251,9 +254,32 @@ class RecaptchaWidgetSpec extends PlaySpecification {
             html must contain("g-recaptcha")
             html must contain("data-sitekey=\"public-key\"")
 
-            // default theme, explicit type
+            // default theme, explicit type, default size
             html must contain("data-theme=\"light\"")
             html must contain("data-type=\"audio\"")
+            html must contain("data-size=\"normal\"")
+
+            // includes noscript block
+            html must contain("<noscript")
+            html must contain("g-recaptcha-response")
+            html must contain("fallback?k=public-key")
+        }
+
+        "render v2 widget with size" in new WithApplication(
+                getApplication(version = 2, captchaSize = Some("compact"))) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaWidget()(widgetHelper, request, messages))
+
+            // includes script
+            html must contain("<script")
+            html must contain("g-recaptcha")
+            html must contain("data-sitekey=\"public-key\"")
+
+            // default theme and type, explicit size
+            html must contain("data-theme=\"light\"")
+            html must contain("data-type=\"image\"")
+            html must contain("data-size=\"compact\"")
 
             // includes noscript block
             html must contain("<noscript")
@@ -288,10 +314,11 @@ class RecaptchaWidgetSpec extends PlaySpecification {
      * @param version		The API version to use
      * @param theme			The configured theme (if any)
      * @param captchaType	The captcha type (if any)
+     * @param captchaSize	The captcha size (if any)
      * @return The application
      */
     private def getApplication(version: Int, theme: Option[String] = None,
-            captchaType: Option[String] = None): Application = {
+            captchaType: Option[String] = None, captchaSize: Option[String] = None): Application = {
         var config = Map(
             RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
             RecaptchaSettings.PublicKeyConfigProp -> "public-key",
@@ -303,6 +330,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         if (captchaType.isDefined) {
             config += RecaptchaSettings.CaptchaTypeConfigProp -> captchaType.get
+        }
+
+        if (captchaSize.isDefined) {
+            config += RecaptchaSettings.CaptchaSizeConfigProp -> captchaSize.get
         }
 
         new GuiceApplicationBuilder().configure(config).build()

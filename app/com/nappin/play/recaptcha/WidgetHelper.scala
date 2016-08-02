@@ -56,10 +56,16 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
 
 
     /**
-     * Returns the configured captcha type, or "image" if none defined
+     * Returns the configured captcha type, or the default if none defined
      * @return The type to use
      */
     def v2Type: String = settings.captchaType
+
+    /**
+     * Returns the configured captcha size, or the default if none defined
+     * @return The size to use
+     */
+    def v2Size: String = settings.captchaSize
 
 
     /**

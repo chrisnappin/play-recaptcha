@@ -80,8 +80,15 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
 
           s"${settings.widgetScriptUrl}?k=$publicKey$errorSuffix"
         } else {
-            // API v2 doesn't include any URL parameters
-            settings.widgetScriptUrl
+            // TODO: support "play" language mode
+            val languageSuffix =
+                if (settings.languageMode == "force") {
+                    "?hl=" + settings.forceLanguage.get
+                } else {
+                    ""
+                }
+
+            s"${settings.widgetScriptUrl}$languageSuffix"
         }
     }
 

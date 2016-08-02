@@ -55,6 +55,8 @@ class RecaptchaSettingsSpec extends Specification {
     val v2ThemeValue = "dark"
     val captchaTypeValue = "audio"
     val captchaSizeValue = "compact"
+    val languageModeValue = "force"
+    val forceLanguageValue = "ru"
     val mandatoryV2Config = Map (
 		PrivateKeyConfigProp -> privateKeyValue,
 		PublicKeyConfigProp -> publicKeyValue,
@@ -120,7 +122,9 @@ class RecaptchaSettingsSpec extends Specification {
     				RequestTimeoutConfigProp -> requestTimeoutValueStr,
     				ThemeConfigProp -> v2ThemeValue,
     				CaptchaTypeConfigProp -> captchaTypeValue,
-    				CaptchaSizeConfigProp -> captchaSizeValue
+    				CaptchaSizeConfigProp -> captchaSizeValue,
+    				LanguageModeConfigProp -> languageModeValue,
+    				ForceLanguageConfigProp -> forceLanguageValue
     				))
 
 			val s = new RecaptchaSettings(conf)
@@ -134,6 +138,8 @@ class RecaptchaSettingsSpec extends Specification {
 			s.useSecureWidgetUrl ==== false
 			s.captchaType ==== captchaTypeValue
 			s.captchaSize === captchaSizeValue
+			s.languageMode === languageModeValue
+			s.forceLanguage === Some(forceLanguageValue)
 			s.isApiVersion1 ==== false
     	}
 
@@ -220,6 +226,12 @@ class RecaptchaSettingsSpec extends Specification {
     		val conf = Configuration.from(mandatoryV2Config + (CaptchaSizeConfigProp -> "wibble"))
 
     		new RecaptchaSettings(conf) must throwAn[PlayException]
+    	}
+
+    	"fail if languageMode is force but forceLanguage not set" >> {
+    		val conf = Configuration.from(mandatoryV2Config + (LanguageModeConfigProp -> "force"))
+
+    		new RecaptchaSettings(conf) must throwAn[ConfigException]
     	}
     }
 

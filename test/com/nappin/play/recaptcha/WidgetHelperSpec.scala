@@ -232,6 +232,19 @@ class WidgetHelperSpec extends PlaySpecification {
         "(v2) exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
             widgetHelper.widgetScriptUrl(Some("error-code")) must endWith("api.js")
         }
+
+        "(v2) exclude language if mode is auto" in new WithWidgetHelper(
+                validV2Settings ++ Map(LanguageModeConfigProp -> "auto")) {
+            widgetHelper.widgetScriptUrl(None) must endWith("api.js")
+        }
+
+        "(v2) include language if mode is force" in new WithWidgetHelper(
+                validV2Settings ++ Map(LanguageModeConfigProp -> "force",
+                        ForceLanguageConfigProp -> "fr")) {
+            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
+        }
+
+        // TODO: test "play" mode
     }
 
     "getWidgetNoScriptUrl" should {

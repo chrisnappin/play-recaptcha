@@ -30,10 +30,6 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
 
   val logger = Logger(this.getClass())
 
-  /** Sanity check the configuration, log descriptive error if invalid. */
-  checkMandatoryConfigurationPresent(configuration)
-  checkConfigurationValid(configuration)
-
   /** The application's recaptcha private key. */
   val privateKey: String = configuration.underlying.getString(PrivateKeyConfigProp)
 
@@ -73,12 +69,22 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
   /** The captcha size to use (if any). */
   val captchaSize: String = configuration.getString(CaptchaSizeConfigProp, validValues =
       Some(Set("normal", "compact"))).getOrElse(CaptchaSizeDefault)
+
+  /** The captcha language mode to use (if any). */
+  val languageMode: String = configuration.getString(LanguageModeConfigProp,
+      validValues = Some(Set("auto", "play", "force"))).getOrElse(LanguageModeDefault)
+
+  val forceLanguage: Option[String] = configuration.getString(ForceLanguageConfigProp)
   // end V2 Only Settings
 
   val isApiVersion1 = apiVersion == 1
 
   private val verifyUrlPrefix = toPrefix(useSecureVerifyUrl)
   private val widgetUrlPrefix = toPrefix(useSecureWidgetUrl)
+
+  /** Sanity check the configuration, log descriptive error if invalid. */
+  checkMandatoryConfigurationPresent(configuration)
+  checkConfigurationValid(configuration)
 
   /**
     * Get the URL prefix (secure or insecure) as specified by the configuration flag.
@@ -168,6 +174,12 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
 	        	    logger.warn(s"The default language you have set ($key) is not supported by reCAPTCHA")
 	        	}
 	        })
+        } else {
+            // if languageMode is set to "force" then "forceLanguage" must be defined
+            if (languageMode == "force" && forceLanguage.isEmpty) {
+                logger.error("If languageMode is \"force\" then forceLanguage must be defined")
+                throw new ConfigException.Missing(LanguageModeConfigProp)
+            }
         }
 
         if (!configurationValid) {
@@ -253,12 +265,19 @@ object RecaptchaSettings {
 	/** The captcha size to use (if any). */
 	val CaptchaSizeConfigProp = s"$root.size"
 
+	/** The v2 language mode to use (if any). */
+	val LanguageModeConfigProp = s"$root.languageMode"
+
+	/** The v2 forced language value to use (if any). */
+	val ForceLanguageConfigProp = s"$root.forceLanguage"
+
 	// Default Values
 	import scala.concurrent.duration._
 	val RequestTimeoutMsDefault = 10.seconds.toMillis
 	val DefaultLanguageDefault = "en"
 	val CaptchaTypeDefault = "image"
 	val CaptchaSizeDefault = "normal"
+	val LanguageModeDefault = "auto"
 
     /** The mandatory configuration items that must exist for this module to work. */
     private[recaptcha] val mandatoryConfiguration =

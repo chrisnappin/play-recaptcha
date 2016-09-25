@@ -20,7 +20,7 @@ import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
 import play.api.{Mode, Environment, Configuration}
-import play.api.i18n.{MessagesApi, I18nComponents}
+import play.api.i18n.{MessagesApi, I18nComponents, Lang}
 import play.api.test.{FakeApplication, WithApplication, FakeRequest, PlaySpecification}
 
 /**
@@ -31,13 +31,13 @@ import play.api.test.{FakeApplication, WithApplication, FakeRequest, PlaySpecifi
 @RunWith(classOf[JUnitRunner])
 class WidgetHelperSpec extends PlaySpecification {
 
-    val validV1Settings: Map[String, AnyRef] = Map(
+    val validV1Settings: Map[String, String] = Map(
         PrivateKeyConfigProp -> "private-key",
         PublicKeyConfigProp -> "public-key",
         ApiVersionConfigProp -> "1",
         RequestTimeoutConfigProp -> "5 seconds")
 
-    val validV2Settings: Map[String, AnyRef] =  Map(
+    val validV2Settings: Map[String, String] =  Map(
         PrivateKeyConfigProp -> "private-key",
         PublicKeyConfigProp -> "public-key",
         ApiVersionConfigProp -> "2",
@@ -215,32 +215,44 @@ class WidgetHelperSpec extends PlaySpecification {
     }
 
     "getWidgetScriptUrl" should {
-
+        
         "(v1) include public key" in new WithWidgetHelper(validV1Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
+            
             widgetHelper.widgetScriptUrl(None) must endWith("challenge?k=public-key")
         }
 
         "(v1) include error code if specified" in new WithWidgetHelper(validV1Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
+            
             widgetHelper.widgetScriptUrl(Some("error-code")) must
                 endWith("challenge?k=public-key&error=error-code")
         }
 
         "(v2) exclude public key" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
+            
             widgetHelper.widgetScriptUrl(None) must endWith("api.js")
         }
 
         "(v2) exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
+            
             widgetHelper.widgetScriptUrl(Some("error-code")) must endWith("api.js")
         }
 
         "(v2) exclude language if mode is auto" in new WithWidgetHelper(
                 validV2Settings ++ Map(LanguageModeConfigProp -> "auto")) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
+            
             widgetHelper.widgetScriptUrl(None) must endWith("api.js")
         }
 
         "(v2) include language if mode is force" in new WithWidgetHelper(
                 validV2Settings ++ Map(LanguageModeConfigProp -> "force",
                         ForceLanguageConfigProp -> "fr")) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
+            
             widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
         }
 

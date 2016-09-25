@@ -71,9 +71,10 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
     /**
      * Returns the widget script URL, with parameters (if applicable).
      * @param error			The error code (if any)
+     * @param messages		The current i18n messages
      * @return The URL
      */
-    def widgetScriptUrl(error: Option[String] = None): String = {
+    def widgetScriptUrl(error: Option[String] = None)(implicit messages: Messages): String = {
         if (isApiVersion1) {
             // API v1 includes public key and error code (if any)
 	        val errorSuffix = error.map("&error=" + _).getOrElse("")

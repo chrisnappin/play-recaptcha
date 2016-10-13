@@ -45,13 +45,10 @@ todo list for version 2.1
 -------------------------
 - done: added tabindex: add v2 support - g-recaptcha tag data-tabindex => nn
 - done: added v2 size support - g-recaptcha tag data-size => compact or normal
-- done: added languageMode settings: auto, force
+- done: added languageMode settings: auto, force, play
         auto = no parameter, let recaptcha detect browser locale itself (the default)
         force = use fixed language (api.js?hl=aa) "forceLanguage" config setting
-
-- add:
-    - languageMode settings: play
-        play = use Play locale, map to supported languages (api.js?hl=aa)
+        play = use Play locale, map to supported languages (api.js?hl=aa or aa-BB)
     
 - remove: recaptcha 1.0 support
     - remove all v1 configuration settings

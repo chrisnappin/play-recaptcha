@@ -18,7 +18,7 @@ package com.nappin.play.recaptcha
 import org.apache.commons.lang3.StringEscapeUtils
 
 import play.api.Logger
-import play.api.i18n.Messages
+import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{AnyContent, Request}
 
 import scala.collection.mutable.ListBuffer
@@ -81,10 +81,11 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
 
           s"${settings.widgetScriptUrl}?k=$publicKey$errorSuffix"
         } else {
-            // TODO: support "play" language mode
             val languageSuffix =
                 if (settings.languageMode == "force") {
                     "?hl=" + settings.forceLanguage.get
+                } else if (settings.languageMode == "play") {
+                    "?hl=" + mapToV2Language(messages.lang)
                 } else {
                     ""
                 }
@@ -140,6 +141,26 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
         		{lang => lang.language} // if a supported language was found
     }
 
+    /**
+     * Maps the current Play locale to the reCAPTCHA v2 language code.
+     * @param lang The play locale
+     * @return The language code, possibly with country code too
+     */
+    private def mapToV2Language(lang: Lang): String = {
+        // list of language and country code combinations specifically supported by reCAPTCHA
+        // (taken from https://developers.google.com/recaptcha/docs/language in October 2016)
+        val supportedCountryLocales = Seq(
+                Lang("zh", "HK"), Lang("zh", "CN"), Lang("zh", "TW"), Lang("en", "GB"), Lang("fr", "CA"),
+                Lang("de", "AT"), Lang("de", "CH"), Lang("pr", "BR"), Lang("pr", "PT"), Lang("es", "419"))
+
+        if (supportedCountryLocales.contains(lang)) {
+            // use language and country code
+            lang.language + "-" + lang.country
+        } else {
+            // just use the language code
+            lang.language
+        }
+    }
     /**
      * Determines whether the specified language code is supported by reCAPTCHA.
      * @param languageCode		The language code

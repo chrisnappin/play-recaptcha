@@ -256,7 +256,31 @@ class WidgetHelperSpec extends PlaySpecification {
             widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
         }
 
-        // TODO: test "play" mode
+        "(v2) include language (only) if mode is play" in new WithWidgetHelper(
+                validV2Settings ++ Map(LanguageModeConfigProp -> "play",
+                        "play.i18n.langs" -> Seq("fr"))) {
+            // no browser locale, should just use the default language set above...
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq.empty[Lang])
+
+            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
+        }
+
+        "(v2) include language and country if mode is play" in new WithWidgetHelper(
+            validV2Settings ++ Map(LanguageModeConfigProp -> "play",
+                "play.i18n.langs" -> Seq("en", "en-US", "en-GB"))) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en", "GB")))
+
+            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=en-GB")
+        }
+
+        "(v2) include just language if mode is play" in new WithWidgetHelper(
+            validV2Settings ++ Map(LanguageModeConfigProp -> "play",
+                "play.i18n.langs" -> Seq("en", "en-US", "en-GB"))) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en", "US")))
+
+            // en-US isn't a supported country variant, so should just use the language code
+            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=en")
+        }
     }
 
     "getWidgetNoScriptUrl" should {

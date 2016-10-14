@@ -40,7 +40,7 @@ recpatcha.theme|The reCAPTCHA widget theme to use (see [reCAPTCHA v2 themes](htt
 recaptcha.type|The type of captcha to use (image or audio)|image
 
 
-(see [application.conf](../conf/application.conf) for a complete example)
+(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.0/conf/application.conf) for a complete example)
 
 
 ### reCAPTCHA Version 1
@@ -58,7 +58,7 @@ recaptcha.useSecureWidgetUrl|Whether to use SSL to render the reCAPTCHA widget. 
 recaptcha.useSecureVerifyUrl|Whether to use SSL to invoke the reCAPTCHA web service API. Set to true if you want to secure communication when verifying captchas|false
 
 
-(see [application.conf](../conf/application.conf) for a complete example)
+(see [application.conf](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0/conf/application.conf) for a complete example)
 
 ## Internationalisation
 ### reCAPTCHA version 2

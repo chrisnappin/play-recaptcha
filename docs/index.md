@@ -54,7 +54,7 @@ Please see these examples:
 for ready-to-use internationalised Scala Play 2.x web applications using this module. You can download this code and run it in Play, or you can follow the instructions below to add this module to an existing web application.
 
 The play-recaptcha module comes with two APIs:
-* [High Level API](#high-level-api.md) - that integrates with Play's Form APIs
-* [Low Level API](#low-level-api.md) - that has no such dependency
+* [High Level API](high-level-api.md) - that integrates with Play's Form APIs
+* [Low Level API](low-level-api.md) - that has no such dependency
 
 Unless you are using a non-standard approach in your Play 2 Scala applications, the High Level API is the one to use - it is much simpler and requires much less code.

@@ -49,13 +49,11 @@ todo list for version 2.1
         auto = no parameter, let recaptcha detect browser locale itself (the default)
         force = use fixed language (api.js?hl=aa) "forceLanguage" config setting
         play = use Play locale, map to supported languages (api.js?hl=aa or aa-BB)
-    
+- done: sorted docs and wiki
+
 - remove: recaptcha 1.0 support
     - remove all v1 configuration settings
     - remove all v1 code
-    
-- move all docs from wiki to inside git code base (branched/tagged) in "docs" dir
-- update wiki to reference release docs    
 
 - plus back port to v1.5 (Play 2.4)??
 

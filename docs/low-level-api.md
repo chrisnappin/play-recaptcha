@@ -7,15 +7,13 @@ The play-recaptcha Low Level API has the same pre-requisites, requirements and c
 In your view template, you need to include a ``recaptcha.recaptchaWidget`` view helper tag, which has the following parameters (I recommend referencing these by name):
 
 * Explicit parameters:
-  * ``includeNoScript: Boolean`` - whether to support browsers with JavaScript disabled, default is ``true`` (reCAPTCHA version 2 only)
-  * ``error: Option[String]`` - the reCAPTCHA error code, default is ``None`` (reCAPTCHA version 1 only)
-  * ``tabindex: Option[Int]`` - the HTML tabindex, default is None (reCAPTCHA version 1 only)
+  * ``includeNoScript: Boolean`` - whether to support browsers with JavaScript disabled, default is ``true`` 
+  * ``tabindex: Option[Int]`` - the HTML tabindex, default is None
 * Implicit parameters:
   * ``request: Request[AnyContent]`` - the current web request
   * ``messages: Messages`` - the current i18n messages to use
   * ``widgetHelper: WidgetHelper`` - the widget helper to use (create via DI)
 
-For reCAPTCHA version 1, the error code is passed to the reCAPTCHA API to render the widget, although I've never seen this produce anything visual to help the end user. No messages (labels, error messages etc) are used by the ``recaptcha.recaptchaWidget``, you will need to handle this yourself along with the rest of the HTML for your form field. The custom messages defined in the High Level API as shown by reCAPTCHA are passed by the ``recaptcha.recaptchaWidget``, as is the Play i18n/reCAPTCHA language integration.
 
 ##Controller
 Within your controller, you simply inject a verifier and an implicit widgetHelper. An example using the built-in Guice DI would be:
@@ -40,7 +38,6 @@ Since the play-recaptcha module uses futures, we also need to have an execution 
 
 Then to check whether a captcha response is valid, use the following methods:
 
-### reCAPTCHA Version 2
 Call the ``verifyV2`` method, which has the following parameters:
 
 * explicit parameters:
@@ -49,18 +46,7 @@ Call the ``verifyV2`` method, which has the following parameters:
 * implicit parameters:
   * ``context: ExecutionContext`` - used for future execution
 
-### reCAPTCHA Version 1
-Call the ``verifyV1`` method, which has the following parameters:
-
-* explicit parameters:
-  * ``challenge: String`` - The recaptcha challenge
-  * ``response: String`` - The recaptcha response, to verify
-  * ``remoteIp: String`` - The IP address of the end user
-* implicit parameters:
-  * ``context: ExecutionContext`` - used for future execution
-
-### Detailed Processing
-Both``verifyV1`` and ``verifyV2`` methods do the following:
+The ``verifyV2`` method does the following:
 
 1. The reCAPTCHA API is invoked reactively to verify the user's captcha response, and a ``Future`` is returned back to your code
 1. When the reCAPTCHA API responds, the result is asynchronously processed
@@ -69,7 +55,7 @@ Both``verifyV1`` and ``verifyV2`` methods do the following:
 
 Note that it doesn't check whether the ``response`` parameter is empty, it calls reCAPTCHA regardless.
 
-The ``verifyV1`` and ``verifyV2`` methods return a ``Future[Either[Error, Success]]``
+The ``verifyV2`` method return a ``Future[Either[Error, Success]]``
 
 An ``Error`` result has a ``code`` property you will need to inspect, which can be the result from reCAPTCHA itself (see [Google reCAPTCHA Error Code Reference](https://developers.google.com/recaptcha/docs/verify)) or one of the internal constants defined in ``RecaptchaErrorCode`` (e.g. ``apiError``).
 

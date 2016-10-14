@@ -17,64 +17,34 @@ Before you can use the play-recaptcha module, you need to have registered with
 The play-recaptcha module is distributed via Maven Central, so you can add the module as a build dependency in SBT. In your top-level *build.sbt* file, add the following:
 
     libraryDependencies ++= Seq(
-      "com.nappin" %% "play-recaptcha" % "2.0" 
+      "com.nappin" %% "play-recaptcha" % "2.1" 
     )
 
-The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.0` is the
+The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.1` is the
 play-recaptcha module version number being used - since SBT uses ivy the version number can be alternatively be an expression such as `2.+` (meaning any version 2.x release). 
 
 (see [build.sbt](../build.sbt) for a complete example)
 
 
 ##Configuration
-### reCAPTCHA Version 2
 The play-recaptcha module supports the following configuration settings in your *application.conf* file:
 
 Configuration Key|Description|Default Value
 -----------------|-----------|-------------
 recaptcha.privateKey|Your private (secret) reCAPTCHA key|None
 recaptcha.publicKey|Your public (site) reCAPTCHA key|None
-recaptcha.apiVersion|Must be set to `2`|None
 recpatcha.requestTimeout|The timeout duration to use when contacting Google reCAPTCHA|10 seconds
 recpatcha.theme|The reCAPTCHA widget theme to use (see [reCAPTCHA v2 themes](https://developers.google.com/recaptcha/docs/display#config) for a list of possible values)|light
 recaptcha.type|The type of captcha to use (image or audio)|image
 
 
-(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.0/conf/application.conf) for a complete example)
-
-
-### reCAPTCHA Version 1
-The play-recaptcha module supports the following configuration settings in your *application.conf* file:
-
-Configuration Key|Description|Default Value
------------------|-----------|-------------
-recaptcha.privateKey|Your private (secret) reCAPTCHA key|None
-recaptcha.publicKey|Your public (site) reCAPTCHA key|None
-recaptcha.apiVersion|Must be set to `1`|None
-recpatcha.requestTimeout|The timeout duration to use when contacting Google reCAPTCHA|10 seconds
-recpatcha.theme|The reCAPTCHA widget theme to use (see [reCAPTCHA v1 themes](https://developers.google.com/recaptcha/old/docs/customization) for a list of possible values, and what they look like)|red
-recaptcha.defaultLanguage|The language to use if the user's browser only prefers languages unsupported by reCAPTCHA|en
-recaptcha.useSecureWidgetUrl|Whether to use SSL to render the reCAPTCHA widget. Set to true to avoid browser warnings if your web site uses SSL|false
-recaptcha.useSecureVerifyUrl|Whether to use SSL to invoke the reCAPTCHA web service API. Set to true if you want to secure communication when verifying captchas|false
-
-
-(see [application.conf](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0/conf/application.conf) for a complete example)
+(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/conf/application.conf) for a complete example)
 
 ## Internationalisation
-### reCAPTCHA version 2
 This supports a comprehensive number of languages (see [supported language codes](https://developers.google.com/recaptcha/docs/language) for the latest list). Your end users can set a list of preferred languages in their web browser, and these will be identified by Google's JavaScript code itself with no further intervention needed (or interaction with Play i18n).
 
-The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.0) is internationalised to two languages (English, French) as an example.
+The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1) is internationalised to two languages (English, French) as an example.
 
-
-### reCAPTCHA version1
-This only supports a limited number of languages (see [table of supported options](https://developers.google.com/recaptcha/old/docs/customization#i18n) for the latest list). Your end users can set a list of preferred languages in their web browser. The play-recaptcha module will automatically identify the most suitable supported language for reCAPTCHA to use, falling back to the `recaptcha.defaultLanguage` setting if no preferred language is supported.
-
-The play-recaptcha module also integrates with Play i18n, and optionally allows you to override any of the labels, messages and errors using Play i18n `messages` files (defined for any language/locale/etc). Using this mechanism you can get the reCAPTCHA widget to support any language at all, beyond the limited list mentioned above. This also gives you the power to change the default messages if you prefer, even if you only want to use one language.
-
-Note that these options refer to labels and messages shown by the reCAPCTHA widget or error messages returned by the play-recaptcha module. From my own testing, regardless of the language requested the captcha challenge (visual and audio) is always in English.
-    
-The [play-recaptcha example application](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0) is internationalised to two languages (English, French) as an example.
 
 ##View Template
 In your view template, you need to include a `recaptcha.recaptchaField` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for reCAPTCHA, plus by default the `noscript` option for browsers with JavaScript turned off (typically rare these days). Here is a very simple example:
@@ -97,7 +67,7 @@ The complete list of `recaptcha.recaptchaField` parameters is as follows (I reco
 * Explicit parameters:
   * ``form: Form[_]`` - the Play Form
   * ``fieldName: String`` - the name of the field
-  * ``tabindex: Option[Int]`` - the HTML tabindex, default is ``None`` (used by reCAPTCHA v1 only)
+  * ``tabindex: Option[Int]`` - the HTML tabindex, default is ``None``
   * ``includeNoScript: Boolean`` - whether to support non-JavaScript clients, default is ``true`` (used by reCAPTCHA v2 only)
   * ``isRequired: Boolean`` - whether to show the Play ``constraint.required`` message, default is ``false`` (note that the recaptcha field is always processed as if having a **required** form validation constraint)
 * Implicit parameters:
@@ -105,7 +75,7 @@ The complete list of `recaptcha.recaptchaField` parameters is as follows (I reco
   * ``messages: Messages`` - the current i18n messages to use
   * ``widgetHelper: WidgetHelper`` - the widgetHelper to use
 
-(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0/app/views/form.scala.html) for a complete example)
+(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/app/views/form.scala.html) for a complete example)
 
 
 ##Messages
@@ -115,22 +85,10 @@ Message Key|Description|Default Message
 -----------|-----------|---------------
 as defined by the parameter to ``recaptchaField`` tag|The field label|None
 error.required|Shown if no text entered into the captcha field|The Play default
-error.captchaIncorrect|Shown if captcha was incorrect (reCAPTCHA version 1 only)|Incorrect, please try again
 error.recaptchaNotReachable|Shown if there is an error contacting the reCAPTCHA API (e.g. Network timeout)|Unable to contact Recaptcha
 error.apiError|Shown if reCAPTCHA returns a response that the play-recaptcha module doesn't understand (e.g. Google have changed its functionality)|Invalid response from Recaptcha
-recaptcha.visualChallenge|Shown by reCAPTCHA version 1 widget|Get a visual challenge
-recaptcha.audioChallenge|Shown by reCAPTCHA version 1 widget|Get an audio challenge
-recaptcha.refreshButton|Shown by reCAPTCHA version 1 widget|Get a new challenge
-recaptcha.instructionsVisual|Shown by reCAPTCHA version 1 widget|Type the text
-recaptcha.instructionsAudio|Shown by reCAPTCHA version 1 widget|Type what you hear
-recaptcha.helpButton|Shown by reCAPTCHA version 1 widget|Help
-recaptcha.playAgain|Shown by reCAPTCHA version 1 widget|Play sound again
-recaptcha.cantHearThis|Shown by reCAPTCHA version 1 widget|Download sound as MP3
-recaptcha.incorrectTryAgain|Shown by reCAPTCHA version 1 widget|Incorrect. Try again.
-recaptcha.imageAltText|Shown by reCAPTCHA version 1 widget|reCAPTCHA challenge image
-recaptcha.privacyAndTerms|Shown by reCAPTCHA version 1 widget|Privacy & Terms
 
-(see [messages](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0/conf/messages) for a complete example)
+(see [messages](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/conf/messages) for a complete example)
 
 
 ##Controller

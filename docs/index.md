@@ -9,9 +9,14 @@ This is a [Play Framework](http://www.playframework.com) module, for Scala and P
 
 | Module Revision | reCAPTCHA Versions | Play Version | Scala Versions | ScalaDoc | 
 |:---------------:|:------------------:|:------------:|:--------------:|:--------:|
-|2.0              |v1, v2              |2.5.x         |2.11            |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.11/2.0)|
+|2.1              |v2                  |2.5.x         |2.11            |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.11/2.0)|
 
 ### Changelog
+
+#### Release 2.1 (underway)
+* Added extra customisations for reCAPTCHA v2 internationalisation, tabindex and size options
+
+[TODO] Removed support for reCAPTCHA v1, since Google no longer supports it or issues new API keys, and it helped greatly simplify the codebase.
 
 #### Release 2.0
 * Added support for Play 2.5.x

@@ -1,5 +1,8 @@
 The play-recaptcha Low Level API has the same pre-requisites, requirements and configuration as the High level API, but differs as detailed below. To understand this better I recommend reading the [Google reCAPTCHA developer docs](https://developers.google.com/recaptcha/docs/display).
 
+* [View Template](#view-template)
+* [Controller](#controller)
+
 ##View Template
 In your view template, you need to include a ``recaptcha.recaptchaWidget`` view helper tag, which has the following parameters (I recommend referencing these by name):
 

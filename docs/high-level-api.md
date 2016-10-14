@@ -1,5 +1,14 @@
 To add the play-recaptcha module to an existing web application, please follow the instructions below.
 
+* [Pre-requisites](#pre-requisites)
+* [Build Dependency](#build-dependency)
+* [Configuration](#configuration)
+* [Internationalisation](#internationalisation)
+* [View Template](#view-template)
+* [Messages](#messages)
+* [Controller](#controller)
+* [Troubleshooting](#troubleshooting)
+
 ##Pre-requisites
 Before you can use the play-recaptcha module, you need to have registered with 
 [Google reCAPTCHA](http://www.google.com/recaptcha) to obtain your **private** (**secret**) and **public** (**site**) keys, which you will need below.
@@ -14,7 +23,7 @@ The play-recaptcha module is distributed via Maven Central, so you can add the m
 The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.0` is the
 play-recaptcha module version number being used - since SBT uses ivy the version number can be alternatively be an expression such as `2.+` (meaning any version 2.x release). 
 
-(see [build.sbt](https://github.com/chrisnappin/play-recaptcha-example/blob/master/build.sbt) for a complete example)
+(see [build.sbt](../build.sbt) for a complete example)
 
 
 ##Configuration
@@ -31,7 +40,7 @@ recpatcha.theme|The reCAPTCHA widget theme to use (see [reCAPTCHA v2 themes](htt
 recaptcha.type|The type of captcha to use (image or audio)|image
 
 
-(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/blob/master/conf/application.conf) for a complete example)
+(see [application.conf](../conf/application.conf) for a complete example)
 
 
 ### reCAPTCHA Version 1
@@ -49,13 +58,13 @@ recaptcha.useSecureWidgetUrl|Whether to use SSL to render the reCAPTCHA widget. 
 recaptcha.useSecureVerifyUrl|Whether to use SSL to invoke the reCAPTCHA web service API. Set to true if you want to secure communication when verifying captchas|false
 
 
-(see [application.conf](https://github.com/chrisnappin/play-recaptcha-example/blob/master/conf/application.conf) for a complete example)
+(see [application.conf](../conf/application.conf) for a complete example)
 
 ## Internationalisation
 ### reCAPTCHA version 2
 This supports a comprehensive number of languages (see [supported language codes](https://developers.google.com/recaptcha/docs/language) for the latest list). Your end users can set a list of preferred languages in their web browser, and these will be identified by Google's JavaScript code itself with no further intervention needed (or interaction with Play i18n).
 
-The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example) is internationalised to two languages (English, French) as an example.
+The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.0) is internationalised to two languages (English, French) as an example.
 
 
 ### reCAPTCHA version1
@@ -65,7 +74,7 @@ The play-recaptcha module also integrates with Play i18n, and optionally allows 
 
 Note that these options refer to labels and messages shown by the reCAPCTHA widget or error messages returned by the play-recaptcha module. From my own testing, regardless of the language requested the captcha challenge (visual and audio) is always in English.
     
-The [play-recaptcha example application](https://github.com/chrisnappin/play-recaptcha-example) is internationalised to two languages (English, French) as an example.
+The [play-recaptcha example application](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0) is internationalised to two languages (English, French) as an example.
 
 ##View Template
 In your view template, you need to include a `recaptcha.recaptchaField` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for reCAPTCHA, plus by default the `noscript` option for browsers with JavaScript turned off (typically rare these days). Here is a very simple example:
@@ -96,7 +105,7 @@ The complete list of `recaptcha.recaptchaField` parameters is as follows (I reco
   * ``messages: Messages`` - the current i18n messages to use
   * ``widgetHelper: WidgetHelper`` - the widgetHelper to use
 
-(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-example/blob/master/app/views/form.scala.html) for a complete example)
+(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0/app/views/form.scala.html) for a complete example)
 
 
 ##Messages
@@ -121,7 +130,7 @@ recaptcha.incorrectTryAgain|Shown by reCAPTCHA version 1 widget|Incorrect. Try a
 recaptcha.imageAltText|Shown by reCAPTCHA version 1 widget|reCAPTCHA challenge image
 recaptcha.privacyAndTerms|Shown by reCAPTCHA version 1 widget|Privacy & Terms
 
-(see [messages](https://github.com/chrisnappin/play-recaptcha-example/blob/master/conf/messages) for a complete example)
+(see [messages](https://github.com/chrisnappin/play-recaptcha-example/tree/release-2.0/conf/messages) for a complete example)
 
 
 ##Controller
@@ -187,7 +196,7 @@ The ``map`` and ``fold`` methods are a great way of handling the ``Future`` and 
         }    
     }
 
-(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-example/blob/master/app/controllers/ExampleForm.scala) for a complete example)
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.0/app/controllers/ExampleForm.scala) for a complete example)
 
 
 ##Troubleshooting

@@ -114,18 +114,10 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
      * @throws RecaptchaConfigurationException If configuration is invalid
      */
     private def checkConfigurationValid(configuration: Configuration): Unit = {
-        var configurationValid = true
-
         // if languageMode is set to "force" then "forceLanguage" must be defined
         if (languageMode == "force" && forceLanguage.isEmpty) {
             logger.error("If languageMode is \"force\" then forceLanguage must be defined")
             throw new ConfigException.Missing(LanguageModeConfigProp)
-        }
-
-        if (!configurationValid) {
-            val message = "Configuration invalid. Please check the module documentation " +
-                    "and correct your application.conf file."
-            logger.error(message)
         }
     }
 }
@@ -166,9 +158,5 @@ object RecaptchaSettings {
 	val LanguageModeDefault = "auto"
 
     /** The mandatory configuration items that must exist for this module to work. */
-    private[recaptcha] val mandatoryConfiguration =
-        Seq(PrivateKeyConfigProp, PublicKeyConfigProp)
-
-    /** As taken from Google reCAPTCHA documentation, 23/07/2014. This needs to be kept up to date. */
-    val supportedV1LanguageCodes = Set( "en", "nl", "fr", "de", "pt", "ru", "es", "tr" )
+    private[recaptcha] val mandatoryConfiguration = Seq(PrivateKeyConfigProp, PublicKeyConfigProp)
 }

@@ -15,13 +15,9 @@
  */
 package com.nappin.play.recaptcha
 
-import org.apache.commons.lang3.StringEscapeUtils
-
 import play.api.Logger
 import play.api.i18n.{Lang, Messages}
-import play.api.mvc.{AnyContent, Request}
 
-import scala.collection.mutable.ListBuffer
 import javax.inject.{Inject, Singleton}
 
 /**
@@ -36,13 +32,6 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
     val logger = Logger(this.getClass)
 
     /**
-     * Determines whether API version 1 has been configured.
-     * @return <code>true</code> if configured
-     */
-    def isApiVersion1: Boolean = settings.isApiVersion1
-
-
-    /**
      * Returns the configured public key.
      * @return The public key
      */
@@ -52,20 +41,20 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
      * Returns the configured theme, or "light" if none defined
      * @return The theme to use
      */
-    def v2Theme: String = settings.theme.getOrElse("light")
+    def captchaTheme: String = settings.theme.getOrElse("light")
 
 
     /**
      * Returns the configured captcha type, or the default if none defined
      * @return The type to use
      */
-    def v2Type: String = settings.captchaType
+    def captchaType: String = settings.captchaType
 
     /**
      * Returns the configured captcha size, or the default if none defined
      * @return The size to use
      */
-    def v2Size: String = settings.captchaSize
+    def captchaSize: String = settings.captchaSize
 
 
     /**
@@ -75,13 +64,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
      * @return The URL
      */
     def widgetScriptUrl(error: Option[String] = None)(implicit messages: Messages): String = {
-        if (isApiVersion1) {
-            // API v1 includes public key and error code (if any)
-	        val errorSuffix = error.map("&error=" + _).getOrElse("")
-
-          s"${settings.widgetScriptUrl}?k=$publicKey$errorSuffix"
-        } else {
-            val languageSuffix =
+        settings.widgetScriptUrl + (
                 if (settings.languageMode == "force") {
                     "?hl=" + settings.forceLanguage.get
                 } else if (settings.languageMode == "play") {
@@ -89,9 +72,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
                 } else {
                     ""
                 }
-
-            s"${settings.widgetScriptUrl}$languageSuffix"
-        }
+            )
     }
 
     /**
@@ -100,45 +81,8 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
      * @return The URL
      */
     def widgetNoScriptUrl(error: Option[String] = None): String = {
-        if (isApiVersion1) {
-            // API v1 includes public key and error code (if any)
-            val errorSuffix = error.map("&error=" + _).getOrElse("")
-
-            s"${settings.widgetNoScriptUrl}?k=$publicKey$errorSuffix"
-        } else {
-            // API v2 only includes public key
-            s"${settings.widgetNoScriptUrl}?k=$publicKey"
-        }
-    }
-
-    /**
-     * Returns the <code>RecaptchaOptions</code> JavaScript declaration, with the appropriate
-     * customisation options.
-     * @param tabindex		The tabindex (if any)
-     * @param request		The web request
-     * @param messages		The current I18n messages
-     * @return The JavaScript code
-     */
-    def recaptchaOptions(tabindex: Option[Int])(implicit request: Request[AnyContent],
-            messages: Messages): String =
-        new StringBuffer("var RecaptchaOptions = {\n")
-            .append(s"  lang : '${preferredLanguage()}'")
-            .append(settings.theme.fold(""){t => s",\n  theme : '$t'"})
-            .append(tabindex.fold(""){t => s",\n  tabindex : $t"})
-            .append(customTranslations().fold(""){t => s",\n  custom_translations : {\n$t\n  }"})
-            .append("\n};").toString
-
-    /**
-     * Returns the most preferred language (as extracted from the <code>Accept-Language</code> HTTP
-     * header in the request, if any) that is supported by reCAPTCHA. If no supported language is
-     * found, returns the default language from configuration (if any), otherwise English ("en").
-     * @param request		The web request
-     * @return The language code
-     */
-    private[recaptcha] def preferredLanguage()(implicit request: Request[AnyContent]): String = {
-        request.acceptLanguages.find(l => isSupportedLanguage(l.language))
-        	.fold(settings.defaultLanguage) // if no supported language found
-        		{lang => lang.language} // if a supported language was found
+        // API v2 only includes public key
+        settings.widgetNoScriptUrl + "?k=" + publicKey
     }
 
     /**
@@ -159,51 +103,6 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
         } else {
             // just use the language code
             lang.language
-        }
-    }
-    /**
-     * Determines whether the specified language code is supported by reCAPTCHA.
-     * @param languageCode		The language code
-     * @return <code>true</code> if supported
-     */
-    def isSupportedLanguage(languageCode: String): Boolean = {
-        RecaptchaSettings.supportedV1LanguageCodes.contains(languageCode)
-    }
-
-    /**
-     * Get the custom translations (if any) formatted as a JavaScript dictionary of escaped strings.
-     * @param messages		The current I18n messages
-     * @return The custom translations (if any)
-     */
-    private def customTranslations()(implicit messages: Messages): Option[String] = {
-        // maps play message names to javascript translation dictionary names
-        val messageNames = Map(
-                "recaptcha.visualChallenge" -> "visual_challenge",
-                "recaptcha.audioChallenge" -> "audio_challenge",
-                "recaptcha.refreshButton" -> "refresh_btn",
-                "recaptcha.instructionsVisual" -> "instructions_visual",
-                "recaptcha.instructionsAudio" -> "instructions_audio",
-                "recaptcha.helpButton" -> "help_btn",
-                "recaptcha.playAgain" -> "play_again",
-                "recaptcha.cantHearThis" -> "cant_hear_this",
-                "recaptcha.incorrectTryAgain" -> "incorrect_try_again",
-                "recaptcha.imageAltText" -> "image_alt_text",
-                "recaptcha.privacyAndTerms" -> "privacy_and_terms")
-
-        //logger.debug(s"language is ${messages.lang}")
-
-        val translations = ListBuffer[String]()
-        messageNames.keys.foreach(k => {
-                if (Messages.isDefinedAt(k)) {
-                    translations += s"    ${messageNames(k)} : '${StringEscapeUtils.escapeEcmaScript(Messages(k))}'"
-                }
-            }
-        )
-
-        if (translations.isEmpty) {
-            None
-        } else {
-            Some(translations.mkString(",\n"))
         }
     }
 }

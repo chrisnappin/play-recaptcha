@@ -3,37 +3,18 @@
 @****************************************************************************************
  * Low-level API: Renders a Google Recaptcha Widget, independent of the Play Forms API.
  *
- * @param includeNoScript   (v2 API) Whether to include the noscript block, default is true
- * @param error             (v1 API) The error code (if any), default is None
+ * @param includeNoScript   (Whether to include the noscript block, default is true
  * @param tabindex          The tabindex of the field (if any), default is None
  * @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc
  * @param request           (Implicit) The current request
  * @param messages          (Implicit) The current I18n messages
  ****************************************************************************************@
-@(includeNoScript: Boolean = true, error: Option[String] = None,
-    tabindex: Option[Int] = None)(implicit widgetHelper: WidgetHelper, request: Request[AnyContent], messages: Messages)
-
-@if(widgetHelper.isApiVersion1) {
-    
-<script type="text/javascript">
-@Html(widgetHelper.recaptchaOptions(tabindex))
-</script>
-
-<script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl(error))">
-</script>
-<noscript>
-   <iframe src="@Html(widgetHelper.widgetNoScriptUrl(error))"
-       height="300" width="500" frameborder="0"></iframe><br>
-   <textarea name="recaptcha_challenge_field" rows="3" cols="40">
-   </textarea>
-   <input type="hidden" name="recaptcha_response_field" value="manual_challenge">
-</noscript>
-
-} else {
+@(includeNoScript: Boolean = true, tabindex: Option[Int] = None)(implicit widgetHelper: WidgetHelper,
+        request: Request[AnyContent], messages: Messages)
 
 <script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
 <div class="g-recaptcha" data-sitekey="@Html(widgetHelper.publicKey)" @if(tabindex) { data-tabindex="@tabindex" }
-  data-theme="@Html(widgetHelper.v2Theme)" data-type="@Html(widgetHelper.v2Type)" data-size="@Html(widgetHelper.v2Size)"></div>
+  data-theme="@Html(widgetHelper.captchaTheme)" data-type="@Html(widgetHelper.captchaType)" data-size="@Html(widgetHelper.captchaSize)"></div>
     @if(includeNoScript) {
 <noscript>
   <div style="width: 302px; height: 352px;">
@@ -53,5 +34,4 @@
     </div>
   </div>
 </noscript>
-    }
 }

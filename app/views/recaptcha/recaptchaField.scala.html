@@ -6,7 +6,7 @@
  * @param form              The current form
  * @param fieldName         The logical field name
  * @param tabindex          The tabindex of the field (if any)
- * @param includeNoScript   (v2 API) Whether to include the noscript block, default is true 
+ * @param includeNoScript   Whether to include the noscript block, default is true
  * @param isRequired        Whether the field is to be shown as required (default is true)
  * @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc in the widget
  * @param request           (Implicit) The current request
@@ -21,7 +21,7 @@
 
 <dl class="error" id="@{fieldName}_field">
     <dt><label for="@fieldName">@messages(fieldName)</label></dt>
-    <dd>@recaptchaWidget(error = recaptchaError, tabindex = tabindex, includeNoScript = includeNoScript)</dd>
+    <dd>@recaptchaWidget(tabindex = tabindex, includeNoScript = includeNoScript)</dd>
 
 @errorCode match {
     

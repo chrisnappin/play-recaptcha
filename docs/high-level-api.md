@@ -36,12 +36,20 @@ recaptcha.publicKey|Your public (site) reCAPTCHA key|None
 recpatcha.requestTimeout|The timeout duration to use when contacting Google reCAPTCHA|10 seconds
 recpatcha.theme|The reCAPTCHA widget theme to use (see [reCAPTCHA v2 themes](https://developers.google.com/recaptcha/docs/display#config) for a list of possible values)|light
 recaptcha.type|The type of captcha to use (image or audio)|image
+recaptcha.size|The size of captcha to show (normal or compact)|normal
+recaptcha.languageMode|The internationalisation approach to use (auto, force, play)|auto
+recaptcha.forceLanguage|The language to use (if using force mode)|None
 
 
 (see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/conf/application.conf) for a complete example)
 
 ## Internationalisation
-This supports a comprehensive number of languages (see [supported language codes](https://developers.google.com/recaptcha/docs/language) for the latest list). Your end users can set a list of preferred languages in their web browser, and these will be identified by Google's JavaScript code itself with no further intervention needed (or interaction with Play i18n).
+The play-recaptcha module supports the following language modes (as set by the `recaptcha.languageMode` configuration setting:
+* `auto` - uses Google's JavaScript and built-in language support (see [supported language codes](https://developers.google.com/recaptcha/docs/language)) to automatically render the reCAPCTAH widget in the end user's web browser's preferred language, with no interaction with Play i18n.
+* `force` - forces the reCAPTCHA widget to use the language defined by the `recapctha.forceLanguage` configuration setting.
+* `play` - renders the reCAPTCHA widget using the Play i18n locale (which you can set in your application or use the default Play behaviour)
+
+Unless you need special behaviour (e.g. your website has its own language selection functionality, or it is only ever rendered in one language), use the default `auto` mode.
 
 The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1) is internationalised to two languages (English, French) as an example.
 
@@ -68,7 +76,7 @@ The complete list of `recaptcha.recaptchaField` parameters is as follows (I reco
   * ``form: Form[_]`` - the Play Form
   * ``fieldName: String`` - the name of the field
   * ``tabindex: Option[Int]`` - the HTML tabindex, default is ``None``
-  * ``includeNoScript: Boolean`` - whether to support non-JavaScript clients, default is ``true`` (used by reCAPTCHA v2 only)
+  * ``includeNoScript: Boolean`` - whether to support non-JavaScript clients, default is ``true``
   * ``isRequired: Boolean`` - whether to show the Play ``constraint.required`` message, default is ``false`` (note that the recaptcha field is always processed as if having a **required** form validation constraint)
 * Implicit parameters:
   * ``request: Request[AnyContent]`` - the current web request

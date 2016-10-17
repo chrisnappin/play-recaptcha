@@ -162,7 +162,7 @@ The ``map`` and ``fold`` methods are a great way of handling the ``Future`` and 
         }    
     }
 
-(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.0/app/controllers/ExampleForm.scala) for a complete example)
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/app/controllers/ExampleForm.scala) for a complete example)
 
 
 ##Troubleshooting

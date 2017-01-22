@@ -15,12 +15,10 @@
  */
 package views.recaptcha
 
-import com.nappin.play.recaptcha.{WidgetHelper, RecaptchaSettings}
-
+import com.nappin.play.recaptcha.{RecaptchaErrorCode, RecaptchaSettings, RecaptchaVerifier, WidgetHelper}
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
-
 import play.api.data._
 import play.api.data.Forms._
 import play.api.i18n.MessagesApi
@@ -119,6 +117,151 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
             // explicit tabindex
             html must contain("data-tabindex=\"42\"")
+        }
+
+        "show required marker if set" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelForm, fieldName = "myCaptcha", isRequired = true)(
+                widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // required marker shown to end user
+            html must contain("<dd class=\"info\">")
+        }
+
+        "default to show required marker" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelForm, fieldName = "myCaptcha")(
+                widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // required marker shown to end user
+            html must contain("<dd class=\"info\">")
+        }
+
+        "not show required marker if not set" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelForm, fieldName = "myCaptcha", isRequired = false)(
+                widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // required marker not shown to end user
+            html must not contain("<dd class=\"info\">")
+        }
+
+        "show captcha incorrect error" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val modelFormWithError = Form(mapping(
+                "field1" -> nonEmptyText,
+                "field2" -> optional(number)
+            )(Model.apply)(Model.unapply)).withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelFormWithError, fieldName = "myCaptcha")(widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // error shown to end user
+            html must contain("<dd class=\"error\">")
+        }
+
+        "show recaptcha not reachable error" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val modelFormWithError = Form(mapping(
+                "field1" -> nonEmptyText,
+                "field2" -> optional(number)
+            )(Model.apply)(Model.unapply)).withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelFormWithError, fieldName = "myCaptcha")(widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // error shown to end user
+            html must contain("<dd class=\"error\">")
+        }
+
+        "show api error" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val modelFormWithError = Form(mapping(
+                "field1" -> nonEmptyText,
+                "field2" -> optional(number)
+            )(Model.apply)(Model.unapply)).withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelFormWithError, fieldName = "myCaptcha")(widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // error shown to end user
+            html must contain("<dd class=\"error\">")
+        }
+
+        "show response missing error" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val modelFormWithError = Form(mapping(
+                "field1" -> nonEmptyText,
+                "field2" -> optional(number)
+            )(Model.apply)(Model.unapply)).withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelFormWithError, fieldName = "myCaptcha")(widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // error shown to end user
+            html must contain("<dd class=\"error\">")
+        }
+
+        "ignores other errors" in new WithApplication(validV2Application) with WithWidgetHelper {
+            val messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
+            val modelFormWithError = Form(mapping(
+                "field1" -> nonEmptyText,
+                "field2" -> optional(number)
+            )(Model.apply)(Model.unapply)).withError(
+                RecaptchaVerifier.formErrorKey, "wibble")
+
+            val html = contentAsString(views.html.recaptcha.recaptchaField(
+                form = modelFormWithError, fieldName = "myCaptcha")(widgetHelper, request, messages))
+
+            // include v2 recaptcha widget
+            html must contain("api.js")
+            html must contain("g-recaptcha")
+
+            // error shown to end user
+            html must not contain("<dd class=\"error\">")
         }
     }
 

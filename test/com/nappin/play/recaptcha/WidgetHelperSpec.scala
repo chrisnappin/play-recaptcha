@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Chris Nappin
+ * Copyright 2017 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ import RecaptchaSettings._
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
-import play.api.{Mode, Environment, Configuration}
-import play.api.i18n.{MessagesApi, I18nComponents, Lang}
-import play.api.test.{FakeApplication, WithApplication, FakeRequest, PlaySpecification}
+import play.api.data.Form
+import play.api.data.Forms.{mapping, number, nonEmptyText, optional}
+import play.api.i18n.{Lang, MessagesApi}
+import play.api.test.{FakeApplication, PlaySpecification, WithApplication}
 
 /**
  * Tests the <code>WidgetHelper</code> object.
@@ -115,6 +116,60 @@ class WidgetHelperSpec extends PlaySpecification {
 
         "return the public key" in new WithWidgetHelper(validV2Settings) {
             widgetHelper.publicKey must equalTo("public-key")
+        }
+    }
+
+    "getFieldError" should {
+        // used to bind with
+        case class Model(field1: String, field2: Option[Int])
+
+        val modelForm = Form(mapping(
+            "field1" -> nonEmptyText,
+            "field2" -> optional(number)
+        )(Model.apply)(Model.unapply))
+
+        "return None if no error" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            widgetHelper.getFieldError(modelForm) must equalTo(None)
+        }
+
+        "return error if captcha incorrect" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            val modelFormWithError = modelForm.withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
+
+            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-CaptchaIncorrect"))
+        }
+
+        "return error if recaptcha not reachable" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            val modelFormWithError = modelForm.withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable)
+
+            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-RecaptchaNotReachable"))
+        }
+
+        "return error if api error" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            val modelFormWithError = modelForm.withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
+
+            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-ApiError"))
+        }
+
+        "return error if response missing" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            val modelFormWithError = modelForm.withError(
+                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
+
+            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-Required"))
+        }
+
+        "return None if other error" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
+
+            widgetHelper.getFieldError(modelFormWithError) must equalTo(None)
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Chris Nappin
+ * Copyright 2017 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("<noscript")
             html must contain("g-recaptcha-response")
 
+            // dl doesn't have error class
+            html must not contain("<dl class=\"error\"")
+
             // no tabindex
             html must not contain("data-tabindex")
         }
@@ -92,6 +95,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // include v2 recaptcha widget
             html must contain("api.js")
             html must contain("g-recaptcha")
+
+            // dl doesn't have error class
+            html must not contain("<dl class=\"error\"")
 
             // no error shown to end user
             html must not contain("<dd class=\"error\">")
@@ -112,6 +118,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
+            // dl doesn't have error class
+            html must not contain("<dl class=\"error\"")
+
             // no error shown to end user
             html must not contain("<dd class=\"error\">")
 
@@ -130,6 +139,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
+            // dl doesn't have error class
+            html must not contain("<dl class=\"error\"")
+
             // required marker shown to end user
             html must contain("<dd class=\"info\">")
         }
@@ -144,6 +156,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             // include v2 recaptcha widget
             html must contain("api.js")
             html must contain("g-recaptcha")
+
+            // dl doesn't have error class
+            html must not contain("<dl class=\"error\"")
 
             // required marker shown to end user
             html must contain("<dd class=\"info\">")
@@ -160,6 +175,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
+            // dl doesn't have error class
+            html must not contain("<dl class=\"error\"")
+
             // required marker not shown to end user
             html must not contain("<dd class=\"info\">")
         }
@@ -167,10 +185,7 @@ class RecaptchaFieldSpec extends PlaySpecification {
         "show captcha incorrect error" in new WithApplication(validV2Application) with WithWidgetHelper {
             val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            val modelFormWithError = Form(mapping(
-                "field1" -> nonEmptyText,
-                "field2" -> optional(number)
-            )(Model.apply)(Model.unapply)).withError(
+            val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
@@ -180,6 +195,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
+            // dl has error class
+            html must contain("<dl class=\"error\"")
+
             // error shown to end user
             html must contain("<dd class=\"error\">")
         }
@@ -187,10 +205,7 @@ class RecaptchaFieldSpec extends PlaySpecification {
         "show recaptcha not reachable error" in new WithApplication(validV2Application) with WithWidgetHelper {
             val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            val modelFormWithError = Form(mapping(
-                "field1" -> nonEmptyText,
-                "field2" -> optional(number)
-            )(Model.apply)(Model.unapply)).withError(
+            val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
@@ -200,6 +215,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
+            // dl has error class
+            html must contain("<dl class=\"error\"")
+
             // error shown to end user
             html must contain("<dd class=\"error\">")
         }
@@ -207,10 +225,7 @@ class RecaptchaFieldSpec extends PlaySpecification {
         "show api error" in new WithApplication(validV2Application) with WithWidgetHelper {
             val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            val modelFormWithError = Form(mapping(
-                "field1" -> nonEmptyText,
-                "field2" -> optional(number)
-            )(Model.apply)(Model.unapply)).withError(
+            val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
@@ -220,6 +235,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
+            // dl has error class
+            html must contain("<dl class=\"error\"")
+
             // error shown to end user
             html must contain("<dd class=\"error\">")
         }
@@ -227,10 +245,7 @@ class RecaptchaFieldSpec extends PlaySpecification {
         "show response missing error" in new WithApplication(validV2Application) with WithWidgetHelper {
             val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            val modelFormWithError = Form(mapping(
-                "field1" -> nonEmptyText,
-                "field2" -> optional(number)
-            )(Model.apply)(Model.unapply)).withError(
+            val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
@@ -240,6 +255,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
+            // dl has error class
+            html must contain("<dl class=\"error\"")
+
             // error shown to end user
             html must contain("<dd class=\"error\">")
         }
@@ -247,10 +265,7 @@ class RecaptchaFieldSpec extends PlaySpecification {
         "ignores other errors" in new WithApplication(validV2Application) with WithWidgetHelper {
             val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
-            val modelFormWithError = Form(mapping(
-                "field1" -> nonEmptyText,
-                "field2" -> optional(number)
-            )(Model.apply)(Model.unapply)).withError(
+            val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, "wibble")
 
             val html = contentAsString(views.html.recaptcha.recaptchaField(
@@ -260,7 +275,10 @@ class RecaptchaFieldSpec extends PlaySpecification {
             html must contain("api.js")
             html must contain("g-recaptcha")
 
-            // error shown to end user
+            // dl doesn't have error class
+            html must not contain("<dl class=\"error\"")
+
+            // error not shown to end user
             html must not contain("<dd class=\"error\">")
         }
     }

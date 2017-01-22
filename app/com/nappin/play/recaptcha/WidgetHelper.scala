@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Chris Nappin
+ * Copyright 2017 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ package com.nappin.play.recaptcha
 
 import play.api.Logger
 import play.api.i18n.{Lang, Messages}
-
 import javax.inject.{Inject, Singleton}
+
+import play.api.data.Form
 
 /**
   * Helper functionality for the <code>recaptchaWidget</code> view template.
@@ -86,6 +87,47 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
     }
 
     /**
+      * Get the error for the reCAPTCHA field from the form, if any.
+      * @param form         The form to check
+      * @param messages     The current Play messages
+      * @return The error message, if any
+      */
+    def getFieldError(form: Form[_])(implicit messages: Messages): Option[String] = {
+        form.error(RecaptchaVerifier.formErrorKey).map(e => {
+            e.message match {
+
+                case RecaptchaErrorCode.captchaIncorrect =>
+                    Some(messageOrDefault("error.captchaIncorrect", "Incorrect, please try again"))
+
+                case RecaptchaErrorCode.recaptchaNotReachable =>
+                    Some(messageOrDefault("error.recaptchaNotReachable", "Unable to contact Recaptcha"))
+
+                case RecaptchaErrorCode.apiError =>
+                    Some(messageOrDefault("error.apiError", "Invalid response from Recaptcha"))
+
+                case RecaptchaErrorCode.responseMissing => Some(messages("error.required"))
+
+                case _ => None
+            }
+        }).getOrElse(None)
+    }
+
+    /**
+      * Get the message, or use the default if message not defined.
+      * @param key          The message key
+      * @param default      The default message
+      * @param messages     The current Play messages
+      * @return The message, or default
+      */
+    private def messageOrDefault(key: String, default: String)(implicit messages: Messages): String = {
+        if (messages.isDefinedAt(key)) {
+            messages(key)
+        } else {
+            default
+        }
+    }
+
+    /**
      * Maps the current Play locale to the reCAPTCHA v2 language code.
      * @param lang The play locale
      * @return The language code, possibly with country code too
@@ -95,7 +137,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
         // (taken from https://developers.google.com/recaptcha/docs/language in October 2016)
         val supportedCountryLocales = Seq(
                 Lang("zh", "HK"), Lang("zh", "CN"), Lang("zh", "TW"), Lang("en", "GB"), Lang("fr", "CA"),
-                Lang("de", "AT"), Lang("de", "CH"), Lang("pr", "BR"), Lang("pr", "PT"), Lang("es", "419"))
+                Lang("de", "AT"), Lang("de", "CH"), Lang("pt", "BR"), Lang("pt", "PT"), Lang("es", "419"))
 
         if (supportedCountryLocales.contains(lang)) {
             // use language and country code

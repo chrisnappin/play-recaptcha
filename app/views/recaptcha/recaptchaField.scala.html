@@ -15,32 +15,14 @@
 @(form: Form[_], fieldName: String, tabindex: Option[Int] = None, includeNoScript: Boolean = true,
     isRequired: Boolean = true)(implicit widgetHelper: WidgetHelper, request: Request[AnyContent], messages: Messages)
 
-@messageOrDefault(key: String, default: String) = @{ if (messages.isDefinedAt(key)) { messages(key) } else { default } }
-@errorCode = @{ form.error(RecaptchaVerifier.formErrorKey).map(e => { Some(e.message) }).getOrElse(None) }
+@errorMessage = @{widgetHelper.getFieldError(form)}
 
-<dl class="error" id="@{fieldName}_field">
+<dl class="@if(errorMessage.isDefined) {error}" id="@{fieldName}_field">
     <dt><label for="@fieldName">@messages(fieldName)</label></dt>
     <dd>@recaptchaWidget(tabindex = tabindex, includeNoScript = includeNoScript)</dd>
 
-@errorCode match {
-    
-    case Some(RecaptchaErrorCode.captchaIncorrect) => {
-        <dd class="error">@messageOrDefault("error.captchaIncorrect", "Incorrect, please try again")</dd>
-    }
-    
-    case Some(RecaptchaErrorCode.recaptchaNotReachable) => {
-        <dd class="error">@messageOrDefault("error.recaptchaNotReachable", "Unable to contact Recaptcha")</dd>
-    }
-    
-    case Some(RecaptchaErrorCode.apiError) => {
-        <dd class="error">@messageOrDefault("error.apiError", "Invalid response from Recaptcha")</dd>
-    }
-    
-    case Some(RecaptchaErrorCode.responseMissing) => {
-        <dd class="error">@messages("error.required")</dd>
-    }
-    
-    case _ => {}
+@errorMessage.map { message =>
+    <dd class="error">@message</dd>
 }
     
 @if(isRequired) {    

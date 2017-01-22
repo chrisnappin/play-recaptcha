@@ -17,7 +17,6 @@
 
 @messageOrDefault(key: String, default: String) = @{ if (messages.isDefinedAt(key)) { messages(key) } else { default } }
 @errorCode = @{ form.error(RecaptchaVerifier.formErrorKey).map(e => { Some(e.message) }).getOrElse(None) }
-@recaptchaError = @{ errorCode.filter(code => !RecaptchaErrorCode.isInternalErrorCode(code)) }
 
 <dl class="error" id="@{fieldName}_field">
     <dt><label for="@fieldName">@messages(fieldName)</label></dt>

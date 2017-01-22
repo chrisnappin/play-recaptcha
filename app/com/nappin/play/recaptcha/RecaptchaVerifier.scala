@@ -207,15 +207,4 @@ object RecaptchaErrorCode {
 
     /** The recaptcha response was missing from the request (probably an end user error). */
     val responseMissing = "recaptcha-response-missing"
-
-    /** Error codes that are only for internal use by this module, and shouldn't be passed to the recaptcha API. */
-    val internalErrorCodes = Seq(recaptchaNotReachable, apiError, responseMissing)
-
-    /**
-     * Determine whether the specified error code is for internal use only by this module, and shouldn't be passed
-     * to the recaptcha API.
-     * @param errorCode		The error code
-     * @return <code>true</code> if internal
-     */
-    def isInternalErrorCode(errorCode: String): Boolean = internalErrorCodes.contains(errorCode)
 }

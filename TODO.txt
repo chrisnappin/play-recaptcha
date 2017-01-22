@@ -41,8 +41,8 @@ done for version 2.0
 - merge in pull requests
 - upgrade to Play 2.5.x
 
-todo list for version 2.1
--------------------------
+done for version 2.1
+--------------------
 - done: added tabindex: add v2 support - g-recaptcha tag data-tabindex => nn
 - done: added v2 size support - g-recaptcha tag data-size => compact or normal
 - done: added languageMode settings: auto, force, play
@@ -55,6 +55,21 @@ todo list for version 2.1
 
 todo list for future releases
 -----------------------------
+- twitter bootstrap HTML customise request:
+    - example uses divs rather than dl/dt/dd for label, widget and error message layout
+    - divs have custom classes (several, fixed and for errors)
+
+    <div class="@if(elements.hasErrors) {error}">
+        <label for="@elements.id">@elements.label</label>
+        <div class="input">
+            @elements.input
+            <span class="errors">@elements.errors.mkString(", ")</span>
+            <span class="help">@elements.infos.mkString(", ")</span>
+        </div>
+    </div>
+
+    - see Play docs - custom field constructors
+
 - plus back port to v1.5 (Play 2.4)??
 - extras: ajax api, javascript support
 - typesafe activator?

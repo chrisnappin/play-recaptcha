@@ -26,6 +26,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 
+import play.api.libs.json._
+
 object RecaptchaVerifier {
     /** The artificial form field key used for captcha errors. */
     val formErrorKey = "com.nappin.play.recaptcha.error"
@@ -41,7 +43,7 @@ object RecaptchaVerifier {
  * Verifies whether a recaptcha response is valid, by invoking the Google Recaptcha verify web
  * service.
  *
- * @author chrisnappin
+ * @author chrisnappin, AmazingDreams
  * @constructor Creates a new instance.
  * @param settings     The Recaptcha settings
  * @param parser        The response parser to use
@@ -52,32 +54,69 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
 
     val logger = Logger(this.getClass)
 
+    /**
+      * Get the request data, regardless of the request format (form, JSON, etc).
+      *
+      * Returns an empty map if an unsupported request format.
+      *
+      * @param request      The implicit request
+      * @return A map of request parameter values, keyed by parameter name
+      */
     private def getRequestPostData()(implicit request: play.api.mvc.Request[_]): Map[String, Seq[String]] = {
-        import play.api.libs.json._
-
-        def fromJson(prefix: String = "", js: JsValue): Map[String, String] = js match {
-            case JsObject(fields) => {
-                fields.map { case (key, value) => fromJson(Option(prefix).filterNot(_.isEmpty).map(_ + ".").getOrElse("") + key, value) }.foldLeft(Map.empty[String, String])(_ ++ _)
-            }
-            case JsArray(values) => {
-                values.zipWithIndex.map { case (value, i) => fromJson(prefix + "[" + i + "]", value) }.foldLeft(Map.empty[String, String])(_ ++ _)
-            }
-            case JsNull => Map.empty
-            case JsUndefined() => Map.empty
-            case JsBoolean(value) => Map(prefix -> value.toString)
-            case JsNumber(value) => Map(prefix -> value.toString)
-            case JsString(value) => Map(prefix -> value.toString)
-        }
-
         request.body match {
-            case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => body.asFormUrlEncoded.get
-            case body: play.api.mvc.AnyContent if body.asMultipartFormData.isDefined => body.asMultipartFormData.get.asFormUrlEncoded
-            case body: play.api.mvc.AnyContent if body.asJson.isDefined => fromJson(js = body.asJson.get).mapValues(Seq(_))
-            case body: Map[_, _] => body.asInstanceOf[Map[String, Seq[String]]]
-            case body: play.api.mvc.MultipartFormData[_] => body.asFormUrlEncoded
-            case body: play.api.libs.json.JsValue => fromJson(js = body).mapValues(Seq(_))
-            case _ => Map.empty[String, Seq[String]]
+            case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => {
+                body.asFormUrlEncoded.get
+            }
+            case body: play.api.mvc.AnyContent if body.asMultipartFormData.isDefined => {
+                body.asMultipartFormData.get.asFormUrlEncoded
+            }
+            case body: play.api.mvc.AnyContent if body.asJson.isDefined => {
+                fromJson(js = body.asJson.get).mapValues(Seq(_))
+            }
+            case body: Map[_, _] => {
+                body.asInstanceOf[Map[String, Seq[String]]]
+            }
+            case body: play.api.mvc.MultipartFormData[_] => {
+                body.asFormUrlEncoded
+            }
+            case body: play.api.libs.json.JsValue => {
+                fromJson(js = body).mapValues(Seq(_))
+            }
+            case _ => {
+                Map.empty[String, Seq[String]]
+            }
         }
+    }
+
+    /**
+      * Recursively converts JSON data.
+      *
+      * This code was provided by AmazingDreams and comes from the Play source code. It does not support certain
+      * corner cases like repeating object names or JSON nulls.
+      *
+      * @param prefix       The current parameter name prefix
+      * @param js           The current JSON object
+      * @return A map of each request parameter value keyed by parameter name, where sub-objects have names of the form
+      *         "&lt;parent&gt;.&lt;child&gt;" etc (recursing to any number of levels).
+      */
+    private[recaptcha] def fromJson(prefix: String = "", js: JsValue): Map[String, String] = js match {
+        case JsObject(fields) => {
+            fields.map {
+                case (key, value) => {
+                    fromJson(Option(prefix).filterNot(_.isEmpty).map(_ + ".").getOrElse("") + key, value)
+                }
+            }.foldLeft(Map.empty[String, String])(_ ++ _)
+        }
+        case JsArray(values) => {
+            values.zipWithIndex.map {
+                case (value, i) => fromJson(prefix + "[" + i + "]", value)
+            }.foldLeft(Map.empty[String, String])(_ ++ _)
+        }
+        case JsNull => Map.empty
+        case JsUndefined() => Map.empty
+        case JsBoolean(value) => Map(prefix -> value.toString)
+        case JsNumber(value) => Map(prefix -> value.toString)
+        case JsString(value) => Map(prefix -> value.toString)
     }
 
     /**

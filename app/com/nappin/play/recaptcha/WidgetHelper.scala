@@ -87,6 +87,32 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
     }
 
     /**
+      * Resolves any recaptcha error messages (from message key to message text) and associates it with the specified
+      * fieldname (instead of the default of <code>com.nappin.play.recaptcha.error</code>).
+      * @param fieldname    The name of the recaptcha field
+      * @param form         The form
+      * @param messages     The current Play messages
+      * @return The form, updated if required
+      */
+    def resolveRecaptchaErrors(fieldname: String, form: Form[_])(implicit messages: Messages): Form[_] = {
+        val resolvedRecaptchaErrorMessage = getFieldError(form)
+        if (resolvedRecaptchaErrorMessage.isDefined) {
+            // remove previous errors, add resolved recaptcha error
+            var newForm = form.discardingErrors.withError(fieldname, resolvedRecaptchaErrorMessage.get)
+
+            // add back in the other errors (apart from the original recaptcha error)
+            form.errors.foreach(e =>
+                if (e.key != RecaptchaVerifier.formErrorKey) newForm = newForm.withError(e.key, e.message))
+
+            newForm
+
+        } else {
+            // no resolving needed
+            form
+        }
+    }
+
+    /**
       * Get the error for the reCAPTCHA field from the form, if any.
       * @param form         The form to check
       * @param messages     The current Play messages
@@ -134,7 +160,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
      */
     private def mapToV2Language(lang: Lang): String = {
         // list of language and country code combinations specifically supported by reCAPTCHA
-        // (taken from https://developers.google.com/recaptcha/docs/language in October 2016)
+        // (taken from https://developers.google.com/recaptcha/docs/language in May 2017)
         val supportedCountryLocales = Seq(
                 Lang("zh", "HK"), Lang("zh", "CN"), Lang("zh", "TW"), Lang("en", "GB"), Lang("fr", "CA"),
                 Lang("de", "AT"), Lang("de", "CH"), Lang("pt", "BR"), Lang("pt", "PT"), Lang("es", "419"))

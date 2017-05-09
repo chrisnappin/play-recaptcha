@@ -19,8 +19,8 @@ import RecaptchaSettings._
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
-import play.api.data.Form
-import play.api.data.Forms.{mapping, number, nonEmptyText, optional}
+import play.api.data.{Form, FormError}
+import play.api.data.Forms.{mapping, nonEmptyText, number, optional}
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.test.{FakeApplication, PlaySpecification, WithApplication}
 
@@ -31,6 +31,14 @@ import play.api.test.{FakeApplication, PlaySpecification, WithApplication}
  */
 @RunWith(classOf[JUnitRunner])
 class WidgetHelperSpec extends PlaySpecification {
+
+    // used to bind with
+    case class Model(field1: String, field2: Option[Int])
+
+    val modelForm = Form(mapping(
+        "field1" -> nonEmptyText,
+        "field2" -> optional(number)
+    )(Model.apply)(Model.unapply))
 
     val validV2Settings: Map[String, String] =  Map(
         PrivateKeyConfigProp -> "private-key",
@@ -74,8 +82,7 @@ class WidgetHelperSpec extends PlaySpecification {
         }
 
         "include language (only) if mode is play" in new WithWidgetHelper(
-                validV2Settings ++ Map(LanguageModeConfigProp -> "play",
-                        "play.i18n.langs" -> Seq("fr"))) {
+                validV2Settings ++ Map(LanguageModeConfigProp -> "play", "play.i18n.langs" -> Seq("fr"))) {
             // no browser locale, should just use the default language set above...
             implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq.empty[Lang])
 
@@ -107,8 +114,7 @@ class WidgetHelperSpec extends PlaySpecification {
         }
 
         "exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
-            widgetHelper.widgetNoScriptUrl(Some("error-code")) must
-                endWith("fallback?k=public-key")
+            widgetHelper.widgetNoScriptUrl(Some("error-code")) must endWith("fallback?k=public-key")
         }
     }
 
@@ -120,13 +126,6 @@ class WidgetHelperSpec extends PlaySpecification {
     }
 
     "getFieldError" should {
-        // used to bind with
-        case class Model(field1: String, field2: Option[Int])
-
-        val modelForm = Form(mapping(
-            "field1" -> nonEmptyText,
-            "field2" -> optional(number)
-        )(Model.apply)(Model.unapply))
 
         "return None if no error" in new WithWidgetHelper(validV2Settings) {
             implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
@@ -170,6 +169,35 @@ class WidgetHelperSpec extends PlaySpecification {
             val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
 
             widgetHelper.getFieldError(modelFormWithError) must equalTo(None)
+        }
+    }
+
+    "resolveRecaptchaErrors" should {
+
+        "return existing errors unchanged" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            val input = modelForm.withError("field1", "error-key1")
+                                 .withError("field2", "error-key2")
+            val result = widgetHelper.resolveRecaptchaErrors("captcha", input)
+
+            result.hasErrors must equalTo(true)
+            result.errors must equalTo(Seq(
+                FormError("field1", "error-key1"),
+                FormError("field2", "error-key2")))
+        }
+
+        "resolve recaptcha error (en)" in new WithWidgetHelper(validV2Settings) {
+            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+            val input = modelForm.withError("field1", "error-key1")
+                                 .withError("field2", "error-key2")
+                                 .withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
+            val result = widgetHelper.resolveRecaptchaErrors("captcha", input)
+
+            result.hasErrors must equalTo(true)
+            result.errors must equalTo(Seq(
+                FormError("captcha", "Error-CaptchaIncorrect"), // from test-conf/messages
+                FormError("field1", "error-key1"),
+                FormError("field2", "error-key2")))
         }
     }
 }

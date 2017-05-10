@@ -19,7 +19,7 @@ import com.nappin.play.recaptcha.{RecaptchaErrorCode, RecaptchaSettings, Recaptc
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
-import play.api.data._
+import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.MessagesApi
 import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
@@ -36,11 +36,6 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
     val scriptApi = "http://www.google.com/recaptcha/api/challenge"
     val noScriptApi = "http://www.google.com/recaptcha/api/noscript"
-    val validApplication = GuiceApplicationBuilder().in(new File("test-conf/"))
-            .configure(Map(
-                "play.i18n.langs" -> Seq("en", "fr"),
-                RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
-                RecaptchaSettings.PublicKeyConfigProp -> "public-key")).build()
 
     // used to bind with
     case class Model(field1: String, field2: Option[Int])

@@ -129,7 +129,7 @@ class WidgetHelperSpec extends PlaySpecification {
 
         "return None if no error" in new WithWidgetHelper(validV2Settings) {
             implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            widgetHelper.getFieldError(modelForm) must equalTo(None)
+            widgetHelper.getFieldError(modelForm) must beNone
         }
 
         "return error if captcha incorrect" in new WithWidgetHelper(validV2Settings) {
@@ -137,7 +137,7 @@ class WidgetHelperSpec extends PlaySpecification {
             val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
 
-            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-CaptchaIncorrect"))
+            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-CaptchaIncorrect")
         }
 
         "return error if recaptcha not reachable" in new WithWidgetHelper(validV2Settings) {
@@ -145,7 +145,7 @@ class WidgetHelperSpec extends PlaySpecification {
             val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable)
 
-            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-RecaptchaNotReachable"))
+            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-RecaptchaNotReachable")
         }
 
         "return error if api error" in new WithWidgetHelper(validV2Settings) {
@@ -153,7 +153,7 @@ class WidgetHelperSpec extends PlaySpecification {
             val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
 
-            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-ApiError"))
+            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-ApiError")
         }
 
         "return error if response missing" in new WithWidgetHelper(validV2Settings) {
@@ -161,14 +161,14 @@ class WidgetHelperSpec extends PlaySpecification {
             val modelFormWithError = modelForm.withError(
                 RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
 
-            widgetHelper.getFieldError(modelFormWithError) must equalTo(Some("Error-Required"))
+            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-Required")
         }
 
         "return None if other error" in new WithWidgetHelper(validV2Settings) {
             implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
             val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
 
-            widgetHelper.getFieldError(modelFormWithError) must equalTo(None)
+            widgetHelper.getFieldError(modelFormWithError) must beNone
         }
     }
 

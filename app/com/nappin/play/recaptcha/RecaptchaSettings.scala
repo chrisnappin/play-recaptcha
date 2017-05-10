@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Chris Nappin
+ * Copyright 2017 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import javax.inject.{Inject, Singleton}
 class RecaptchaSettings @Inject() (configuration: Configuration) {
     import RecaptchaSettings._
 
-    val logger = Logger(this.getClass())
+    private val logger = Logger(this.getClass())
 
     /** The application's recaptcha private key. */
     val privateKey: String = configuration.underlying.getString(PrivateKeyConfigProp)
@@ -87,7 +87,6 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
      * Check whether the mandatory configuration is present. If not a suitable error log
      * message will be written.
      * @param configuration		The configuration to check
-     * @throws RecaptchaConfigurationException If configuration is invalid
      */
     private def checkMandatoryConfigurationPresent(configuration: Configuration): Unit = {
         var mandatoryConfigurationPresent = true
@@ -101,9 +100,8 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
         })
 
         if (!mandatoryConfigurationPresent) {
-            val message = "Mandatory configuration missing. Please check the module " +
-                    "documentation and add the missing items to your application.conf file."
-            logger.error(message)
+            logger.error("Mandatory configuration missing. Please check the module " +
+                         "documentation and add the missing items to your application.conf file.")
         }
     }
 
@@ -111,7 +109,7 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
      * Check whether the configuration is valid. If not a suitable error log message will
      * be written.
      * @param configuration		The configuration to check
-     * @throws RecaptchaConfigurationException If configuration is invalid
+     * @throws ConfigException.Missing If configuration is invalid
      */
     private def checkConfigurationValid(configuration: Configuration): Unit = {
         // if languageMode is set to "force" then "forceLanguage" must be defined

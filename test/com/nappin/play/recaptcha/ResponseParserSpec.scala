@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Chris Nappin
+ * Copyright 2017 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,18 +52,15 @@ class ResponseParserSpec extends Specification {
         }
 
         "accept a single line valid response" in {
-            parser.parseV2Response(Json.parse("{ \"success\": true }")) must
-                equalTo(successResult)
+            parser.parseV2Response(Json.parse("{ \"success\": true }")) must equalTo(successResult)
         }
 
         "accept a multi line valid response" in {
-            parser.parseV2Response(Json.parse("{ \n\"success\": true\n }")) must
-                equalTo(successResult)
+            parser.parseV2Response(Json.parse("{ \n\"success\": true\n }")) must equalTo(successResult)
         }
 
         "accept a failure response without error code" in {
-            parser.parseV2Response(Json.parse("{ \"success\": false }")) must
-                equalTo(Left(Error("")))
+            parser.parseV2Response(Json.parse("{ \"success\": false }")) must beLeft(Error(""))
         }
 
         "accept a failure response with error code" in {
@@ -72,7 +69,7 @@ class ResponseParserSpec extends Specification {
     "success": false,
     "error-codes": ["abc"]
 }"""
-                )) must equalTo(Left(Error("abc")))
+                )) must beLeft(Error("abc"))
         }
 
                 "accept a failure response with multiple error codes" in {
@@ -81,7 +78,7 @@ class ResponseParserSpec extends Specification {
     "success": false,
     "error-codes": ["aa", "bb", "cc"]
 }"""
-                )) must equalTo(Left(Error("aa")))
+                )) must beLeft(Error("aa"))
         }
     }
 }

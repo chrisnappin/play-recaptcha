@@ -30,7 +30,7 @@ import play.api.data.Form
 @Singleton
 class WidgetHelper @Inject() (settings: RecaptchaSettings) {
 
-    val logger = Logger(this.getClass)
+    private val logger = Logger(this.getClass)
 
     /**
      * Returns the configured public key.

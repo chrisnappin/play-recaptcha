@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Chris Nappin
+ * Copyright 2017 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ object RecaptchaVerifier {
 @Singleton
 class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: ResponseParser, wsClient: WSClient) {
 
-    val logger = Logger(this.getClass)
+    private val logger = Logger(this.getClass)
 
     /**
       * Get the request data, regardless of the request format (form, JSON, etc).

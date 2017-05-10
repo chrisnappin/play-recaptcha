@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Chris Nappin
+ * Copyright 2017 Chris Nappin
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class ResponseParser @Inject() (){
 
-    val logger = Logger(this.getClass)
+    private val logger = Logger(this.getClass)
 
     /**
      * Parses a verify API V2 response, which is a very simple JSON object.

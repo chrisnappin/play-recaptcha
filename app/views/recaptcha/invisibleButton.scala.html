@@ -5,10 +5,11 @@
 *
 * @param formId            The HTML id of the form the button is within
 * @param text              The text of the button
+* @param args              HTML attributes for the button (optional)
 * @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc
 * @param messages          (Implicit) The current I18n messages
 ****************************************************************************************@
-@(formId: String, text: String)(implicit widgetHelper: WidgetHelper, messages: Messages)
+@(formId: String, text: String, args: (Symbol, String)*)(implicit widgetHelper: WidgetHelper, messages: Messages)
 
 <script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
 <script>
@@ -16,4 +17,5 @@ function onRecaptchaSubmit(token) {
     document.getElementById("@formId").submit();
 }
 </script>
-<button class="g-recaptcha" data-sitekey="@Html(widgetHelper.publicKey)" data-callback="onRecaptchaSubmit">@text</button>
+<button class="@Html(widgetHelper.formatClass("g-recaptcha", args: _*))" @Html(widgetHelper.formatOtherAttributes(args: _*))
+  data-sitekey="@Html(widgetHelper.publicKey)" data-callback="onRecaptchaSubmit">@text</button>

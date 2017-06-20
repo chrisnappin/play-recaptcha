@@ -25,179 +25,215 @@ import play.api.i18n.{Lang, MessagesApi}
 import play.api.test.{FakeApplication, PlaySpecification, WithApplication}
 
 /**
- * Tests the <code>WidgetHelper</code> object.
- *
- * @author chrisnappin
- */
+  * Tests the <code>WidgetHelper</code> object.
+  *
+  * @author chrisnappin
+  */
 @RunWith(classOf[JUnitRunner])
 class WidgetHelperSpec extends PlaySpecification {
 
-    // used to bind with
-    case class Model(field1: String, field2: Option[Int])
+  // used to bind with
+  case class Model(field1: String, field2: Option[Int])
 
-    val modelForm = Form(mapping(
-        "field1" -> nonEmptyText,
-        "field2" -> optional(number)
-    )(Model.apply)(Model.unapply))
+  val modelForm = Form(mapping(
+    "field1" -> nonEmptyText,
+    "field2" -> optional(number)
+  )(Model.apply)(Model.unapply))
 
-    val validV2Settings: Map[String, String] =  Map(
-        PrivateKeyConfigProp -> "private-key",
-        PublicKeyConfigProp -> "public-key",
-        RequestTimeoutConfigProp -> "5 seconds")
+  val validV2Settings: Map[String, String] = Map(
+    PrivateKeyConfigProp -> "private-key",
+    PublicKeyConfigProp -> "public-key",
+    RequestTimeoutConfigProp -> "5 seconds")
 
-    abstract class WithWidgetHelper(configProps: Map[String, AnyRef]) extends WithApplication(
-        FakeApplication(additionalConfiguration = configProps)) with Scope {
+  abstract class WithWidgetHelper(configProps: Map[String, AnyRef]) extends WithApplication(
+    FakeApplication(additionalConfiguration = configProps)) with Scope {
 
-        val settings = new RecaptchaSettings(app.configuration)
-        val widgetHelper = new WidgetHelper(settings)
+    val settings = new RecaptchaSettings(app.configuration)
+    val widgetHelper = new WidgetHelper(settings)
+  }
+
+  "getWidgetScriptUrl" should {
+
+    "exclude public key" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
+
+      widgetHelper.widgetScriptUrl(None) must endWith("api.js")
     }
 
-    "getWidgetScriptUrl" should {
+    "exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
 
-        "exclude public key" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
-            
-            widgetHelper.widgetScriptUrl(None) must endWith("api.js")
-        }
-
-        "exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
-            
-            widgetHelper.widgetScriptUrl(Some("error-code")) must endWith("api.js")
-        }
-
-        "exclude language if mode is auto" in new WithWidgetHelper(
-                validV2Settings ++ Map(LanguageModeConfigProp -> "auto")) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
-            
-            widgetHelper.widgetScriptUrl(None) must endWith("api.js")
-        }
-
-        "include language if mode is force" in new WithWidgetHelper(
-                validV2Settings ++ Map(LanguageModeConfigProp -> "force",
-                        ForceLanguageConfigProp -> "fr")) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
-            
-            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
-        }
-
-        "include language (only) if mode is play" in new WithWidgetHelper(
-                validV2Settings ++ Map(LanguageModeConfigProp -> "play", "play.i18n.langs" -> Seq("fr"))) {
-            // no browser locale, should just use the default language set above...
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq.empty[Lang])
-
-            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
-        }
-
-        "include language and country if mode is play" in new WithWidgetHelper(
-            validV2Settings ++ Map(LanguageModeConfigProp -> "play",
-                "play.i18n.langs" -> Seq("en", "en-US", "en-GB"))) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en", "GB")))
-
-            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=en-GB")
-        }
-
-        "include just language if mode is play" in new WithWidgetHelper(
-            validV2Settings ++ Map(LanguageModeConfigProp -> "play",
-                "play.i18n.langs" -> Seq("en", "en-US", "en-GB"))) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en", "US")))
-
-            // en-US isn't a supported country variant, so should just use the language code
-            widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=en")
-        }
+      widgetHelper.widgetScriptUrl(Some("error-code")) must endWith("api.js")
     }
 
-    "getWidgetNoScriptUrl" should {
+    "exclude language if mode is auto" in new WithWidgetHelper(
+      validV2Settings ++ Map(LanguageModeConfigProp -> "auto")) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
 
-        "include public key" in new WithWidgetHelper(validV2Settings) {
-            widgetHelper.widgetNoScriptUrl(None) must endWith("fallback?k=public-key")
-        }
-
-        "exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
-            widgetHelper.widgetNoScriptUrl(Some("error-code")) must endWith("fallback?k=public-key")
-        }
+      widgetHelper.widgetScriptUrl(None) must endWith("api.js")
     }
 
-    "getPublicKey" should {
+    "include language if mode is force" in new WithWidgetHelper(
+      validV2Settings ++ Map(LanguageModeConfigProp -> "force",
+        ForceLanguageConfigProp -> "fr")) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("fr")))
 
-        "return the public key" in new WithWidgetHelper(validV2Settings) {
-            widgetHelper.publicKey must equalTo("public-key")
-        }
+      widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
     }
 
-    "getFieldError" should {
+    "include language (only) if mode is play" in new WithWidgetHelper(
+      validV2Settings ++ Map(LanguageModeConfigProp -> "play", "play.i18n.langs" -> Seq("fr"))) {
+      // no browser locale, should just use the default language set above...
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq.empty[Lang])
 
-        "return None if no error" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            widgetHelper.getFieldError(modelForm) must beNone
-        }
-
-        "return error if captcha incorrect" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            val modelFormWithError = modelForm.withError(
-                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
-
-            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-CaptchaIncorrect")
-        }
-
-        "return error if recaptcha not reachable" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            val modelFormWithError = modelForm.withError(
-                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable)
-
-            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-RecaptchaNotReachable")
-        }
-
-        "return error if api error" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            val modelFormWithError = modelForm.withError(
-                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
-
-            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-ApiError")
-        }
-
-        "return error if response missing" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            val modelFormWithError = modelForm.withError(
-                RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
-
-            widgetHelper.getFieldError(modelFormWithError) must beSome("Error-Required")
-        }
-
-        "return None if other error" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
-
-            widgetHelper.getFieldError(modelFormWithError) must beNone
-        }
+      widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=fr")
     }
 
-    "resolveRecaptchaErrors" should {
+    "include language and country if mode is play" in new WithWidgetHelper(
+      validV2Settings ++ Map(LanguageModeConfigProp -> "play",
+        "play.i18n.langs" -> Seq("en", "en-US", "en-GB"))) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en", "GB")))
 
-        "return existing errors unchanged" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            val input = modelForm.withError("field1", "error-key1")
-                                 .withError("field2", "error-key2")
-            val result = widgetHelper.resolveRecaptchaErrors("captcha", input)
-
-            result.hasErrors must equalTo(true)
-            result.errors must equalTo(Seq(
-                FormError("field1", "error-key1"),
-                FormError("field2", "error-key2")))
-        }
-
-        "resolve recaptcha error (en)" in new WithWidgetHelper(validV2Settings) {
-            implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
-            val input = modelForm.withError("field1", "error-key1")
-                                 .withError("field2", "error-key2")
-                                 .withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
-            val result = widgetHelper.resolveRecaptchaErrors("captcha", input)
-
-            result.hasErrors must equalTo(true)
-            result.errors must equalTo(Seq(
-                FormError("captcha", "Error-CaptchaIncorrect"), // from test-conf/messages
-                FormError("field1", "error-key1"),
-                FormError("field2", "error-key2")))
-        }
+      widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=en-GB")
     }
+
+    "include just language if mode is play" in new WithWidgetHelper(
+      validV2Settings ++ Map(LanguageModeConfigProp -> "play",
+        "play.i18n.langs" -> Seq("en", "en-US", "en-GB"))) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en", "US")))
+
+      // en-US isn't a supported country variant, so should just use the language code
+      widgetHelper.widgetScriptUrl(None) must endWith("api.js?hl=en")
+    }
+  }
+
+  "getWidgetNoScriptUrl" should {
+
+    "include public key" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.widgetNoScriptUrl(None) must endWith("fallback?k=public-key")
+    }
+
+    "exclude error code if specified" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.widgetNoScriptUrl(Some("error-code")) must endWith("fallback?k=public-key")
+    }
+  }
+
+  "getPublicKey" should {
+
+    "return the public key" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.publicKey must equalTo("public-key")
+    }
+  }
+
+  "getFieldError" should {
+
+    "return None if no error" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      widgetHelper.getFieldError(modelForm) must beNone
+    }
+
+    "return error if captcha incorrect" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      val modelFormWithError = modelForm.withError(
+        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
+
+      widgetHelper.getFieldError(modelFormWithError) must beSome("Error-CaptchaIncorrect")
+    }
+
+    "return error if recaptcha not reachable" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      val modelFormWithError = modelForm.withError(
+        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable)
+
+      widgetHelper.getFieldError(modelFormWithError) must beSome("Error-RecaptchaNotReachable")
+    }
+
+    "return error if api error" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      val modelFormWithError = modelForm.withError(
+        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
+
+      widgetHelper.getFieldError(modelFormWithError) must beSome("Error-ApiError")
+    }
+
+    "return error if response missing" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      val modelFormWithError = modelForm.withError(
+        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
+
+      widgetHelper.getFieldError(modelFormWithError) must beSome("Error-Required")
+    }
+
+    "return None if other error" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
+
+      widgetHelper.getFieldError(modelFormWithError) must beNone
+    }
+  }
+
+  "resolveRecaptchaErrors" should {
+
+    "return existing errors unchanged" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      val input = modelForm.withError("field1", "error-key1")
+        .withError("field2", "error-key2")
+      val result = widgetHelper.resolveRecaptchaErrors("captcha", input)
+
+      result.hasErrors must equalTo(true)
+      result.errors must equalTo(Seq(
+        FormError("field1", "error-key1"),
+        FormError("field2", "error-key2")))
+    }
+
+    "resolve recaptcha error (en)" in new WithWidgetHelper(validV2Settings) {
+      implicit val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+      val input = modelForm.withError("field1", "error-key1")
+        .withError("field2", "error-key2")
+        .withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
+      val result = widgetHelper.resolveRecaptchaErrors("captcha", input)
+
+      result.hasErrors must equalTo(true)
+      result.errors must equalTo(Seq(
+        FormError("captcha", "Error-CaptchaIncorrect"), // from test-conf/messages
+        FormError("field1", "error-key1"),
+        FormError("field2", "error-key2")))
+    }
+  }
+
+  "formatClass" should {
+
+    "handle main class and no args" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.formatClass("main") must equalTo("main")
+    }
+
+    "ignore non-class args" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.formatClass("main", 'other -> "wibble") must equalTo("main")
+    }
+
+    "include single class args" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.formatClass("main", 'class -> "extra", 'other -> "wibble") must equalTo("main extra")
+    }
+
+    "include multiple class args" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.formatClass("main", 'class -> "extra1", 'other -> "wibble", 'class -> "extra2") must
+        equalTo("main extra1 extra2")
+    }
+  }
+
+  "formatOtherAttributes" should {
+
+    "produce nothing if no args" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.formatOtherAttributes() must equalTo("")
+    }
+
+    "ignore class args" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.formatOtherAttributes('class -> "extra", 'other -> "wibble") must equalTo("other=\"wibble\"")
+    }
+
+    "include multiple args" in new WithWidgetHelper(validV2Settings) {
+      widgetHelper.formatOtherAttributes('class -> "extra", 'aaa -> "bbb", 'ccc -> "ddd") must
+        equalTo("aaa=\"bbb\" ccc=\"ddd\"")
+    }
+  }
 }

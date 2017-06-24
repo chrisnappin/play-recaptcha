@@ -37,26 +37,32 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
     val publicKey: String = configuration.underlying.getString(PublicKeyConfigProp)
 
     /** The millisecond request timeout duration, when connecting to the recaptcha web API. */
-    val requestTimeoutMs: Long = configuration.getMilliseconds(RequestTimeoutConfigProp)
-              .getOrElse(RequestTimeoutMsDefault)
+    val requestTimeoutMs: Long = configuration.getOptional[String](RequestTimeoutConfigProp) match {
+      case Some(_) => configuration.getMillis(RequestTimeoutConfigProp)
+      case None =>RequestTimeoutMsDefault
+    }
 
     /** The theme for the recaptcha widget to use (if any). */
-    val theme: Option[String] = configuration.getString(ThemeConfigProp)
-
+    val theme: Option[String] = configuration.getOptional[String](ThemeConfigProp)
 
     /** The captcha type to use (if any). */
-    val captchaType: String = configuration.getString(CaptchaTypeConfigProp, validValues =
-            Some(Set("image", "audio"))).getOrElse(CaptchaTypeDefault)
+    val captchaType: String = configuration.getOptional[String](CaptchaTypeConfigProp) match {
+      case Some(_) => configuration.getAndValidate[String](CaptchaTypeConfigProp, values = Set("image", "audio"))
+      case None => CaptchaTypeDefault
+    }
 
     /** The captcha size to use (if any). */
-    val captchaSize: String = configuration.getString(CaptchaSizeConfigProp, validValues =
-            Some(Set("normal", "compact"))).getOrElse(CaptchaSizeDefault)
-
+    val captchaSize: String = configuration.getOptional[String](CaptchaSizeConfigProp) match {
+      case Some(_) => configuration.getAndValidate[String](CaptchaSizeConfigProp, values = Set("normal", "compact"))
+      case None => CaptchaSizeDefault
+    }
     /** The captcha language mode to use (if any). */
-    val languageMode: String = configuration.getString(LanguageModeConfigProp,
-            validValues = Some(Set("auto", "play", "force"))).getOrElse(LanguageModeDefault)
+    val languageMode: String = configuration.getOptional[String](LanguageModeConfigProp) match {
+      case Some(_) => configuration.getAndValidate[String](LanguageModeConfigProp, values = Set("auto", "play", "force"))
+      case None => LanguageModeDefault
+    }
 
-    val forceLanguage: Option[String] = configuration.getString(ForceLanguageConfigProp)
+    val forceLanguage: Option[String] = configuration.getOptional[String](ForceLanguageConfigProp)
 
     /** Sanity check the configuration, log descriptive error if invalid. */
     checkMandatoryConfigurationPresent(configuration)

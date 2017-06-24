@@ -103,7 +103,7 @@ class RecaptchaSettingsSpec extends Specification {
     	"fail if requestTimeout config value can not parsed as a valid duration" >> {
     		val conf = Configuration.from(mandatoryV2Config + (RequestTimeoutConfigProp -> "10 million dollars"))
 
-    		new RecaptchaSettings(conf) must throwAn[PlayException]
+    		new RecaptchaSettings(conf) must throwAn[ConfigException]
     	}
 
     	"fail if captcha type is not one of allowed values" >> {

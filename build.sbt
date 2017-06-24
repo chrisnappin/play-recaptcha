@@ -6,7 +6,7 @@ version := "2.2-SNAPSHOT"
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // default Scala binary compatibility
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.1"
 
 libraryDependencies ++= Seq(
   ws,

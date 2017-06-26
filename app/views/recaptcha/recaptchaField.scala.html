@@ -5,21 +5,22 @@
  *
  * @param form              The current form
  * @param fieldName         The logical field name
- * @param tabindex          The tabindex of the field (if any)
- * @param includeNoScript   Whether to include the noscript block, default is true
- * @param isRequired        Whether the field is to be shown as required (default is true)
+ * @param tabindex          The tabindex of the field
+ * @param includeNoScript   Whether to include the noscript block
+ * @param isRequired        Whether the field is to be shown as required
+ * @param args              HTML attributes for the reCAPTCHA div (optional)
  * @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc in the widget
  * @param request           (Implicit) The current request
  * @param messages          (Implicit) The current I18n messages
  ****************************************************************************************@
-@(form: Form[_], fieldName: String, tabindex: Option[Int] = None, includeNoScript: Boolean = true,
-    isRequired: Boolean = true)(implicit widgetHelper: WidgetHelper, request: Request[AnyContent], messages: Messages)
+@(form: Form[_], fieldName: String, tabindex: Int, includeNoScript: Boolean, isRequired: Boolean,
+        args: (Symbol, String)*)(implicit widgetHelper: WidgetHelper, request: Request[AnyContent], messages: Messages)
 
 @errorMessage = @{widgetHelper.getFieldError(form)}
 
 <dl class="@if(errorMessage.isDefined) {error}" id="@{fieldName}_field">
     <dt><label for="@fieldName">@messages(fieldName)</label></dt>
-    <dd>@recaptchaWidget(includeNoScript, tabindex)</dd>
+    <dd>@recaptchaWidget(includeNoScript, tabindex, args: _*)</dd>
 
 @errorMessage.map { message =>
     <dd class="error">@message</dd>

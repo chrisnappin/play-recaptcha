@@ -59,7 +59,7 @@ Please see this example:
 
 * [example reCAPTCHA v2 application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2) 
 
-for a ready-to-use internationalised Scala Play 2.x web application using this module. You can download this code and run it in Play, or you can follow the instructions below to add this module to an existing web application.
+for a ready-to-use internationalised Scala Play 2.x web application using this module, using reCAPTCHA v2 and Invisible reCAPTCHA, with Play Forms and with JavaScript/AJAX. You can download this code and run it in Play, or you can follow the instructions below to add this module to an existing web application.
 
 The play-recaptcha module comes with two APIs:
 * [High Level API](high-level-api.md) - that integrates with Play's Form APIs

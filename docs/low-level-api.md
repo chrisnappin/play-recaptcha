@@ -4,11 +4,12 @@ The play-recaptcha Low Level API has the same pre-requisites, requirements and c
 * [Controller](#controller)
 
 ##View Template
-In your view template, you need to include a ``recaptcha.recaptchaWidget`` view helper tag, which has the following parameters (I recommend referencing these by name):
+In your view template, you need to include a ``recaptcha.recaptchaWidget`` view helper tag, which has the following parameters:
 
 * Explicit parameters:
-  * ``includeNoScript: Boolean`` - whether to support browsers with JavaScript disabled, default is ``true`` 
-  * ``tabindex: Option[Int]`` - the HTML tabindex, default is None
+  * ``includeNoScript: Boolean`` - whether to support browsers with JavaScript disabled 
+  * ``tabindex: Int`` - the HTML tabindex
+  * ``args: (Symbol, String)*`` - optional HTML attributes to add to the recaptcha div (like the built-in Play input helpers)
 * Implicit parameters:
   * ``request: Request[AnyContent]`` - the current web request
   * ``messages: Messages`` - the current i18n messages to use

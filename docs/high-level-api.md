@@ -9,24 +9,26 @@ To add the play-recaptcha module to an existing web application, please follow t
 * [Controller](#controller)
 * [Troubleshooting](#troubleshooting)
 
-##Pre-requisites
+## Pre-requisites
 Before you can use the play-recaptcha module, you need to have registered with 
 [Google reCAPTCHA](http://www.google.com/recaptcha) to obtain your **private** (**secret**) and **public** (**site**) keys, which you will need below.
 
-##Build Dependency
+Note that if you want to use invisible reCAPTCHA, this is a separate option and you will need separate keys to use it.
+
+## Build Dependency
 The play-recaptcha module is distributed via Maven Central, so you can add the module as a build dependency in SBT. In your top-level *build.sbt* file, add the following:
 
     libraryDependencies ++= Seq(
-      "com.nappin" %% "play-recaptcha" % "2.1" 
+      "com.nappin" %% "play-recaptcha" % "2.2" 
     )
 
-The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.1` is the
+The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.2` is the
 play-recaptcha module version number being used - since SBT uses ivy the version number can be alternatively be an expression such as `2.+` (meaning any version 2.x release). 
 
 (see [build.sbt](../build.sbt) for a complete example)
 
 
-##Configuration
+## Configuration
 The play-recaptcha module supports the following configuration settings in your *application.conf* file:
 
 Configuration Key|Description|Default Value
@@ -41,21 +43,23 @@ recaptcha.languageMode|The internationalisation approach to use (auto, force, pl
 recaptcha.forceLanguage|The language to use (if using force mode)|None
 
 
-(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/conf/application.conf) for a complete example)
+(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/conf/application.conf) for a complete example)
 
 ## Internationalisation
-The play-recaptcha module supports the following language modes (as set by the `recaptcha.languageMode` configuration setting:
-* `auto` - uses Google's JavaScript and built-in language support (see [supported language codes](https://developers.google.com/recaptcha/docs/language)) to automatically render the reCAPCTAH widget in the end user's web browser's preferred language, with no interaction with Play i18n.
+The play-recaptcha module (both reCAPTCHA v2 and Invisible reCAPTCHA) supports the following language modes (as set by the `recaptcha.languageMode` configuration setting:
+* `auto` - uses Google's JavaScript and built-in language support (see [supported language codes](https://developers.google.com/recaptcha/docs/language)) to automatically render the reCAPTCHA widget in the end user's web browser's preferred language, with no interaction with Play i18n.
 * `force` - forces the reCAPTCHA widget to use the language defined by the `recapctha.forceLanguage` configuration setting.
 * `play` - renders the reCAPTCHA widget using the Play i18n locale (which you can set in your application or use the default Play behaviour)
 
 Unless you need special behaviour (e.g. your website has its own language selection functionality, or it is only ever rendered in one language), use the default `auto` mode.
 
-The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1) is internationalised to two languages (English, French) as an example.
+The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2) is internationalised to two languages (English, French) as an example.
 
 
-##View Template
-In your view template, you need to include a `recaptcha.recaptchaField` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for reCAPTCHA, plus by default the `noscript` option for browsers with JavaScript turned off (typically rare these days). Here is a very simple example:
+## View Template
+
+### reCAPTCHA v2
+To use reCAPTCHA version 2 in your view template, you need to include a `recaptcha.recaptchaField` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for reCAPTCHA, and optionally the `noscript` option for browsers with JavaScript turned off (typically rare these days). Here is a very simple example:
 
     @import com.nappin.play.recaptcha.WidgetHelper
     
@@ -66,27 +70,59 @@ In your view template, you need to include a `recaptcha.recaptchaField` view hel
     @helper.form(action = routes.ExampleForm.submitForm()) {
         @helper.inputText(myForm("field1"))
         @helper.inputText(myForm("field2"))
-        @recaptcha.recaptchaField(form = myForm, fieldName = "captcha")
+        @recaptcha.recaptchaField(form = myForm, fieldName = "captcha", includeNoScript = false, isRequired = true,
+            'class -> "extraClass")
+            
+        ..further fields and a submit button..    
     }
     
     ..html footer..
 
-The complete list of `recaptcha.recaptchaField` parameters is as follows (I recommend referencing these by name):
+The `recaptcha.recaptchaField` parameters are as follows:
 * Explicit parameters:
   * ``form: Form[_]`` - the Play Form
   * ``fieldName: String`` - the name of the field
-  * ``tabindex: Option[Int]`` - the HTML tabindex, default is ``None``
-  * ``includeNoScript: Boolean`` - whether to support non-JavaScript clients, default is ``true``
-  * ``isRequired: Boolean`` - whether to show the Play ``constraint.required`` message, default is ``false`` (note that the recaptcha field is always processed as if having a **required** form validation constraint)
+  * ``tabindex: Int`` - the HTML tabindex
+  * ``includeNoScript: Boolean`` - whether to support non-JavaScript clients
+  * ``isRequired: Boolean`` - whether to show the Play ``constraint.required`` message (note that the recaptcha field is always processed as if having a **required** form validation constraint)
+  * ``args: (Symbol, String)*`` - optional HTML attributes to add to the recaptcha div (like the built-in Play input helpers)
 * Implicit parameters:
   * ``request: Request[AnyContent]`` - the current web request
   * ``messages: Messages`` - the current i18n messages to use
   * ``widgetHelper: WidgetHelper`` - the widgetHelper to use
 
-(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/app/views/form.scala.html) for a complete example)
+(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/views/form.scala.html) for a complete example)
 
+### Invisible reCAPTCHA
+To use Invisible reCAPTCHA in your view template, you need to include a `recaptcha.invisibleButton` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for Invisible reCAPTCHA. Here is a very simple example:
 
-##Messages
+    @import com.nappin.play.recaptcha.WidgetHelper
+    
+    @(myForm: Form[MyModelObject])(implicit request: Request[AnyContent], messages: Messages, widgetHelper: WidgetHelper)
+    
+    ..html header..
+    
+    @helper.form(action = routes.ExampleForm.submitForm(), 'id -> "my-form") {
+        @helper.inputText(myForm("field1"))
+        @helper.inputText(myForm("field2"))
+        @recaptcha.invisibleButton(formId = "my-form", text = "Submit", 'class -> "extraClass")
+    }
+    
+    ..html footer..
+
+The `recaptcha.invisibleButton` parameters are as follows:
+* Explicit parameters:
+  * ``formId: String`` - the id for the Form
+  * ``text: String`` - the text of the submit button
+  * ``args: (Symbol, String)*`` - optional HTML attributes to add to the button (like the built-in Play input helpers)
+* Implicit parameters:
+  * ``request: Request[AnyContent]`` - the current web request
+  * ``messages: Messages`` - the current i18n messages to use
+  * ``widgetHelper: WidgetHelper`` - the widgetHelper to use
+
+(see [invisibleForm.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/views/invisibleForm.scala.html) for a complete example)
+
+## Messages
 If defined, play-recaptcha supports the following message keys:
 
 Message Key|Description|Default Message
@@ -96,10 +132,12 @@ error.required|Shown if no text entered into the captcha field|The Play default
 error.recaptchaNotReachable|Shown if there is an error contacting the reCAPTCHA API (e.g. Network timeout)|Unable to contact Recaptcha
 error.apiError|Shown if reCAPTCHA returns a response that the play-recaptcha module doesn't understand (e.g. Google have changed its functionality)|Invalid response from Recaptcha
 
-(see [messages](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/conf/messages) for a complete example)
+(see [messages](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/conf/messages) for a complete example)
 
 
-##Controller
+## Controller
+
+### reCAPTCHA v2 (using Play forms)
 Within your controller, you simply inject a verifier, and an implicit widgetHelper. An example using the built-in Guice DI would be:
 
     import com.nappin.play.recaptcha.{RecaptchaVerifier, WidgetHelper}
@@ -162,10 +200,24 @@ The ``map`` and ``fold`` methods are a great way of handling the ``Future`` and 
         }    
     }
 
-(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.1/app/controllers/ExampleForm.scala) for a complete example)
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/controllers/ExampleForm.scala) for a complete example)
 
 
-##Troubleshooting
+### reCAPTCHA v2 (using AJAX/JavaScript)
+
+To validate a form submitted via JavaScript follows very similar processing as the reCAPTCHA v2 controller, but the ``widgetHelper.resolveRecaptchaErrors`` method can be used to return any form validation errors as JSON.
+
+(see [JavascriptForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/controllers/JavascriptForm.scala) for a complete example)
+
+
+### Invisible reCAPTCHA
+
+To validate a form with an invisible reCAPTCHA follows the same processing as the reCAPTCHA v2 controller.
+
+(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/controllers/InvisibleForm.scala) for a complete example)
+
+
+## Troubleshooting
 As mentioned above, the play-recaptcha module checks the application configuration upon startup, and if it finds some fatal problems it will throw an unchecked exception. If this happens you should see a message like the following in your application logs:
 
     15:26:24.501 ERROR com.nappin.play.recaptcha.RecaptchaSettings recaptcha.privateKey not found in application configuration

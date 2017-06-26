@@ -231,8 +231,6 @@ class RecaptchaFieldSpec extends PlaySpecification {
       html must contain("class=\"g-recaptcha extraClass\"")
       html must contain("bbb=\"ccc\"")
     }
-
-    // TODO: update example to use extra attributes
   }
 
   trait WithWidgetHelper extends Scope {

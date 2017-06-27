@@ -22,7 +22,8 @@ import org.specs2.specification.Scope
 import play.api.data.{Form, FormError}
 import play.api.data.Forms.{mapping, nonEmptyText, number, optional}
 import play.api.i18n.{Lang, MessagesApi}
-import play.api.test.{FakeApplication, PlaySpecification, WithApplication}
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.{PlaySpecification, WithApplication}
 
 /**
   * Tests the <code>WidgetHelper</code> object.
@@ -46,7 +47,7 @@ class WidgetHelperSpec extends PlaySpecification {
     RequestTimeoutConfigProp -> "5 seconds")
 
   abstract class WithWidgetHelper(configProps: Map[String, AnyRef]) extends WithApplication(
-    FakeApplication(additionalConfiguration = configProps)) with Scope {
+    GuiceApplicationBuilder().configure(configProps).build()) with Scope {
 
     val settings = new RecaptchaSettings(app.configuration)
     val widgetHelper = new WidgetHelper(settings)

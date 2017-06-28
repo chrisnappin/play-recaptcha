@@ -70,8 +70,8 @@ To use reCAPTCHA version 2 in your view template, you need to include a `recaptc
     @helper.form(action = routes.ExampleForm.submitForm()) {
         @helper.inputText(myForm("field1"))
         @helper.inputText(myForm("field2"))
-        @recaptcha.recaptchaField(form = myForm, fieldName = "captcha", includeNoScript = false, isRequired = true,
-            'class -> "extraClass")
+        @recaptcha.recaptchaField(form = myForm, fieldName = "captcha", includeNoScript = false, 
+            isRequired = true, 'class -> "extraClass")
             
         ..further fields and a submit button..    
     }
@@ -102,10 +102,10 @@ To use Invisible reCAPTCHA in your view template, you need to include a `recaptc
     
     ..html header..
     
-    @helper.form(action = routes.ExampleForm.submitForm(), 'id -> "my-form") {
+    @helper.form(action = routes.ExampleForm.submitForm(), 'id -> "my_form") {
         @helper.inputText(myForm("field1"))
         @helper.inputText(myForm("field2"))
-        @recaptcha.invisibleButton(formId = "my-form", text = "Submit", 'class -> "extraClass")
+        @recaptcha.invisibleButton(formId = "my_form", text = "Submit", 'class -> "extraClass")
     }
     
     ..html footer..
@@ -148,7 +148,7 @@ Within your controller, you simply inject a verifier, and an implicit widgetHelp
 
 Note that the play-recaptcha module performs a sanity check of the configuration upon startup. If it finds a fatal error it will write details of the issues to the error log, throw an unchecked ``com.typesafe.config.ConfigException`` or ``play.api.PlayException`` and the DI injection will fail. These are errors you should only get whilst developing your module.
 
-To show the form, invoke the template as you would normally, and the implicit ``widgetHelper`` will be passed automatically, for example:
+To show the form, invoke the template as you would normally, and the implicit ``widgetHelper`` will be passed, for example:
 
     def show = Action { implicit request =>
         Ok(views.html.form(userForm))
@@ -212,7 +212,7 @@ To validate a form submitted via JavaScript follows very similar processing as t
 
 ### Invisible reCAPTCHA
 
-To validate a form with an invisible reCAPTCHA follows the same processing as the reCAPTCHA v2 controller.
+To validate a form with an invisible reCAPTCHA follows the same processing as the reCAPTCHA v2 controller, as outlined above.
 
 (see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/controllers/InvisibleForm.scala) for a complete example)
 

@@ -3,7 +3,7 @@ The play-recaptcha Low Level API has the same pre-requisites, requirements and c
 * [View Template](#view-template)
 * [Controller](#controller)
 
-##View Template
+## View Template
 In your view template, you need to include a ``recaptcha.recaptchaWidget`` view helper tag, which has the following parameters:
 
 * Explicit parameters:
@@ -16,7 +16,7 @@ In your view template, you need to include a ``recaptcha.recaptchaWidget`` view 
   * ``widgetHelper: WidgetHelper`` - the widget helper to use (create via DI)
 
 
-##Controller
+## Controller
 Within your controller, you simply inject a verifier and an implicit widgetHelper. An example using the built-in Guice DI would be:
 
     import com.nappin.play.recaptcha.{RecaptchaVerifier, WidgetHelper}

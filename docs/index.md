@@ -9,7 +9,7 @@ This is a [Play Framework](http://www.playframework.com) module, for Scala and P
 
 | Module Revision | reCAPTCHA Versions | Play Version | Scala Versions | ScalaDoc | 
 |:---------------:|:------------------:|:------------:|:--------------:|:--------:|
-|2.2              |v2, invisible       |2.5.x         |2.11            |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.11/2.1)|
+|2.2              |v2, invisible       |2.5.x         |2.11            |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.11/2.2)|
 
 ### Changelog
 

@@ -93,6 +93,19 @@ The `recaptcha.recaptchaField` parameters are as follows:
 
 (see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/views/form.scala.html) for a complete example)
 
+The `recaptcha.recaptchaField` view helper tag (ignoring the JavaScript) produces HTML using the same formatting as the built-in Play input helpers, as follows:
+
+    <dl ...>
+      <dt><label for="..field..">..label..</label></dt>
+      <dd><div class="g-recaptcha" ..>..the reCAPTCHA widget..</div>..no script block etc..</dd>
+      <dd class="error">..any errors..</dd>
+      <dd class="info">..any constraints..</dd>
+    </dl>
+
+You can use the optional HTML attributes (`args`) to add CSS classes and further attributes to the `g-recaptcha` div to style/layout the reCAPTCHA widget.
+
+If you are using a third-party library to layout your form (for example, Bootstrap), you will probably want to replace use of the dl/dt/dd HTML with custom div tags. To achieve this, copy `recaptchaField.scala.html` into your own project, reference that in your form template, then change the HTML as desired.
+ 
 ### Invisible reCAPTCHA
 To use Invisible reCAPTCHA in your view template, you need to include a `recaptcha.invisibleButton` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for Invisible reCAPTCHA. Here is a very simple example:
 
@@ -121,6 +134,13 @@ The `recaptcha.invisibleButton` parameters are as follows:
   * ``widgetHelper: WidgetHelper`` - the widgetHelper to use
 
 (see [invisibleForm.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/views/invisibleForm.scala.html) for a complete example)
+
+The `recaptcha.invisibleButton` view helper tag (ignoring the JavaScript) produces HTML as follows:
+
+    <button class="g-recaptcha" ..>..button text..</button>
+
+You can use the optional HTML attributes (`args`) to add CSS classes and further attributes to the button for styling/layout.
+
 
 ## Messages
 If defined, play-recaptcha supports the following message keys:

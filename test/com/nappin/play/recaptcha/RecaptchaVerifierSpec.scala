@@ -24,9 +24,9 @@ import org.junit.runner.RunWith
 import play.api.Configuration
 import play.api.data.{Form, FormError}
 import play.api.data.Forms._
-import play.api.http.{MimeTypes, Writeable}
+import play.api.http.MimeTypes
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
+import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
 import play.api.test.{FakeRequest, PlaySpecification}
 
 import scala.concurrent.Future
@@ -54,6 +54,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
     "(v2) RecaptchaVerifier (low level API)" should {
 
         "handle a valid response as a success" in {
+            import scala.concurrent.ExecutionContext.Implicits.global
             val (verifier, mockRequest) =
                 createMocks(validV2Settings, OK, Some(Json.parse("{\"success\":true}"), Right(Success())), false)
 
@@ -407,7 +408,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
         // I'm sure there's a better way of doing this, but this is the only way I can get the
         // post method call to match. Note in mockito we have to match all the implicit params too
         mockRequest.post(any[Map[String, Seq[String]]])(
-            any[Writeable[Map[String, Seq[String]]]]) returns futureResponse
+            any[BodyWritable[Map[String, Seq[String]]]]) returns futureResponse
 
         mockResponse.status returns recaptchaResponseCode
 
@@ -451,7 +452,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
       */
     private def checkRecaptchaV2Request(request: WSRequest, response: String, remoteIP: String, privateKey: String) = {
         val captor = ArgumentCaptor.forClass(classOf[Map[String, Seq[String]]])
-        there was one(request).post(captor.capture())(any[Writeable[Map[String, Seq[String]]]])
+        there was one(request).post(captor.capture())(any[BodyWritable[Map[String, Seq[String]]]])
         val argument = captor.getValue
         argument("response") must equalTo(Seq(response))
         argument("remoteip") must equalTo(Seq(remoteIP))
@@ -464,6 +465,6 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
       * @param request The mock request to check
       */
     private def checkRecaptchaNotInvoked(request: WSRequest) = {
-        there was no(request).post(any[Map[String, Seq[String]]])(any[Writeable[Map[String, Seq[String]]]])
+        there was no(request).post(any[Map[String, Seq[String]]])(any[BodyWritable[Map[String, Seq[String]]]])
     }
 }

@@ -1,12 +1,12 @@
 name := "play-recaptcha"
 description := "Google reCAPTCHA integration for Play Framework"
 organization := "com.nappin"
-version := "2.2"
+version := "2.3"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // default Scala binary compatibility
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.1"
 
 libraryDependencies ++= Seq(
   ws,
@@ -23,7 +23,7 @@ pgpSecretRing := file("/home/chris/Development/SonatypeKey/secring.asc")
 pgpPublicRing := file("/home/chris/Development/SonatypeKey/pubring.asc")
 
 // adds "test-conf" to the test classpath (for message resolving)
-unmanagedClasspath in Test <+= baseDirectory map { bd => Attributed.blank(bd / "test-conf") }
+unmanagedClasspath in Test += baseDirectory.value / "test-conf"
 
 // needed to publish to maven central
 publishMavenStyle := true

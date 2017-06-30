@@ -47,8 +47,7 @@ class WidgetHelperSpec extends PlaySpecification {
     RequestTimeoutConfigProp -> "5 seconds")
 
   abstract class WithWidgetHelper(configProps: Map[String, AnyRef]) extends WithApplication(
-    GuiceApplicationBuilder().configure(configProps).build()) with Scope {
-
+      GuiceApplicationBuilder().configure(configProps).build()) with Scope {
     val settings = new RecaptchaSettings(app.configuration)
     val widgetHelper = new WidgetHelper(settings)
   }

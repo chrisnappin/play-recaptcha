@@ -1,4 +1,5 @@
 @import com.nappin.play.recaptcha.{RecaptchaVerifier, RecaptchaErrorCode, WidgetHelper}
+@this(widgetHelper: WidgetHelper, recaptchaWidget: recaptcha.recaptchaWidget)
 
 @****************************************************************************************
  * High-level API: Renders a Google Recaptcha Widget, using the Play Forms API.
@@ -9,17 +10,15 @@
  * @param includeNoScript   Whether to include the noscript block
  * @param isRequired        Whether the field is to be shown as required
  * @param args              HTML attributes for the reCAPTCHA div (optional)
- * @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc in the widget
- * @param request           (Implicit) The current request
- * @param messages          (Implicit) The current I18n messages
+ * @param messagesProvider  (Implicit) The current I18n messages provider
  ****************************************************************************************@
 @(form: Form[_], fieldName: String, tabindex: Int, includeNoScript: Boolean, isRequired: Boolean,
-        args: (Symbol, String)*)(implicit widgetHelper: WidgetHelper, request: Request[AnyContent], messages: Messages)
+        args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider)
 
 @errorMessage = @{widgetHelper.getFieldError(form)}
 
 <dl class="@if(errorMessage.isDefined) {error}" id="@{fieldName}_field">
-    <dt><label for="@fieldName">@messages(fieldName)</label></dt>
+    <dt><label for="@fieldName">@Messages(fieldName)</label></dt>
     <dd>@recaptchaWidget(includeNoScript, tabindex, args: _*)</dd>
 
 @errorMessage.map { message =>
@@ -27,6 +26,6 @@
 }
     
 @if(isRequired) {    
-    <dd class="info">@messages("constraint.required")</dd>
+    <dd class="info">@Messages("constraint.required")</dd>
 }
 </dl>

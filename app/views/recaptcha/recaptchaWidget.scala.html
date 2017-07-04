@@ -1,4 +1,5 @@
 @import com.nappin.play.recaptcha.WidgetHelper
+@this(widgetHelper: WidgetHelper)
 
 @****************************************************************************************
  * Low-level API: Renders a Google Recaptcha Widget, independent of the Play Forms API.
@@ -6,12 +7,9 @@
  * @param includeNoScript   Whether to include the noscript block
  * @param tabindex          The tabindex of the field
  * @param args              HTML attributes for the reCAPTCHA div (optional)
- * @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc
- * @param request           (Implicit) The current request
- * @param messages          (Implicit) The current I18n messages
+ * @param messagesProvider  (Implicit) The current I18n messages provider
  ****************************************************************************************@
-@(includeNoScript: Boolean, tabindex: Int, args: (Symbol, String)*)(implicit widgetHelper: WidgetHelper,
-    request: Request[AnyContent], messages: Messages)
+@(includeNoScript: Boolean, tabindex: Int, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider)
 
 <script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
 <div class="@Html(widgetHelper.formatClass("g-recaptcha", args: _*))" @Html(widgetHelper.formatOtherAttributes(args: _*))

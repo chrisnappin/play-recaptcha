@@ -15,16 +15,15 @@
  */
 package views.recaptcha
 
-import com.nappin.play.recaptcha.{WidgetHelper, RecaptchaSettings}
-
+import com.nappin.play.recaptcha.{RecaptchaSettings, WidgetHelper}
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
-
-import play.api.i18n.MessagesApi
-import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
 import play.api.Application
+import play.api.i18n.{Lang, MessagesApi, MessagesImpl, MessagesProvider}
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.test.{PlaySpecification, WithApplication}
+import views.html.recaptcha.recaptchaWidget
 
 /**
   * Tests the <code>recaptchaWidget</code> view template.
@@ -34,19 +33,11 @@ import play.api.inject.guice.GuiceApplicationBuilder
 @RunWith(classOf[JUnitRunner])
 class RecaptchaWidgetSpec extends PlaySpecification {
 
-  val scriptApi = "http://www.google.com/recaptcha/api/challenge"
-
-  val noScriptApi = "http://www.google.com/recaptcha/api/noscript"
-
-  // browser prefers french then english
-  val request = FakeRequest().withHeaders(("Accept-Language", "fr; q=1.0, en; q=0.5"))
-
   "recaptchaWidget" should {
 
     "render widget with noscript block" in new WithApplication(getApplication()) with WithWidgetHelper {
-      val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-
-      val html = contentAsString(views.html.recaptcha.recaptchaWidget(true, 1)(widgetHelper, request, messages))
+      val (template, messagesProvider) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(true, 1)(messagesProvider))
 
       // includes script
       html must contain("<script")
@@ -68,9 +59,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     }
 
     "render widget without noscript" in new WithApplication(getApplication()) with WithWidgetHelper {
-      val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-
-      val html = contentAsString(views.html.recaptcha.recaptchaWidget(false, 1)(widgetHelper, request, messages))
+      val (template, messagesProvider) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(false, 1)(messagesProvider))
 
       // includes script
       html must contain("<script")
@@ -89,9 +79,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     }
 
     "render widget with theme" in new WithApplication(getApplication(Some("dark"))) with WithWidgetHelper {
-      val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-
-      val html = contentAsString(views.html.recaptcha.recaptchaWidget(true, 1)(widgetHelper, request, messages))
+      val (template, messagesProvider) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(true, 1)(messagesProvider))
 
       // explicit theme, default type, size
       html must contain("data-theme=\"dark\"")
@@ -101,9 +90,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
     "render widget with type" in new WithApplication(getApplication(captchaType = Some("audio")))
         with WithWidgetHelper {
-      val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-
-      val html = contentAsString(views.html.recaptcha.recaptchaWidget(true, 1)(widgetHelper, request, messages))
+      val (template, messagesProvider) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(true, 1)(messagesProvider))
 
       // default theme, explicit type, default size
       html must contain("data-theme=\"light\"")
@@ -113,9 +101,8 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
     "render v2 widget with size" in new WithApplication(getApplication(captchaSize = Some("compact")))
         with WithWidgetHelper {
-      val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-
-      val html = contentAsString(views.html.recaptcha.recaptchaWidget(true, 1)(widgetHelper, request, messages))
+      val (template, messagesProvider) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(true, 1)(messagesProvider))
 
       // default theme and type, explicit size
       html must contain("data-theme=\"light\"")
@@ -124,20 +111,16 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     }
 
     "render widget with extra classes" in new WithApplication(getApplication()) with WithWidgetHelper {
-      val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-
-      val html = contentAsString(views.html.recaptcha.recaptchaWidget(true, 1, 'class -> "extra")(
-        widgetHelper, request, messages))
+      val (template, messagesProvider) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(true, 1, 'class -> "extra")(messagesProvider))
 
       // recaptcha and extra class
       html must contain("class=\"g-recaptcha extra\"")
     }
 
     "render widget with extra attributes" in new WithApplication(getApplication()) with WithWidgetHelper {
-      val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-
-      val html = contentAsString(views.html.recaptcha.recaptchaWidget(true, 1, 'class -> "extra", 'aaa -> "bbb",
-        'ccc -> "ddd")(widgetHelper, request, messages))
+      val (template, messagesProvider) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(true, 1, 'class -> "extra", 'aaa -> "bbb", 'ccc -> "ddd")(messagesProvider))
 
       // recaptcha and extra class
       html must contain("class=\"g-recaptcha extra\"")
@@ -174,6 +157,19 @@ class RecaptchaWidgetSpec extends PlaySpecification {
     }
 
     new GuiceApplicationBuilder().configure(config).build()
+  }
+
+  /**
+    * Creates a new template instance.
+    * @param app                The current app
+    * @param widgetHelper       The widget helper
+    * @return The template, and a messages provider
+    */
+  private def createTemplate(app: Application, widgetHelper: WidgetHelper): (recaptchaWidget, MessagesProvider) = {
+    val messagesApi = app.injector.instanceOf[MessagesApi]
+    val messagesProvider = MessagesImpl(Lang("fr"), messagesApi)
+    val template = new recaptchaWidget(widgetHelper)
+    (template, messagesProvider)
   }
 
   trait WithWidgetHelper extends Scope {

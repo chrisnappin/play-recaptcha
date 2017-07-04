@@ -1,15 +1,15 @@
 @import com.nappin.play.recaptcha.WidgetHelper
+@this(widgetHelper: WidgetHelper)
 
 @****************************************************************************************
-* Renders a Google Recaptcha enabled button.
-*
-* @param formId            The HTML id of the form the button is within
-* @param text              The text of the button
-* @param args              HTML attributes for the button (optional)
-* @param widgetHelper      (Implicit) Helper utility needed for accessing settings, urls, etc
-* @param messages          (Implicit) The current I18n messages
-****************************************************************************************@
-@(formId: String, text: String, args: (Symbol, String)*)(implicit widgetHelper: WidgetHelper, messages: Messages)
+ * Renders a Google Recaptcha enabled button.
+ *
+ * @param formId            The HTML id of the form the button is within
+ * @param text              The text of the button
+ * @param args              HTML attributes for the button (optional)
+ * @param messagesProvider  (Implicit) The current I18n messages provider
+ ****************************************************************************************@
+@(formId: String, text: String, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider)
 
 <script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
 <script>

@@ -16,7 +16,7 @@
 package com.nappin.play.recaptcha
 
 import play.api.Logger
-import play.api.i18n.{Lang, Messages}
+import play.api.i18n.{Lang, MessagesProvider}
 import javax.inject.{Inject, Singleton}
 
 import play.api.data.Form
@@ -25,7 +25,7 @@ import play.api.data.Form
   * Helper functionality for the <code>recaptchaWidget</code> view template.
   *
   * @author chrisnappin
-  * @param settings Recaptcha configuration settings
+  * @param settings  Recaptcha configuration settings
   */
 @Singleton
 class WidgetHelper @Inject()(settings: RecaptchaSettings) {
@@ -65,16 +65,16 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
   /**
     * Returns the widget script URL, with parameters (if applicable).
     *
-    * @param error    The error code (if any)
-    * @param messages The current i18n messages
+    * @param error              The error code (if any)
+    * @param messagesProvider   The i18n messages provider
     * @return The URL
     */
-  def widgetScriptUrl(error: Option[String] = None)(implicit messages: Messages): String = {
+  def widgetScriptUrl(error: Option[String] = None)(implicit messagesProvider: MessagesProvider): String = {
     settings.widgetScriptUrl + (
       if (settings.languageMode == "force") {
         "?hl=" + settings.forceLanguage.get
       } else if (settings.languageMode == "play") {
-        "?hl=" + mapToV2Language(messages.lang)
+        "?hl=" + mapToV2Language(messagesProvider.messages.lang)
       } else {
         ""
       }
@@ -96,12 +96,12 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
     * Resolves any recaptcha error messages (from message key to message text) and associates it with the specified
     * fieldname (instead of the default of <code>com.nappin.play.recaptcha.error</code>).
     *
-    * @param fieldname The name of the recaptcha field
-    * @param form      The form
-    * @param messages  The current Play messages
+    * @param fieldname          The name of the recaptcha field
+    * @param form               The form
+    * @param messagesProvider   The i18n messages provider
     * @return The form, updated if required
     */
-  def resolveRecaptchaErrors(fieldname: String, form: Form[_])(implicit messages: Messages): Form[_] = {
+  def resolveRecaptchaErrors(fieldname: String, form: Form[_])(implicit messagesProvider: MessagesProvider): Form[_] = {
     val resolvedRecaptchaErrorMessage = getFieldError(form)
     if (resolvedRecaptchaErrorMessage.isDefined) {
       // remove previous errors, add resolved recaptcha error
@@ -122,11 +122,11 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
   /**
     * Get the error for the reCAPTCHA field from the form, if any.
     *
-    * @param form     The form to check
-    * @param messages The current Play messages
+    * @param form               The form to check
+    * @param messagesProvider   The i18n messages provider
     * @return The error message, if any
     */
-  def getFieldError(form: Form[_])(implicit messages: Messages): Option[String] = {
+  def getFieldError(form: Form[_])(implicit messagesProvider: MessagesProvider): Option[String] = {
     form.error(RecaptchaVerifier.formErrorKey).map(e => {
       e.message match {
 
@@ -139,7 +139,7 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
         case RecaptchaErrorCode.apiError =>
           Some(messageOrDefault("error.apiError", "Invalid response from Recaptcha"))
 
-        case RecaptchaErrorCode.responseMissing => Some(messages("error.required"))
+        case RecaptchaErrorCode.responseMissing => Some(messagesProvider.messages("error.required"))
 
         case _ => None
       }
@@ -172,14 +172,14 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
   /**
     * Get the message, or use the default if message not defined.
     *
-    * @param key      The message key
-    * @param default  The default message
-    * @param messages The current Play messages
+    * @param key                The message key
+    * @param default            The default message
+    * @param messagesProvider   The i18n messages provider
     * @return The message, or default
     */
-  private def messageOrDefault(key: String, default: String)(implicit messages: Messages): String = {
-    if (messages.isDefinedAt(key)) {
-      messages(key)
+  private def messageOrDefault(key: String, default: String)(implicit messagesProvider: MessagesProvider): String = {
+    if (messagesProvider.messages.isDefinedAt(key)) {
+      messagesProvider.messages(key)
     } else {
       default
     }

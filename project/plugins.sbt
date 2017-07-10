@@ -8,3 +8,6 @@ addSbtPlugin("com.jsuereth" %% "sbt-pgp" % "1.1.0-M1")
 
 // The scoverage plugin (measures statement coverage for unit tests)
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "1.5.0")
+
+// Shows an ascii library dependency graph (run dependencyTree_
+addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")

@@ -8,29 +8,32 @@
  * @param tabindex          The tabindex of the field
  * @param args              HTML attributes for the reCAPTCHA div (optional)
  * @param messagesProvider  (Implicit) The current I18n messages provider
+ * @param request           (Implicit) The current request
  ****************************************************************************************@
-@(includeNoScript: Boolean, tabindex: Int, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider)
+@(includeNoScript: Boolean, tabindex: Int, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider,
+    request: Request[AnyContent])
 
-<script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
+<script type="text/javascript" @Html(widgetHelper.outputNonce()) src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
 <div class="@Html(widgetHelper.formatClass("g-recaptcha", args: _*))" @Html(widgetHelper.formatOtherAttributes(args: _*))
   data-sitekey="@Html(widgetHelper.publicKey)" data-tabindex="@tabindex" data-theme="@Html(widgetHelper.captchaTheme)"
   data-type="@Html(widgetHelper.captchaType)" data-size="@Html(widgetHelper.captchaSize)"></div>
 @if(includeNoScript) {
 <noscript>
-  <div style="width: 302px; height: 352px;">
-    <div style="width: 302px; height: 352px; position: relative;">
-      <div style="width: 302px; height: 352px; position: absolute;">
+  <div>
+    <div style="width: 302px; height: 422px; position: relative;">
+      <div style="width: 302px; height: 422px; position: absolute;">
         <iframe src="@Html(widgetHelper.widgetNoScriptUrl())" frameborder="0" scrolling="no"
-            style="width: 302px; height:352px; border-style: none;">
+            style="width: 302px; height:422px; border-style: none;">
         </iframe>
       </div>
-      <div style="width: 250px; height: 80px; position: absolute; border-style: none;
-                  bottom: 21px; left: 25px; margin: 0px; padding: 0px; right: 25px;">
-        <textarea id="g-recaptcha-response" name="g-recaptcha-response" class="g-recaptcha-response"
-            style="width: 250px; height: 80px; border: 1px solid #c1c1c1;
-                   margin: 0px; padding: 0px; resize: none;" value="">
-        </textarea>
-      </div>
+    </div>
+    <div style="width: 300px; height: 60px; border-style: none;
+                bottom: 12px; left: 25px; margin: 0px; padding: 0px; right: 25px;
+                background: #f9f9f9; border: 1px solid #c1c1c1; border-radius: 3px;">
+      <textarea id="g-recaptcha-response" name="g-recaptcha-response" class="g-recaptcha-response"
+          style="width: 250px; height: 40px; border: 1px solid #c1c1c1;
+                 margin: 10px 25px; padding: 0px; resize: none;">
+      </textarea>
     </div>
   </div>
 </noscript>

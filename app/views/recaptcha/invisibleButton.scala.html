@@ -8,11 +8,14 @@
  * @param text              The text of the button
  * @param args              HTML attributes for the button (optional)
  * @param messagesProvider  (Implicit) The current I18n messages provider
+ * @param request           (Implicit) The current request
  ****************************************************************************************@
-@(formId: String, text: String, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider)
+@(formId: String, text: String, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider,
+    request: Request[AnyContent])
 
-<script type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
-<script>
+<script @Html(widgetHelper.outputNonce()) type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())"
+    async defer></script>
+<script @Html(widgetHelper.outputNonce())>
 function onRecaptchaSubmit(token) {
     document.getElementById("@formId").submit();
 }

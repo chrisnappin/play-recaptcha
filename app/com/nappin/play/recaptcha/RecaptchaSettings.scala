@@ -66,6 +66,16 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
     /** The language to force use of (if any). */
     val forceLanguage: Option[String] = configuration.getOptional[String](ForceLanguageConfigProp)
 
+    /** The content security policy to use (if any). */
+    val contentSecurityPolicy: String = configuration.getOptional[String](ContentSecurityPolicyProp)
+        .getOrElse(ContentSecurityPolicyDefault)
+
+    /** The length of nonces to generate (if any). */
+    val nonceLength: Int = configuration.getOptional[Int](NonceLengthProp).getOrElse(NonceLengthDefault)
+
+    /** The seed to use for nonce generation (if any). */
+    val nonceSeed: Option[Long] = configuration.getOptional[Long](NonceSeedProp)
+
     /** Sanity check the configuration, log descriptive error if invalid. */
     checkMandatoryConfigurationPresent(configuration)
     checkConfigurationValid(configuration)
@@ -155,6 +165,15 @@ object RecaptchaSettings {
 	/** The forced language value to use (if any). */
 	val ForceLanguageConfigProp = s"$root.forceLanguage"
 
+  /** The Content Security Policy to use (if any). */
+  val ContentSecurityPolicyProp = s"$root.nonceAction.contentSecurityPolicy"
+
+  /** The length of the nonces to generate (if any). */
+  val NonceLengthProp = s"$root.nonceAction.nonceLength"
+
+  /** The nonce generation seed (if any). */
+  val NonceSeedProp = s"$root.nonceAction.nonceSeed"
+
 	// Default Values
 	import scala.concurrent.duration._
 	val RequestTimeoutMsDefault = 10.seconds
@@ -162,7 +181,10 @@ object RecaptchaSettings {
 	val CaptchaTypeDefault = "image"
 	val CaptchaSizeDefault = "normal"
 	val LanguageModeDefault = "auto"
+  val ContentSecurityPolicyDefault = "default-src 'self'; script-src 'self' 'nonce-{nonce}'; " +
+    "style-src 'self' 'unsafe-inline'; frame-src https://www.google.com/recaptcha/;"
+  val NonceLengthDefault = 20
 
-    /** The mandatory configuration items that must exist for this module to work. */
-    private[recaptcha] val mandatoryConfiguration = Seq(PrivateKeyConfigProp, PublicKeyConfigProp)
+  /** The mandatory configuration items that must exist for this module to work. */
+  private[recaptcha] val mandatoryConfiguration = Seq(PrivateKeyConfigProp, PublicKeyConfigProp)
 }

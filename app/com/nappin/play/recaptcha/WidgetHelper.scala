@@ -20,6 +20,7 @@ import play.api.i18n.{Lang, MessagesProvider}
 import javax.inject.{Inject, Singleton}
 
 import play.api.data.Form
+import play.api.mvc.{AnyContent, Request}
 
 /**
   * Helper functionality for the <code>recaptchaWidget</code> view template.
@@ -167,6 +168,19 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
     */
   def formatOtherAttributes(args: (Symbol, String)*): String = {
     args.filter((t) => t._1 != 'class).map((t) => t._1.toString().substring(1) + "=\"" + t._2 + "\"").mkString(" ")
+  }
+
+  /**
+    * Outputs the nonce HTML attribute (name and value), if a nonce has been set as a request attribute.
+    * @param request    (implicit) The current request
+    * @return The nonce HTML, or nothing
+    */
+  def outputNonce()(implicit request: Request[AnyContent]): String = {
+    if (request.attrs.contains(NonceRequestAttributes.Nonce)) {
+      "nonce=\"" + request.attrs(NonceRequestAttributes.Nonce) + "\""
+    } else {
+      ""
+    }
   }
 
   /**

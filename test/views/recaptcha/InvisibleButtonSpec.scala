@@ -15,7 +15,7 @@
  */
 package views.recaptcha
 
-import com.nappin.play.recaptcha.{RecaptchaSettings, WidgetHelper}
+import com.nappin.play.recaptcha.{NonceRequestAttributes, RecaptchaSettings, WidgetHelper}
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.Scope
@@ -54,6 +54,9 @@ class InvisibleButtonSpec extends PlaySpecification {
       html must contain("data-sitekey=\"public-key\"")
       html must contain("data-callback=\"onRecaptchaSubmit\"")
       html must contain(">Submit<")
+
+      // no request attribute so no nonces
+      html must not contain("nonce=")
     }
 
     "render widget with language forced" in new WithApplication(
@@ -106,6 +109,20 @@ class InvisibleButtonSpec extends PlaySpecification {
       // button html
       html must contain("class=\"g-recaptcha extraClass\"")
       html must contain("id=\"myId\" tabindex=\"5\"")
+    }
+
+    "render widget with nonces if request attribute set" in new WithApplication(
+      getApplication()) with WithWidgetHelper {
+
+      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template("myForm", "Submit")(messagesProvider,
+        request.addAttr(NonceRequestAttributes.Nonce, "1234abcd")))
+
+      // recaptcha javascript block has nonce
+      html must contain("<script nonce=\"1234abcd\" type=\"text/javascript\" src=")
+
+      // inline javascript block has nonce
+      html must contain("<script nonce=\"1234abcd\">")
     }
   }
 

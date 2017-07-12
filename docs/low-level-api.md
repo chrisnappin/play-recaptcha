@@ -21,8 +21,9 @@ Within your controller, you simply inject a verifier, your view template (so tha
     import com.nappin.play.recaptcha.RecaptchaVerifier
     import javax.inject.Inject
         
-    class ExampleForm @Inject() (myForm: views.html.myForm, verifier: RecaptchaVerifier, cc: ControllerComponents)(
-        implicit executionContext: ExecutionContext) extends AbstractController(cc) with I18nSupport {
+    class ExampleForm @Inject() (myForm: views.html.myForm, verifier: RecaptchaVerifier, 
+        cc: ControllerComponents)(implicit executionContext: ExecutionContext) 
+        extends AbstractController(cc) with I18nSupport {
 
 Note that the play-recaptcha module performs a sanity check of the configuration upon startup. If it finds a fatal error it will write details of the issues to the error log, throw an unchecked ``com.typesafe.config.ConfigException`` or ``play.api.PlayException`` and the dependency injection will fail. These are errors you should only get whilst developing your module.
 

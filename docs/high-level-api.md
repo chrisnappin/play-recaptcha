@@ -164,8 +164,9 @@ Within your controller, you simply inject a verifier, your view template (so tha
     import com.nappin.play.recaptcha.RecaptchaVerifier
     import javax.inject.Inject
     
-    class ExampleForm @Inject() (myForm: views.html.myForm, verifier: RecaptchaVerifier, cc: ControllerComponents)(
-        implicit executionContext: ExecutionContext) extends AbstractController(cc) with I18nSupport {
+    class ExampleForm @Inject() (myForm: views.html.myForm, verifier: RecaptchaVerifier, 
+        cc: ControllerComponents)(implicit executionContext: ExecutionContext) 
+            extends AbstractController(cc) with I18nSupport {
 
 Note that the play-recaptcha module performs a sanity check of the configuration upon startup. If it finds a fatal error it will write details of the issues to the error log, throw an unchecked ``com.typesafe.config.ConfigException`` or ``play.api.PlayException`` and the DI injection will fail. These are errors you should only get whilst developing your module.
 
@@ -201,7 +202,6 @@ This method can also throw ``IllegalStateException`` if it encounters odd situat
 The ``map`` and ``fold`` methods are a great way of handling the ``Future`` and ``Form`` errors, so here is a simple example:
 
     def submitForm = Action.async { implicit request =>
-        implicit val context = scala.concurrent.ExecutionContext.Implicits.global
         
         verifier.bindFromRequestAndVerify(myForm).map { form =>
             form.fold(   
@@ -217,21 +217,24 @@ The ``map`` and ``fold`` methods are a great way of handling the ``Future`` and 
         }    
     }
 
-(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/ExampleForm.scala) for a complete example)
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/ExampleForm.scala) for a complete example,
+and [ExampleFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/test/controllers/ExampleFormSpec.scala) for example unit tests using specs2)
 
 
 ### reCAPTCHA v2 (using AJAX/JavaScript)
 
 To validate a form submitted via JavaScript follows very similar processing as the reCAPTCHA v2 controller, but the ``widgetHelper.resolveRecaptchaErrors`` method can be used to return any form validation errors as JSON.
 
-(see [JavascriptForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/JavascriptForm.scala) for a complete example)
+(see [JavascriptForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/JavascriptForm.scala) for a complete example,
+see [JavascriptFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/test/controllers/JavascriptFormSpec.scala) for example unit tests using specs2)
 
 
 ### Invisible reCAPTCHA
 
 To validate a form with an invisible reCAPTCHA follows the same processing as the reCAPTCHA v2 controller, as outlined above.
 
-(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/InvisibleForm.scala) for a complete example)
+(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/InvisibleForm.scala) for a complete example,
+and [InvisibleFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/test/controllers/InvisibleFormSpec.scala) for example unit tests using specs2)
 
 
 ## Security
@@ -241,7 +244,10 @@ As of Play 2.6, a number of security filters are enabled by default, including t
 To allow use of reCAPTCHA using the default Play security headers filter, you will need to use a policy such as the following - adding any other external sources your application is using:
 
 ```
-default-src 'self'; script-src 'self' 'unsafe-inline' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; frame-src https://www.google.com/recaptcha/; style-src 'self' 'unsafe-inline'
+    default-src 'self'; 
+    script-src 'self' 'unsafe-inline' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; 
+    frame-src https://www.google.com/recaptcha/; 
+    style-src 'self' 'unsafe-inline'
 ```
 
 The ```style-src``` directive of ```unsafe-inline``` is needed because of the way the current reCAPTCHA code operates. However, using a ```script-src``` directive of ```unsafe-inline``` is not recommended and undermines use of CSP. A recommended solution is to use SHA digests or nonces, as below.
@@ -254,7 +260,8 @@ The play-recaptcha includes a simple nonce generation solution that allows you t
 To use the custom action builder, inject it into your controller as follows:
 
 ```
-class MyForm @Inject()(nonceAction: NonceActionBuilder, ..)(..) extends AbstractController(cc) with I18nSupport {
+class MyForm @Inject()(nonceAction: NonceActionBuilder, ..)(..) 
+    extends AbstractController(cc) with I18nSupport {
 ``` 
  
 Then apply it to any actions that render a reCAPTCHA widget as follows:
@@ -301,12 +308,16 @@ recaptcha.nonceAction.nonceSeed|The seed to use (if any)|None
 
 The Content Security Policy applied by ```nonceAction``` is as follows:
 ```
-default-src 'self'; script-src 'self' 'nonce-{nonce}'; style-src 'self' 'unsafe-inline'; frame-src https://www.google.com/recaptcha/;
+    default-src 'self';
+    script-src 'self' 'nonce-{nonce}';
+    style-src 'self' 'unsafe-inline';
+    frame-src https://www.google.com/recaptcha/;
 ```
 
 where ```{nonce}``` is replaced with a unique nonce generated for each response.
 
 (see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/ExampleForm.scala) for a complete example) 
+
 (see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/InvisibleForm.scala) for a complete example with action composition) 
 
 

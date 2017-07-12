@@ -306,7 +306,7 @@ recaptcha.nonceAction.contentSecurityPolicy|The policy to use for ```nonceAction
 recaptcha.nonceAction.nonceLength|The length of nonces to generate|20
 recaptcha.nonceAction.nonceSeed|The seed to use (if any)|None
 
-The Content Security Policy applied by ```nonceAction``` is as follows:
+The default Content Security Policy applied by ```nonceAction``` is as follows - override this default to add any other external sources your application is using:
 ```
     default-src 'self';
     script-src 'self' 'nonce-{nonce}';

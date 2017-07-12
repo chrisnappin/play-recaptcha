@@ -19,10 +19,10 @@ Note that if you want to use invisible reCAPTCHA, this is a separate option and 
 The play-recaptcha module is distributed via Maven Central, so you can add the module as a build dependency in SBT. In your top-level *build.sbt* file, add the following:
 
     libraryDependencies ++= Seq(
-      "com.nappin" %% "play-recaptcha" % "2.2" 
+      "com.nappin" %% "play-recaptcha" % "2.3" 
     )
 
-The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.2` is the
+The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.3` is the
 play-recaptcha module version number being used - since SBT uses ivy the version number can be alternatively be an expression such as `2.+` (meaning any version 2.x release). 
 
 (see [build.sbt](../build.sbt) for a complete example)
@@ -41,9 +41,12 @@ recaptcha.type|The type of captcha to use (image or audio)|image
 recaptcha.size|The size of captcha to show (normal or compact)|normal
 recaptcha.languageMode|The internationalisation approach to use (auto, force, play)|auto
 recaptcha.forceLanguage|The language to use (if using force mode)|None
+recaptcha.nonceAction.contentSecurityPolicy|The policy to use (if using NonceActionBuilder)|See below
+recaptcha.nonceAction.nonceLength|The length of nonces to generate|20
+recaptcha.nonceAction.nonceSeed|The seed to use (if any)|None
 
 
-(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/conf/application.conf) for a complete example)
+(see [application.conf](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/conf/application.conf) for a complete example)
 
 ## Internationalisation
 The play-recaptcha module (both reCAPTCHA v2 and Invisible reCAPTCHA) supports the following language modes (as set by the `recaptcha.languageMode` configuration setting:
@@ -53,32 +56,32 @@ The play-recaptcha module (both reCAPTCHA v2 and Invisible reCAPTCHA) supports t
 
 Unless you need special behaviour (e.g. your website has its own language selection functionality, or it is only ever rendered in one language), use the default `auto` mode.
 
-The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2) is internationalised to two languages (English, French) as an example.
+The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3) is internationalised to two languages (English, French) as an example.
 
 
 ## View Template
 
 ### reCAPTCHA v2
-To use reCAPTCHA version 2 in your view template, you need to include a `recaptcha.recaptchaField` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for reCAPTCHA, and optionally the `noscript` option for browsers with JavaScript turned off (typically rare these days). Here is a very simple example:
+To use reCAPTCHA version 2 in your view template, you need to inject a `recaptcha.recaptchaField` view helper tag and include it within a `form` tag. This will render all of the JavaScript and HTML required for reCAPTCHA, and optionally the `noscript` option for browsers with JavaScript turned off (typically rare these days). Here is a very simple example:
 
-    @import com.nappin.play.recaptcha.WidgetHelper
+    @this(recaptchaField: recaptcha.recaptchaField)
     
-    @(myForm: Form[MyModelObject])(implicit request: Request[AnyContent], messages: Messages, widgetHelper: WidgetHelper)
+    @(myForm: Form[MyModelObject])(implicit messagesProvider: MessagesProvider, request: Request[AnyContent])
     
     ..html header..
     
     @helper.form(action = routes.ExampleForm.submitForm()) {
         @helper.inputText(myForm("field1"))
         @helper.inputText(myForm("field2"))
-        @recaptcha.recaptchaField(form = myForm, fieldName = "captcha", includeNoScript = false, 
-            isRequired = true, 'class -> "extraClass")
+        @recaptchaField(form = myForm, fieldName = "captcha", includeNoScript = false, isRequired = true, 
+            'class -> "extraClass")
             
         ..further fields and a submit button..    
     }
     
     ..html footer..
 
-The `recaptcha.recaptchaField` parameters are as follows:
+The `recaptchaField` parameters are as follows:
 * Explicit parameters:
   * ``form: Form[_]`` - the Play Form
   * ``fieldName: String`` - the name of the field
@@ -87,13 +90,12 @@ The `recaptcha.recaptchaField` parameters are as follows:
   * ``isRequired: Boolean`` - whether to show the Play ``constraint.required`` message (note that the recaptcha field is always processed as if having a **required** form validation constraint)
   * ``args: (Symbol, String)*`` - optional HTML attributes to add to the recaptcha div (like the built-in Play input helpers)
 * Implicit parameters:
-  * ``request: Request[AnyContent]`` - the current web request
-  * ``messages: Messages`` - the current i18n messages to use
-  * ``widgetHelper: WidgetHelper`` - the widgetHelper to use
+  * ``messagesProvider: MessagesProvider`` - the current i18n messages to use
+  * ``request: Request[AnyContent]`` - the current request
 
-(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/views/form.scala.html) for a complete example)
+(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/views/form.scala.html) for a complete example)
 
-The `recaptcha.recaptchaField` view helper tag (ignoring the JavaScript) produces HTML using the same formatting as the built-in Play input helpers, as follows:
+The `recaptchaField` view helper tag (ignoring the JavaScript) produces HTML using the same formatting as the built-in Play input helpers, as follows:
 
     <dl ...>
       <dt><label for="..field..">..label..</label></dt>
@@ -107,35 +109,34 @@ You can use the optional HTML attributes (`args`) to add CSS classes and further
 If you are using a third-party library to layout your form (for example, Bootstrap), you will probably want to replace use of the dl/dt/dd HTML with custom div tags. To achieve this, copy `recaptchaField.scala.html` into your own project, reference that in your form template, then change the HTML as desired.
  
 ### Invisible reCAPTCHA
-To use Invisible reCAPTCHA in your view template, you need to include a `recaptcha.invisibleButton` view helper tag within a `form` tag. This will render all of the JavaScript and HTML required for Invisible reCAPTCHA. Here is a very simple example:
+To use Invisible reCAPTCHA in your view template, you need to inject a `recaptcha.invisibleButton` view helper tag and include it within a `form` tag. This will render all of the JavaScript and HTML required for Invisible reCAPTCHA. Here is a very simple example:
 
-    @import com.nappin.play.recaptcha.WidgetHelper
+    @this(invisibleButton: recaptcha.invisibleButton)
     
-    @(myForm: Form[MyModelObject])(implicit request: Request[AnyContent], messages: Messages, widgetHelper: WidgetHelper)
+    @(myForm: Form[MyModelObject])(implicit messagesProvider: MessagesProvider, request: Request[AnyContent])
     
     ..html header..
     
     @helper.form(action = routes.ExampleForm.submitForm(), 'id -> "my_form") {
         @helper.inputText(myForm("field1"))
         @helper.inputText(myForm("field2"))
-        @recaptcha.invisibleButton(formId = "my_form", text = "Submit", 'class -> "extraClass")
+        @invisibleButton(formId = "my_form", text = "Submit", 'class -> "extraClass")
     }
     
     ..html footer..
 
-The `recaptcha.invisibleButton` parameters are as follows:
+The `invisibleButton` parameters are as follows:
 * Explicit parameters:
   * ``formId: String`` - the id for the Form
   * ``text: String`` - the text of the submit button
   * ``args: (Symbol, String)*`` - optional HTML attributes to add to the button (like the built-in Play input helpers)
 * Implicit parameters:
+  * ``messagesProvider: MessagesProvider`` - the current i18n messages to use
   * ``request: Request[AnyContent]`` - the current web request
-  * ``messages: Messages`` - the current i18n messages to use
-  * ``widgetHelper: WidgetHelper`` - the widgetHelper to use
 
-(see [invisibleForm.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/views/invisibleForm.scala.html) for a complete example)
+(see [invisibleForm.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/views/invisibleForm.scala.html) for a complete example)
 
-The `recaptcha.invisibleButton` view helper tag (ignoring the JavaScript) produces HTML as follows:
+The `invisibleButton` view helper tag (ignoring the JavaScript) produces HTML as follows:
 
     <button class="g-recaptcha" ..>..button text..</button>
 
@@ -152,31 +153,27 @@ error.required|Shown if no text entered into the captcha field|The Play default
 error.recaptchaNotReachable|Shown if there is an error contacting the reCAPTCHA API (e.g. Network timeout)|Unable to contact Recaptcha
 error.apiError|Shown if reCAPTCHA returns a response that the play-recaptcha module doesn't understand (e.g. Google have changed its functionality)|Invalid response from Recaptcha
 
-(see [messages](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/conf/messages) for a complete example)
+(see [messages](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/conf/messages) for a complete example)
 
 
 ## Controller
 
 ### reCAPTCHA v2 (using Play forms)
-Within your controller, you simply inject a verifier, and an implicit widgetHelper. An example using the built-in Guice DI would be:
+Within your controller, you simply inject a verifier, your view template (so that template dependencies are injected), and an implicit `ExecutionContext`. An example using the built-in dependency injection would be:
 
-    import com.nappin.play.recaptcha.{RecaptchaVerifier, WidgetHelper}
+    import com.nappin.play.recaptcha.RecaptchaVerifier
     import javax.inject.Inject
     
-    class ExampleForm @Inject() (val messagesApi: MessagesApi, val verifier: RecaptchaVerifier)(
-        implicit widgetHelper: WidgetHelper) extends Controller with I18nSupport {
+    class ExampleForm @Inject() (myForm: views.html.myForm, verifier: RecaptchaVerifier, cc: ControllerComponents)(
+        implicit executionContext: ExecutionContext) extends AbstractController(cc) with I18nSupport {
 
 Note that the play-recaptcha module performs a sanity check of the configuration upon startup. If it finds a fatal error it will write details of the issues to the error log, throw an unchecked ``com.typesafe.config.ConfigException`` or ``play.api.PlayException`` and the DI injection will fail. These are errors you should only get whilst developing your module.
 
-To show the form, invoke the template as you would normally, and the implicit ``widgetHelper`` will be passed, for example:
+To show the form, invoke the injected template, for example:
 
-    def show = Action { implicit request =>
-        Ok(views.html.form(userForm))
+    def show = Action { implicit request: Request[AnyContent] =>
+        Ok(myForm(userForm))
     }
-
-Since the play-recaptcha module uses futures, we also need to have an execution context in scope, e.g.:
-
-    implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
 Then in your form action, use the verifier's ``bindFromRequestAndVerify`` method much as you would a form's ``bindFromRequest`` method, except it returns a ``Future[Form[T]]`` instead of a ``Form[T]`` instance.  Your form action can use this to return an asynchronous response, allowing the Play Framework to process further requests on the current thread, and reactively process the reCAPTCHA response once it is received. 
 
@@ -220,21 +217,97 @@ The ``map`` and ``fold`` methods are a great way of handling the ``Future`` and 
         }    
     }
 
-(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/controllers/ExampleForm.scala) for a complete example)
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/ExampleForm.scala) for a complete example)
 
 
 ### reCAPTCHA v2 (using AJAX/JavaScript)
 
 To validate a form submitted via JavaScript follows very similar processing as the reCAPTCHA v2 controller, but the ``widgetHelper.resolveRecaptchaErrors`` method can be used to return any form validation errors as JSON.
 
-(see [JavascriptForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/controllers/JavascriptForm.scala) for a complete example)
+(see [JavascriptForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/JavascriptForm.scala) for a complete example)
 
 
 ### Invisible reCAPTCHA
 
 To validate a form with an invisible reCAPTCHA follows the same processing as the reCAPTCHA v2 controller, as outlined above.
 
-(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.2/app/controllers/InvisibleForm.scala) for a complete example)
+(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/InvisibleForm.scala) for a complete example)
+
+
+## Security
+
+As of Play 2.6, a number of security filters are enabled by default, including the security headers filter which enables Content Security Policy (CSP).
+
+To allow use of reCAPTCHA using the default Play security headers filter, you will need to use a policy such as the following - adding any other external sources your application is using:
+
+```
+default-src 'self'; script-src 'self' 'unsafe-inline' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; frame-src https://www.google.com/recaptcha/; style-src 'self' 'unsafe-inline'
+```
+
+The ```style-src``` directive of ```unsafe-inline``` is needed because of the way the current reCAPTCHA code operates. However, using a ```script-src``` directive of ```unsafe-inline``` is not recommended and undermines use of CSP. A recommended solution is to use SHA digests or nonces, as below.
+
+
+### CSP Nonce Generation
+
+The play-recaptcha includes a simple nonce generation solution that allows you to use a more strict Content Security Policy. The solution uses a custom action builder that overrides the default filter, so that you can have a very strict policy applied by default on all responses, and a reCAPTCHA-specific policy (broader and using nonces) on responses rendering reCAPTCHA widgets.  
+
+To use the custom action builder, inject it into your controller as follows:
+
+```
+class MyForm @Inject()(nonceAction: NonceActionBuilder, ..)(..) extends AbstractController(cc) with I18nSupport {
+``` 
+ 
+Then apply it to any actions that render a reCAPTCHA widget as follows:
+
+```
+def show = nonceAction { implicit request: Request[AnyContent] =>
+  Ok(myTemplate(myForm))
+}
+```
+
+Or:
+ 
+```
+def show = nonceAction.async { 
+  ..if returning a Future[..]..
+}
+``` 
+ 
+Note that you can also compose this custom action builder with other actions as follows:
+
+```
+def method = nonceAction { Action {
+    ..
+  }
+}
+``` 
+
+```
+def method = nonceAction { messagesAction {
+    ..
+  }
+}
+``` 
+
+The following configuration will be needed:
+
+Configuration Key|Description|Default Value
+-----------------|-----------|-------------
+play.filters.headers.contentSecurityPolicy|The default policy used for all other actions|```default-src 'self'```
+play.filters.headers.allowActionSpecificHeaders|Must be set to ```true``` for ```nonceAction``` to work|false
+recaptcha.nonceAction.contentSecurityPolicy|The policy to use for ```nonceAction```-wrapped actions|See below
+recaptcha.nonceAction.nonceLength|The length of nonces to generate|20
+recaptcha.nonceAction.nonceSeed|The seed to use (if any)|None
+
+The Content Security Policy applied by ```nonceAction``` is as follows:
+```
+default-src 'self'; script-src 'self' 'nonce-{nonce}'; style-src 'self' 'unsafe-inline'; frame-src https://www.google.com/recaptcha/;
+```
+
+where ```{nonce}``` is replaced with a unique nonce generated for each response.
+
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/ExampleForm.scala) for a complete example) 
+(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3/app/controllers/InvisibleForm.scala) for a complete example with action composition) 
 
 
 ## Troubleshooting

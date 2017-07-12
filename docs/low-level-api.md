@@ -4,38 +4,33 @@ The play-recaptcha Low Level API has the same pre-requisites, requirements and c
 * [Controller](#controller)
 
 ## View Template
-In your view template, you need to include a ``recaptcha.recaptchaWidget`` view helper tag, which has the following parameters:
+In your view template, you need to inject a ``recaptcha.recaptchaWidget`` view helper tag, which has the following parameters:
 
 * Explicit parameters:
   * ``includeNoScript: Boolean`` - whether to support browsers with JavaScript disabled 
   * ``tabindex: Int`` - the HTML tabindex
   * ``args: (Symbol, String)*`` - optional HTML attributes to add to the recaptcha div (like the built-in Play input helpers)
 * Implicit parameters:
-  * ``request: Request[AnyContent]`` - the current web request
-  * ``messages: Messages`` - the current i18n messages to use
-  * ``widgetHelper: WidgetHelper`` - the widget helper to use (create via DI)
+  * ``messagesProvider: MessagesProvider`` - the current i18n messages to use
+  * ``request: Request[AnyContent]`` - the current request
 
 
 ## Controller
-Within your controller, you simply inject a verifier and an implicit widgetHelper. An example using the built-in Guice DI would be:
+Within your controller, you simply inject a verifier, your view template (so that template dependencies are injected), and an implicit `ExecutionContext`. An example using the built-in dependency injection would be:
 
-    import com.nappin.play.recaptcha.{RecaptchaVerifier, WidgetHelper}
+    import com.nappin.play.recaptcha.RecaptchaVerifier
     import javax.inject.Inject
+        
+    class ExampleForm @Inject() (myForm: views.html.myForm, verifier: RecaptchaVerifier, cc: ControllerComponents)(
+        implicit executionContext: ExecutionContext) extends AbstractController(cc) with I18nSupport {
 
-    class ExampleForm @Inject() (val messagesApi: MessagesApi, val verifier: RecaptchaVerifier)(
-        implicit widgetHelper: WidgetHelper) extends Controller with I18nSupport {
+Note that the play-recaptcha module performs a sanity check of the configuration upon startup. If it finds a fatal error it will write details of the issues to the error log, throw an unchecked ``com.typesafe.config.ConfigException`` or ``play.api.PlayException`` and the dependency injection will fail. These are errors you should only get whilst developing your module.
 
-Note that the play-recaptcha module performs a sanity check of the configuration upon startup. If it finds a fatal error it will write details of the issues to the error log, throw an unchecked ``com.typesafe.config.ConfigException`` or ``play.api.PlayException`` and the DI injection will fail. These are errors you should only get whilst developing your module.
+To show the form, invoke the injected template, for example:
 
-To show the form, invoke the template as you would normally, and the implicit widgetHelper will be passed automatically, for example:
-
-    def show = Action { implicit request =>
-        Ok(views.html.form(userForm))
+    def show = Action { implicit request: Request[AnyContent] =>
+        Ok(myForm(userForm))
     }
-
-Since the play-recaptcha module uses futures, we also need to have an execution context in scope, e.g.:
-
-    implicit val context = scala.concurrent.ExecutionContext.Implicits.global
 
 Then to check whether a captcha response is valid, use the following methods:
 

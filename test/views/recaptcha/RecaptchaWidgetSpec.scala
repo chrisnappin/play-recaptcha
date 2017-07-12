@@ -15,7 +15,7 @@
  */
 package views.recaptcha
 
-import com.nappin.play.recaptcha.{RecaptchaSettings, WidgetHelper}
+import com.nappin.play.recaptcha.{NonceRequestAttributes, RecaptchaSettings, WidgetHelper}
 import org.specs2.runner.JUnitRunner
 import org.junit.runner.RunWith
 import org.specs2.specification.Scope
@@ -57,6 +57,9 @@ class RecaptchaWidgetSpec extends PlaySpecification {
       html must contain("<noscript")
       html must contain("g-recaptcha-response")
       html must contain("fallback?k=public-key")
+
+      // no request attribute so no nonce
+      html must not contain("nonce=")
     }
 
     "render widget without noscript" in new WithApplication(getApplication()) with WithWidgetHelper {
@@ -129,6 +132,15 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
       // extra attributes (not class)
       html must contain("aaa=\"bbb\" ccc=\"ddd\"")
+    }
+
+    "render widget with nonce if request attribute set" in new WithApplication(getApplication()) with WithWidgetHelper {
+      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+      val html = contentAsString(template(true, 1)(messagesProvider,
+          request.addAttr(NonceRequestAttributes.Nonce, "1234abcd")))
+
+      // recaptcha javascript block has nonce
+      html must contain("<script type=\"text/javascript\" nonce=\"1234abcd\" src=")
     }
   }
 

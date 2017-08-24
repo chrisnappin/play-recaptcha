@@ -1,11 +1,19 @@
-Play Recaptcha Module
-=====================
+# play-recaptcha Module
+This is a [Play Framework](http://www.playframework.com) module, using Scala and Play 2.x, to provide integration 
+with [Google reCAPTCHA](https://www.google.com/recaptcha) in a reactive (non-blocking) manner.
 
-This is a [Play Framework](http://www.playframework.com) module, for Scala 2.10 and Play 2.3, to provide integration 
-with [Google ReCaptcha](http://www.google.com/recaptcha) in a reactive (non-blocking) manner.
+Both reCAPTCHA v2 and Invisible reCAPTCHA is supported.
 
-License
--------
+![reCAPTCHA v2 example](images/recaptcha-example-v2.png)
 
+* [play-recaptcha GitHub project](https://github.com/chrisnappin/play-recaptcha)
+* [documentation for the latest release](https://github.com/chrisnappin/play-recaptcha/docs/index.md)
+
+
+## License
 The Play Recaptcha Module is copyright Chris Nappin, and is released under the 
 [Apache 2 License](http://www.apache.org/licenses/LICENSE-2.0).
+
+
+## Trademarks
+Google and possibly reCAPTCHA are trademarks of Google Inc.

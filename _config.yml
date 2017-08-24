@@ -1,7 +1,7 @@
 title: play-recaptcha
 description: A Play Framework (Scala and Play 2.x) module that provides reactive (non-blocking) integration with Google reCAPTCHA.
 google_analytics: 
-show_downloads: true
+show_downloads: false
 theme: jekyll-theme-slate
 
 gems:

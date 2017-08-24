@@ -13,11 +13,15 @@ Both reCAPTCHA v2 and Invisible reCAPTCHA is supported.
 * [play-recaptcha GitHub project](https://github.com/chrisnappin/play-recaptcha)
 * [documentation for the latest release](https://github.com/chrisnappin/play-recaptcha/blob/master/docs/index.md)
 
+<p>&nbsp;</p>
 
 ## License
 The Play Recaptcha Module is copyright Chris Nappin, and is released under the 
 [Apache 2 License](http://www.apache.org/licenses/LICENSE-2.0).
 
+<p>&nbsp;</p>
 
 ## Trademarks
 Google and possibly reCAPTCHA are trademarks of Google Inc.
+
+<p>&nbsp;</p>

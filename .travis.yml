@@ -5,7 +5,7 @@ language: scala
 
 # need to keep this in step with build.sbt
 scala:
-  - 2.12.1
+  - 2.12.8
 
 # as of sept 2015 there is no "openjdk8"
 jdk:

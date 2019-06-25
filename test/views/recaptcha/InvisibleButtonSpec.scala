@@ -93,7 +93,7 @@ class InvisibleButtonSpec extends PlaySpecification {
         getApplication()) with WithWidgetHelper {
 
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template("myForm", "Submit", 'class -> "extraClass")(messagesProvider, request))
+      val html = contentAsString(template("myForm", "Submit", Symbol("class") -> "extraClass")(messagesProvider, request))
 
       // button html
       html must contain("class=\"g-recaptcha extraClass\"")
@@ -103,8 +103,8 @@ class InvisibleButtonSpec extends PlaySpecification {
         getApplication()) with WithWidgetHelper {
 
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template("myForm", "Submit", 'class -> "extraClass", 'id -> "myId",
-        'tabindex -> "5")(messagesProvider, request))
+      val html = contentAsString(template("myForm", "Submit", Symbol("class") -> "extraClass", Symbol("id") -> "myId",
+        Symbol("tabindex") -> "5")(messagesProvider, request))
 
       // button html
       html must contain("class=\"g-recaptcha extraClass\"")

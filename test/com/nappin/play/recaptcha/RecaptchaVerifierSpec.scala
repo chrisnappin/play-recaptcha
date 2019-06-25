@@ -35,6 +35,7 @@ import scala.util.{Left, Right}
 import RecaptchaSettings.{PrivateKeyConfigProp, PublicKeyConfigProp, RequestTimeoutConfigProp}
 import org.specs2.execute.Result
 import play.api.mvc.{AnyContent, Request}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Tests the <code>RecaptchaVerifier</code> class.
@@ -54,7 +55,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
     "(v2) RecaptchaVerifier (low level API)" should {
 
         "handle a valid response as a success" in {
-            import scala.concurrent.ExecutionContext.Implicits.global
+
             val (verifier, mockRequest) =
                 createMocks(validV2Settings, OK, Some(Json.parse("{\"success\":true}"), Right(Success())), false)
 
@@ -93,7 +94,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
         "field2" -> optional(number)
     )(Model.apply)(Model.unapply))
 
-    private implicit val context = scala.concurrent.ExecutionContext.Implicits.global
+    private val context = scala.concurrent.ExecutionContext.Implicits.global
 
     "RecaptchaVerifier (high level API) - form URL encoded body" should {
 

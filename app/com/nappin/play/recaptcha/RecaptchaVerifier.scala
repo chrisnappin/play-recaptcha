@@ -71,7 +71,7 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
                 body.asMultipartFormData.get.asFormUrlEncoded
             }
             case body: play.api.mvc.AnyContent if body.asJson.isDefined => {
-                fromJson(js = body.asJson.get).mapValues(Seq(_))
+                fromJson(js = body.asJson.get).mapValues(Seq(_)).toMap
             }
             case body: Map[_, _] => {
                 body.asInstanceOf[Map[String, Seq[String]]]
@@ -80,7 +80,7 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
                 body.asFormUrlEncoded
             }
             case body: play.api.libs.json.JsValue => {
-                fromJson(js = body).mapValues(Seq(_))
+                fromJson(js = body).mapValues(Seq(_)).toMap
             }
             case _ => {
                 Map.empty[String, Seq[String]]

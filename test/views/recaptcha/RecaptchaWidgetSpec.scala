@@ -116,7 +116,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
     "render widget with extra classes" in new WithApplication(getApplication()) with WithWidgetHelper {
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template(true, 1, 'class -> "extra")(messagesProvider, request))
+      val html = contentAsString(template(true, 1, Symbol("class") -> "extra")(messagesProvider, request))
 
       // recaptcha and extra class
       html must contain("class=\"g-recaptcha extra\"")
@@ -124,7 +124,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
     "render widget with extra attributes" in new WithApplication(getApplication()) with WithWidgetHelper {
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template(true, 1, 'class -> "extra", 'aaa -> "bbb", 'ccc -> "ddd")(
+      val html = contentAsString(template(true, 1, Symbol("class") -> "extra", Symbol("aaa") -> "bbb", Symbol("ccc") -> "ddd")(
           messagesProvider, request))
 
       // recaptcha and extra class

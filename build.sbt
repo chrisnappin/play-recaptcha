@@ -1,13 +1,13 @@
 name := "play-recaptcha"
 description := "Google reCAPTCHA integration for Play Framework"
 organization := "com.nappin"
-version := "2.3"
+version := "2.4"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // default Scala binary compatibility
-scalaVersion := "2.12.2"
-crossScalaVersions := Seq("2.12.2", "2.11.11")
+scalaVersion := "2.13.0"
+crossScalaVersions := Seq("2.12.8", "2.11.12", "2.13.0")
 
 libraryDependencies ++= Seq(
   ws,

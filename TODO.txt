@@ -1,78 +1,10 @@
 Chris Nappin's play-recaptcha project todo list
 ===============================================
 
-completed items
----------------
-- get something working with recaptcha - done
-- ensure it is reactive - done
-- add unit test with mock WS - done
-- add messages - done
-- refactor to plugin with plenty of checks, logging, config - done
-- added view templates - done
-- make the example look nice - done
-- create github account, upload initial code - done
-- make sure my personal recpatcha keys aren't checked in! - done
-- add license, check code headers - done
-- add customize theme using config - done
-- add optional tabindex - done
-- build for multiple scala versions - done for 2.10.4 and 2.11.1
-- write API docs for the client - done (on wiki)
-- publish initial release on maven central - done (v0.8)
-
-done for version 0.9
+done for version 2.4
 --------------------
-- pass lang to reCAPTCHA if supported, otherwise recaptcha.defaultLanguage if set, or "en"
-- i18n of example app (with french translation)
-- view templates now require implicit request and lang
-- support custom strings
-- added config: recaptcha.useSecureVerifyUrl, recaptcha.useSecureWidgetUrl - default to false
-
-done for version 1.0
---------------------
-- show and verify recaptcha v2, with theme and type
-
-done for version 1.5
----------------------
-- upgrade from Play 2.3.x APIs to Play 2.4.x
-- convert from Plugin to DI Module
-
-done for version 2.0
---------------------
-- merge in pull requests
-- upgrade to Play 2.5.x
-
-done for version 2.1
---------------------
-- done: added tabindex: add v2 support - g-recaptcha tag data-tabindex => nn
-- done: added v2 size support - g-recaptcha tag data-size => compact or normal
-- done: added languageMode settings: auto, force, play
-        auto = no parameter, let recaptcha detect browser locale itself (the default)
-        force = use fixed language (api.js?hl=aa) "forceLanguage" config setting
-        play = use Play locale, map to supported languages (api.js?hl=aa or aa-BB)
-- done: sorted docs and wiki
-- done: remove all recaptcha 1.0 support
-
-
-todo list for future releases
------------------------------
-- twitter bootstrap HTML customise request:
-    - example uses divs rather than dl/dt/dd for label, widget and error message layout
-    - divs have custom classes (several, fixed and for errors)
-
-    <div class="@if(elements.hasErrors) {error}">
-        <label for="@elements.id">@elements.label</label>
-        <div class="input">
-            @elements.input
-            <span class="errors">@elements.errors.mkString(", ")</span>
-            <span class="help">@elements.infos.mkString(", ")</span>
-        </div>
-    </div>
-
-    - see Play docs - custom field constructors
-
-- plus back port to v1.5 (Play 2.4)??
-- extras: ajax api, javascript support
-- typesafe activator?
+- TODO: added support for Play 2.7 and Scala 2.13 (starting from PR)
+- TODO: added CSRF to example forms
 
 
 Google reCAPTCHA
@@ -103,15 +35,12 @@ groupId = com.nappin
 
 to publish locally
 ------------------
-  activator + publish-local
+run "sbt" (to enter the shell) then run:
+ + publishLocal
 or
-  activator + publish-local-signed
+ + publishLocalSigned
   
-- writes to $home\.ivy2\local\com.nappin\play-recaptcha_2.10\0.1-SNAPSHOT
-        and $home\.ivy2\local\com.nappin\play-recaptcha_2.11\0.1-SNAPSHOT
-
-(note: when example project resolves the jar locally, it creates eclipse config pointing directly
- to the local archive and Eclipse holds a file lock on this!)
+- writes to ~/.ivy2/local/com.nappin/play-recaptcha_2.x/a.b (for each scala version)
  
 
 to publish on Maven Central

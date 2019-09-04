@@ -5,11 +5,10 @@ language: scala
 
 # need to keep this in step with build.sbt
 scala:
-  - 2.12.8
+  - 2.13.0
 
-# as of sept 2015 there is no "openjdk8"
 jdk:
-  - oraclejdk8
+  - openjdk8
   
 notifications:
   email:

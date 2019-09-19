@@ -16,7 +16,6 @@
 package com.nappin.play.recaptcha
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.Logger
 import play.api.mvc.{AnyContent, Request}
 import play.api.data.Form
@@ -64,27 +63,27 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
       */
     private def getRequestPostData()(implicit request: play.api.mvc.Request[_]): Map[String, Seq[String]] = {
         request.body match {
-            case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined => {
+            case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined =>
                 body.asFormUrlEncoded.get
-            }
-            case body: play.api.mvc.AnyContent if body.asMultipartFormData.isDefined => {
+
+            case body: play.api.mvc.AnyContent if body.asMultipartFormData.isDefined =>
                 body.asMultipartFormData.get.asFormUrlEncoded
-            }
-            case body: play.api.mvc.AnyContent if body.asJson.isDefined => {
-                fromJson(js = body.asJson.get).mapValues(Seq(_)).toMap
-            }
-            case body: Map[_, _] => {
+
+            case body: play.api.mvc.AnyContent if body.asJson.isDefined =>
+                fromJson(js = body.asJson.get)
+
+            case body: Map[_, _] =>
                 body.asInstanceOf[Map[String, Seq[String]]]
-            }
-            case body: play.api.mvc.MultipartFormData[_] => {
+
+            case body: play.api.mvc.MultipartFormData[_] =>
                 body.asFormUrlEncoded
-            }
-            case body: play.api.libs.json.JsValue => {
-                fromJson(js = body).mapValues(Seq(_)).toMap
-            }
-            case _ => {
+
+            case body: play.api.libs.json.JsValue =>
+                fromJson(js = body)
+
+            case _ =>
                 Map.empty[String, Seq[String]]
-            }
+
         }
     }
 
@@ -99,24 +98,26 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
       * @return A map of each request parameter value keyed by parameter name, where sub-objects have names of the form
       *         "&lt;parent&gt;.&lt;child&gt;" etc (recursing to any number of levels).
       */
-    private[recaptcha] def fromJson(prefix: String = "", js: JsValue): Map[String, String] = js match {
+    private[recaptcha] def fromJson(prefix: String = "", js: JsValue): Map[String, Seq[String]] = js match {
         case JsObject(fields) => {
-            fields.map {
+            val f: Iterable[Map[String, Seq[String]]] = fields.map {
                 case (key, value) => {
-                    fromJson(Option(prefix).filterNot(_.isEmpty).map(_ + ".").getOrElse("") + key, value)
+                    val recursiveKey = if (prefix == "") key else prefix + "." + key
+                    fromJson(recursiveKey, value)
                 }
-            }.foldLeft(Map.empty[String, String])(_ ++ _)
+            }
+            return f.foldLeft(Map.empty[String, Seq[String]])(_ ++ _)
         }
         case JsArray(values) => {
             values.zipWithIndex.map {
                 case (value, i) => fromJson(prefix + "[" + i + "]", value)
-            }.foldLeft(Map.empty[String, String])(_ ++ _)
+            }.foldLeft(Map.empty[String, Seq[String]])((a, b) => a ++ b)
         }
-        case JsNull => Map.empty
-        case JsUndefined() => Map.empty
-        case JsBoolean(value) => Map(prefix -> value.toString)
-        case JsNumber(value) => Map(prefix -> value.toString)
-        case JsString(value) => Map(prefix -> value.toString)
+        case JsNull => Map.empty[String, Seq[String]]
+        case JsUndefined() => Map.empty[String, Seq[String]]
+        case JsBoolean(value) => Map(prefix -> Seq(value.toString))
+        case JsNumber(value) => Map(prefix -> Seq(value.toString))
+        case JsString(value) => Map(prefix -> Seq(value.toString))
     }
 
     /**

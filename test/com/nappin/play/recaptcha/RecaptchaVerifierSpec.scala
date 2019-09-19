@@ -325,38 +325,39 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
 
         "Convert valid JSON" in {
             checkFromJson(
-                "{" +
-                    "\"aaa\":123," +
-                    "\"bbb\":true," +
-                    "\"ccc\":\"XYZ\"," +
-                    "\"ddd\":[1,2,3]," +
-                    "\"eee\":null" +
-                    "}",
+                """{
+                      "aaa":123,
+                      "bbb":true,
+                      "ccc":"XYZ",
+                      "ddd":[1,2,3],
+                      "eee":null
+                  }""",
                 Map(
-                    "aaa" -> "123",
-                    "bbb" -> "true",
-                    "ccc" -> "XYZ",
-                    "ddd[0]" -> "1",
-                    "ddd[1]" -> "2",
-                    "ddd[2]" -> "3"
+                    "aaa" -> Seq("123"),
+                    "bbb" -> Seq("true"),
+                    "ccc" -> Seq("XYZ"),
+                    "ddd[0]" -> Seq("1"),
+                    "ddd[1]" -> Seq("2"),
+                    "ddd[2]" -> Seq("3")
                     // null values are explicitly filtered out
                 ))
         }
 
         "Convert valid nested JSON" in {
             checkFromJson(
-                "{" +
-                    "\"aaa\":" +
-                    "{\"bbb\":" +
-                    "{\"ccc\":[" +
-                    "{\"ddd\":42}" +
-                    "]}" +
-                    "}," +
-                    "\"eee\":false" +
-                    "}",
+                """{
+                    "aaa": {
+                        "bbb": {
+                            "ccc":[
+                                {"ddd":42}
+                            ]
+                        }
+                    },
+                    "eee":false
+                    }"""",
                 Map(
-                    "aaa.bbb.ccc[0].ddd" -> "42",
-                    "eee" -> "false"
+                    "aaa.bbb.ccc[0].ddd" -> Seq("42"),
+                    "eee" -> Seq("false")
                 ))
         }
 
@@ -374,7 +375,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
                     "\"aaa\":3" +
                     "}",
                 Map(
-                    "aaa" -> "3" // repeated keys not supported, just get latest value
+                    "aaa" -> Seq("3") // repeated keys not supported, just get latest value
                 ))
         }
     }
@@ -431,7 +432,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
       * @param expected The expected result
       * @return The test result
       */
-    private def checkFromJson(json: String, expected: Map[String, String]): Result = {
+    private def checkFromJson(json: String, expected: Map[String, Seq[String]]): Result = {
         val conf = Configuration.from(validV2Settings)
         val settings = new RecaptchaSettings(conf)
         val mockParser = mock[ResponseParser]
@@ -439,7 +440,7 @@ class RecaptchaVerifierSpec extends PlaySpecification with Mockito {
         val verifier = new RecaptchaVerifier(settings, mockParser, mockWSClient)
 
         val result = verifier.fromJson(js = Json.parse(json))
-
+        println("expected length is " + expected.size + ", actual length is " + result.size)
         result must equalTo(expected)
     }
 

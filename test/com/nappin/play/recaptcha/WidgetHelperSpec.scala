@@ -25,6 +25,8 @@ import play.api.i18n.{Lang, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.{PlaySpecification, WithApplication}
 
+import scala.collection.immutable
+
 /**
   * Tests the <code>WidgetHelper</code> object.
   *
@@ -208,15 +210,16 @@ class WidgetHelperSpec extends PlaySpecification {
     }
 
     "ignore non-class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatClass("main", Symbol("other") -> "wibble") must equalTo("main")
+      widgetHelper.formatClass("main", immutable.Seq(Symbol("other") -> "wibble")) must equalTo("main")
     }
 
     "include single class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatClass("main", Symbol("class") -> "extra", Symbol("other") -> "wibble") must equalTo("main extra")
+      widgetHelper.formatClass("main", immutable.Seq(
+        Symbol("class") -> "extra", Symbol("other") -> "wibble")) must equalTo("main extra")
     }
 
     "include multiple class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatClass("main",Symbol("class") -> "extra1", Symbol("other") -> "wibble", Symbol("class") -> "extra2") must
+      widgetHelper.formatClass("main",immutable.Seq(Symbol("class") -> "extra1", Symbol("other") -> "wibble", Symbol("class") -> "extra2")) must
         equalTo("main extra1 extra2")
     }
   }
@@ -228,11 +231,11 @@ class WidgetHelperSpec extends PlaySpecification {
     }
 
     "ignore class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatOtherAttributes(Symbol("class") -> "extra", Symbol("other") -> "wibble") must equalTo("other=\"wibble\"")
+      widgetHelper.formatOtherAttributes(immutable.Seq(Symbol("class") -> "extra", Symbol("other") -> "wibble")) must equalTo("other=\"wibble\"")
     }
 
     "include multiple args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatOtherAttributes(Symbol("class") -> "extra", Symbol("aaa") -> "bbb", Symbol("ccc") -> "ddd") must
+      widgetHelper.formatOtherAttributes(immutable.Seq(Symbol("class") -> "extra", Symbol("aaa") -> "bbb", Symbol("ccc") -> "ddd")) must
         equalTo("aaa=\"bbb\" ccc=\"ddd\"")
     }
   }

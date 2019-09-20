@@ -26,6 +26,8 @@ import play.api.mvc.{AnyContent, Request}
 import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
 import views.html.recaptcha.recaptchaWidget
 
+import scala.collection.immutable
+
 /**
   * Tests the <code>recaptchaWidget</code> view template.
   *
@@ -116,7 +118,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
     "render widget with extra classes" in new WithApplication(getApplication()) with WithWidgetHelper {
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template(true, 1, Symbol("class") -> "extra")(messagesProvider, request))
+      val html = contentAsString(template(true, 1, immutable.Seq(Symbol("class") -> "extra"))(messagesProvider, request))
 
       // recaptcha and extra class
       html must contain("class=\"g-recaptcha extra\"")
@@ -124,7 +126,7 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
     "render widget with extra attributes" in new WithApplication(getApplication()) with WithWidgetHelper {
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template(true, 1, Symbol("class") -> "extra", Symbol("aaa") -> "bbb", Symbol("ccc") -> "ddd")(
+      val html = contentAsString(template(true, 1, immutable.Seq(Symbol("class") -> "extra", Symbol("aaa") -> "bbb", Symbol("ccc") -> "ddd"))(
           messagesProvider, request))
 
       // recaptcha and extra class

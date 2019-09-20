@@ -1,4 +1,5 @@
 @import com.nappin.play.recaptcha.WidgetHelper
+@import scala.collection._
 @this(widgetHelper: WidgetHelper)
 
 @****************************************************************************************
@@ -10,7 +11,7 @@
  * @param messagesProvider  (Implicit) The current I18n messages provider
  * @param request           (Implicit) The current request
  ****************************************************************************************@
-@(formId: String, text: String, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider,
+@(formId: String, text: String, args: immutable.Seq[(Symbol, String)] = Nil)(implicit messagesProvider: MessagesProvider,
     request: Request[AnyContent])
 
 <script @Html(widgetHelper.outputNonce()) type="text/javascript" src="@Html(widgetHelper.widgetScriptUrl())"
@@ -20,5 +21,5 @@ function onRecaptchaSubmit(token) {
     document.getElementById("@formId").submit();
 }
 </script>
-<button class="@Html(widgetHelper.formatClass("g-recaptcha", args: _*))" @Html(widgetHelper.formatOtherAttributes(args: _*))
+<button class="@Html(widgetHelper.formatClass("g-recaptcha", args))" @Html(widgetHelper.formatOtherAttributes(args))
   data-sitekey="@Html(widgetHelper.publicKey)" data-callback="onRecaptchaSubmit">@text</button>

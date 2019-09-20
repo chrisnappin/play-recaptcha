@@ -18,9 +18,10 @@ package com.nappin.play.recaptcha
 import play.api.Logger
 import play.api.i18n.{Lang, MessagesProvider}
 import javax.inject.{Inject, Singleton}
-
 import play.api.data.Form
 import play.api.mvc.{AnyContent, Request}
+
+import scala.collection.immutable
 
 /**
   * Helper functionality for the <code>recaptchaWidget</code> view template.
@@ -154,7 +155,7 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
     * @param args      The further args (if any)
     * @return The formatted CSS class attribute
     */
-  def formatClass(mainClass: String, args: (Symbol, String)*): String = {
+  def formatClass(mainClass: String, args: immutable.Seq[(Symbol, String)]=Nil): String = {
     var output = mainClass
     args.filter((t) => t._1 == Symbol("class")).foreach((t) => output += " " + t._2)
     output
@@ -166,7 +167,7 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
     * @param args      The further args (if any)
     * @return The formatted CSS class attribute
     */
-  def formatOtherAttributes(args: (Symbol, String)*): String = {
+  def formatOtherAttributes(args: immutable.Seq[(Symbol, String)]=Nil): String = {
     args.filter((t) => t._1 != Symbol("class")).map((t) => t._1.toString().substring(1) + "=\"" + t._2 + "\"").mkString(" ")
   }
 

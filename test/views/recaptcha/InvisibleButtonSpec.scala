@@ -26,6 +26,8 @@ import play.api.mvc.{AnyContent, Request}
 import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
 import views.html.recaptcha.invisibleButton
 
+import scala.collection.immutable
+
 /**
   * Tests the <code>invisibleButton</code> view template.
   *
@@ -93,7 +95,7 @@ class InvisibleButtonSpec extends PlaySpecification {
         getApplication()) with WithWidgetHelper {
 
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template("myForm", "Submit", Symbol("class") -> "extraClass")(messagesProvider, request))
+      val html = contentAsString(template("myForm", "Submit", immutable.Seq(Symbol("class") -> "extraClass"))(messagesProvider, request))
 
       // button html
       html must contain("class=\"g-recaptcha extraClass\"")
@@ -103,8 +105,8 @@ class InvisibleButtonSpec extends PlaySpecification {
         getApplication()) with WithWidgetHelper {
 
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val html = contentAsString(template("myForm", "Submit", Symbol("class") -> "extraClass", Symbol("id") -> "myId",
-        Symbol("tabindex") -> "5")(messagesProvider, request))
+      val html = contentAsString(template("myForm", "Submit", immutable.Seq(Symbol("class") -> "extraClass", Symbol("id") -> "myId",
+        Symbol("tabindex") -> "5"))(messagesProvider, request))
 
       // button html
       html must contain("class=\"g-recaptcha extraClass\"")

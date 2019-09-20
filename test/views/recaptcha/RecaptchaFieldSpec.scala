@@ -30,6 +30,8 @@ import java.io.File
 import play.api.mvc.{AnyContent, Request}
 import views.html.recaptcha.{recaptchaField, recaptchaWidget}
 
+import scala.collection.immutable
+
 /**
   * Tests the <code>recaptchaField</code> view template.
   *
@@ -222,8 +224,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
       val html = contentAsString(
-        template(modelForm, "myCaptcha", 1, includeNoScript = true, isRequired = false, Symbol("class") -> "extraClass",
-          Symbol("bbb") -> "ccc")(messagesProvider, request))
+        template(modelForm, "myCaptcha", 1, includeNoScript = true, isRequired = false, immutable.Seq(Symbol("class") -> "extraClass",
+          Symbol("bbb") -> "ccc"))(messagesProvider, request))
 
       // extra class and attribute
       html must contain("class=\"g-recaptcha extraClass\"")

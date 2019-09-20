@@ -1,4 +1,5 @@
 @import com.nappin.play.recaptcha.WidgetHelper
+@import scala.collection._
 @this(widgetHelper: WidgetHelper)
 
 @****************************************************************************************
@@ -10,11 +11,11 @@
  * @param messagesProvider  (Implicit) The current I18n messages provider
  * @param request           (Implicit) The current request
  ****************************************************************************************@
-@(includeNoScript: Boolean, tabindex: Int, args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider,
+@(includeNoScript: Boolean, tabindex: Int, args: immutable.Seq[(Symbol, String)]=Nil)(implicit messagesProvider: MessagesProvider,
     request: Request[AnyContent])
 
 <script type="text/javascript" @Html(widgetHelper.outputNonce()) src="@Html(widgetHelper.widgetScriptUrl())" async defer></script>
-<div class="@Html(widgetHelper.formatClass("g-recaptcha", args: _*))" @Html(widgetHelper.formatOtherAttributes(args: _*))
+<div class="@Html(widgetHelper.formatClass("g-recaptcha", args))" @Html(widgetHelper.formatOtherAttributes(args))
   data-sitekey="@Html(widgetHelper.publicKey)" data-tabindex="@tabindex" data-theme="@Html(widgetHelper.captchaTheme)"
   data-type="@Html(widgetHelper.captchaType)" data-size="@Html(widgetHelper.captchaSize)"></div>
 @if(includeNoScript) {

@@ -1,4 +1,5 @@
 @import com.nappin.play.recaptcha.{RecaptchaVerifier, RecaptchaErrorCode, WidgetHelper}
+@import scala.collection._
 @this(widgetHelper: WidgetHelper, recaptchaWidget: recaptcha.recaptchaWidget)
 
 @****************************************************************************************
@@ -14,13 +15,13 @@
  * @param request           (Implicit) The current request
  ****************************************************************************************@
 @(form: Form[_], fieldName: String, tabindex: Int, includeNoScript: Boolean, isRequired: Boolean,
-        args: (Symbol, String)*)(implicit messagesProvider: MessagesProvider, request: Request[AnyContent])
+        args: immutable.Seq[(Symbol, String)]=Nil)(implicit messagesProvider: MessagesProvider, request: Request[AnyContent])
 
 @errorMessage = @{widgetHelper.getFieldError(form)}
 
 <dl class="@if(errorMessage.isDefined) {error}" id="@{fieldName}_field">
     <dt><label for="@fieldName">@Messages(fieldName)</label></dt>
-    <dd>@recaptchaWidget(includeNoScript, tabindex, args: _*)</dd>
+    <dd>@recaptchaWidget(includeNoScript, tabindex, args)</dd>
 
 @errorMessage.map { message =>
     <dd class="error">@message</dd>

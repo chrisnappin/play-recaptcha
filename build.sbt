@@ -6,8 +6,12 @@ version := "2.4"
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // default Scala binary compatibility
-scalaVersion := "2.13.0"
+scalaVersion := "2.12.10"
 crossScalaVersions := Seq("2.12.8", "2.11.12", "2.13.0")
+
+scalafixDependencies in ThisBuild += "org.scala-lang.modules" %% "scala-collection-migrations" % "2.1.1"
+libraryDependencies +=  "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.1"
+scalacOptions ++= List("-Yrangepos", "-P:semanticdb:synthetics:on")
 
 libraryDependencies ++= Seq(
   ws,

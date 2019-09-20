@@ -37,8 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @RunWith(classOf[JUnitRunner])
 class NonceActionBuilderSpec extends PlaySpecification with Mockito {
 
-  private implicit val context = ExecutionContext.Implicits.global
-
   private val configuration: Map[String, Any] =  Map(
     PrivateKeyConfigProp -> "private-key",
     PublicKeyConfigProp -> "public-key")

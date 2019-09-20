@@ -15,17 +15,17 @@
  */
 package com.nappin.play.recaptcha
 
-import javax.inject.{Inject, Singleton}
-import play.api.Logger
-import play.api.mvc.{AnyContent, Request}
-import play.api.data.Form
-import play.api.libs.ws.WSClient
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 
+import javax.inject.{Inject, Singleton}
+import play.api.Logger
+import play.api.data.Form
 import play.api.libs.json._
+import play.api.libs.ws.WSClient
+import play.api.mvc.{AnyContent, Request}
+
+import scala.concurrent.duration.Duration
+import scala.concurrent.{ExecutionContext, Future}
 
 object RecaptchaVerifier {
     /** The artificial form field key used for captcha errors. */

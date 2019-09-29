@@ -3,9 +3,8 @@ Chris Nappin's play-recaptcha project todo list
 
 done for version 2.4
 --------------------
-- TODO: added support for Play 2.7 and Scala 2.13 (starting from PR)
-- TODO: added CSRF to example forms
-
+- added support for Play 2.7.3+ and Scala 2.13 (starting from PR from @gmixa)
+- added CSRF to example forms
 
 Google reCAPTCHA
 ----------------

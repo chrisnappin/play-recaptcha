@@ -9,9 +9,15 @@ This is a [Play Framework](http://www.playframework.com) module, for Scala and P
 
 | Module Revision | reCAPTCHA Versions | Play Version | Scala Versions | ScalaDoc | 
 |:---------------:|:------------------:|:------------:|:--------------:|:--------:|
-|2.3              |v2, invisible       |2.6.x         |2.11, 2.12      |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.12/2.3)|
+|2.4              |v2, invisible       |2.7.3+        |2.12, 2.13      |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.13/2.4)|
 
 ### Changelog
+
+#### Release 2.4
+* Migrated to support Play 2.7.3+ and Scala 2.13
+* Added CSRF to the example forms
+
+Many thanks to @gmixa for the pull request!
 
 #### Release 2.3
 * Migrated to support Play 2.6
@@ -57,14 +63,14 @@ _Why the version number jump?_ Well, the way the module is used (injected via DI
 ## Module Dependency
 The play-recaptcha module is distributed using Maven Central so it can be easily added as a library dependency in your Play Application's SBT build scripts, as follows:
 
-    "com.nappin" %% "play-recaptcha" % "2.3"
+    "com.nappin" %% "play-recaptcha" % "2.4"
 
 ## How to use
 Please see this example:
 
 ![reCAPTCHA version 2 example](recaptcha-example-v2.png)
 
-* [example reCAPTCHA v2 application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.3) 
+* [example reCAPTCHA v2 application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.4) 
 
 for a ready-to-use internationalised Scala Play 2.x web application using this module, using reCAPTCHA v2 and Invisible reCAPTCHA, with Play Forms and with JavaScript/AJAX. You can download this code and run it in Play, or you can follow the instructions below to add this module to an existing web application.
 

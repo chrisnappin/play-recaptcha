@@ -208,15 +208,15 @@ class WidgetHelperSpec extends PlaySpecification {
     }
 
     "ignore non-class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatClass("main", 'other -> "wibble") must equalTo("main")
+      widgetHelper.formatClass("main", Symbol("other") -> "wibble") must equalTo("main")
     }
 
     "include single class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatClass("main", 'class -> "extra", 'other -> "wibble") must equalTo("main extra")
+      widgetHelper.formatClass("main", Symbol("class") -> "extra", Symbol("other") -> "wibble") must equalTo("main extra")
     }
 
     "include multiple class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatClass("main", 'class -> "extra1", 'other -> "wibble", 'class -> "extra2") must
+      widgetHelper.formatClass("main",Symbol("class") -> "extra1", Symbol("other") -> "wibble", Symbol("class") -> "extra2") must
         equalTo("main extra1 extra2")
     }
   }
@@ -228,11 +228,11 @@ class WidgetHelperSpec extends PlaySpecification {
     }
 
     "ignore class args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatOtherAttributes('class -> "extra", 'other -> "wibble") must equalTo("other=\"wibble\"")
+      widgetHelper.formatOtherAttributes(Symbol("class") -> "extra", Symbol("other") -> "wibble") must equalTo("other=\"wibble\"")
     }
 
     "include multiple args" in new WithWidgetHelper(validV2Settings) {
-      widgetHelper.formatOtherAttributes('class -> "extra", 'aaa -> "bbb", 'ccc -> "ddd") must
+      widgetHelper.formatOtherAttributes(Symbol("class") -> "extra", Symbol("aaa") -> "bbb", Symbol("ccc") -> "ddd") must
         equalTo("aaa=\"bbb\" ccc=\"ddd\"")
     }
   }

@@ -156,7 +156,7 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
     */
   def formatClass(mainClass: String, args: (Symbol, String)*): String = {
     var output = mainClass
-    args.filter((t) => t._1 == 'class).foreach((t) => output += " " + t._2)
+    args.filter((t) => t._1 == Symbol("class")).foreach((t) => output += " " + t._2)
     output
   }
 
@@ -167,7 +167,7 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
     * @return The formatted CSS class attribute
     */
   def formatOtherAttributes(args: (Symbol, String)*): String = {
-    args.filter((t) => t._1 != 'class).map((t) => t._1.toString().substring(1) + "=\"" + t._2 + "\"").mkString(" ")
+    args.filter((t) => t._1 != Symbol("class")).map((t) => t._1.toString().substring(1) + "=\"" + t._2 + "\"").mkString(" ")
   }
 
   /**

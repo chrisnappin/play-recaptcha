@@ -222,8 +222,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
       val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
       val html = contentAsString(
-        template(modelForm, "myCaptcha", 1, includeNoScript = true, isRequired = false, 'class -> "extraClass",
-          'bbb -> "ccc")(messagesProvider, request))
+        template(modelForm, "myCaptcha", 1, includeNoScript = true, isRequired = false, Symbol("class") -> "extraClass",
+          Symbol("bbb") -> "ccc")(messagesProvider, request))
 
       // extra class and attribute
       html must contain("class=\"g-recaptcha extraClass\"")

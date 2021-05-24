@@ -146,7 +146,7 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
     def bindFromRequestAndVerify[T](form: Form[T])(implicit request: Request[AnyContent],
             context: ExecutionContext): Future[Form[T]] = {
 
-        val boundForm = form.bindFromRequest
+        val boundForm = form.bindFromRequest()
 
         val response = readResponse(getRequestPostData())
 

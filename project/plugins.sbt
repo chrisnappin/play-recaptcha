@@ -1,7 +1,7 @@
 //resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 // The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.3")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.8")
 
 // The PGP plugin (for signing sonatype releases)
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")

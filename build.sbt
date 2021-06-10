@@ -6,8 +6,8 @@ version := "2.4"
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 // default Scala binary compatibility
-scalaVersion := "2.13.0"
-crossScalaVersions := Seq("2.12.8", "2.13.0")
+scalaVersion := "2.13.6"
+crossScalaVersions := Seq("2.12.8", "2.13.6")
 
 libraryDependencies ++= Seq(
   ws,
@@ -24,7 +24,7 @@ pgpSecretRing := file("/home/chris/Development/SonatypeKey/secring.asc")
 pgpPublicRing := file("/home/chris/Development/SonatypeKey/pubring.asc")
 
 // adds "test-conf" to the test classpath (for message resolving)
-unmanagedClasspath in Test += baseDirectory.value / "test-conf"
+Test / unmanagedClasspath += baseDirectory.value / "test-conf"
 
 // needed to publish to maven central
 publishMavenStyle := true
@@ -37,7 +37,7 @@ publishTo := {
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
-publishArtifact in Test := false
+Test / publishArtifact := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := (

@@ -19,12 +19,12 @@ import javax.inject.{Inject, Singleton}
 import play.api.Logger
 import play.api.mvc.{AnyContent, Request}
 import play.api.data.Form
+import play.api.data.FormBinding.Implicits.formBinding
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
-
 import play.api.libs.json._
 
 object RecaptchaVerifier {
@@ -106,7 +106,7 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
                     fromJson(recursiveKey, value)
                 }
             }
-            return f.foldLeft(Map.empty[String, Seq[String]])(_ ++ _)
+            f.foldLeft(Map.empty[String, Seq[String]])(_ ++ _)
         }
         case JsArray(values) => {
             values.zipWithIndex.map {
@@ -146,7 +146,7 @@ class RecaptchaVerifier @Inject() (settings: RecaptchaSettings, parser: Response
     def bindFromRequestAndVerify[T](form: Form[T])(implicit request: Request[AnyContent],
             context: ExecutionContext): Future[Form[T]] = {
 
-        val boundForm = form.bindFromRequest
+        val boundForm = form.bindFromRequest()
 
         val response = readResponse(getRequestPostData())
 

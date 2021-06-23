@@ -1,10 +1,16 @@
 Chris Nappin's play-recaptcha project todo list
 ===============================================
 
+todo for version 2.5
+--------------------
+- added support for Play 2.8.x+ (starting from PR from @gmixa)
+- update all dependencies
+
 done for version 2.4
 --------------------
 - added support for Play 2.7.3+ and Scala 2.13 (starting from PR from @gmixa)
 - added CSRF to example forms
+
 
 Google reCAPTCHA
 ----------------
@@ -23,7 +29,7 @@ module repo: https://github.com/chrisnappin/play-recaptcha
 module website (uses gh-pages branch): http://chrisnappin.github.io/play-recaptcha
 module wiki: https://github.com/chrisnappin/play-recaptcha/wiki
 
-example repo: https://github.com/chrisnappin/play-recaptcha-example
+example repo: https://github.com/chrisnappin/play-recaptcha-v2-example
 
 
 sonatype account
@@ -31,6 +37,21 @@ sonatype account
 https://issues.sonatype.org, chrisnappin/..
 groupId = com.nappin
 
+
+to use sbt
+----------
+run "sbt" (to enter the shell) then run:
+ clean
+ compile
+ test
+ scalastyle (not scala 2.13)
+ run
+
+or
+
+sbt clean coverage test
+sbt coverageReport
+(then see console or target/scala-2.x/scoverage-report/index.html)
 
 to publish locally
 ------------------

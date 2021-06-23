@@ -58,7 +58,7 @@ An ``Error`` result has a ``code`` property you will need to inspect, which can 
 
 The ``map`` and ``fold`` methods area great way of handling the ``Future`` and ``Either``, so here is a simple example:
 
-    verifier.verify(challenge, response, remoteIp).map { response =>
+    verifier.verifyV2(challenge, response, remoteIp).map { response =>
         response.fold(   
             error => {
                 // captcha incorrect or a technical error

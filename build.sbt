@@ -5,8 +5,6 @@ version := "2.5"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-// default Scala binary compatibility
-scalaVersion := "2.13.6"
 crossScalaVersions := Seq("2.12.8", "2.13.6")
 
 libraryDependencies ++= Seq(
@@ -19,9 +17,9 @@ libraryDependencies ++= Seq(
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
 // latest sbt-gpg plugin needs to know these explicitly
-pgpSecretRing := file("/home/chris/Development/SonatypeKey/secring.asc")
+pgpSecretRing := file("/Users/Chris.Nappin/Development/SonatypeKey/secring.asc")
 
-pgpPublicRing := file("/home/chris/Development/SonatypeKey/pubring.asc")
+pgpPublicRing := file("/Users/Chris.Nappin/Development/SonatypeKey/pubring.asc")
 
 // adds "test-conf" to the test classpath (for message resolving)
 Test / unmanagedClasspath += baseDirectory.value / "test-conf"

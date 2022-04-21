@@ -1,15 +1,10 @@
 Chris Nappin's play-recaptcha project todo list
 ===============================================
 
-todo for version 2.5
+done for version 2.5
 --------------------
 - added support for Play 2.8.x+ (starting from PR from @gmixa)
-- update all dependencies
-
-done for version 2.4
---------------------
-- added support for Play 2.7.3+ and Scala 2.13 (starting from PR from @gmixa)
-- added CSRF to example forms
+- updated all dependencies
 
 
 Google reCAPTCHA
@@ -18,29 +13,21 @@ My personal key is registered to nappin.com (but works with localhost)
 Google development documentation is at https://developers.google.com/recaptcha/docs/display
 
 
-github account
---------------
-www.github.com, chrisnappin/..
-
-markdown details: https://help.github.com/articles/markdown-basics
-wiki details: https://help.github.com/articles/about-github-wikis
-
-module repo: https://github.com/chrisnappin/play-recaptcha
-module website (uses gh-pages branch): http://chrisnappin.github.io/play-recaptcha
-module wiki: https://github.com/chrisnappin/play-recaptcha/wiki
-
-example repo: https://github.com/chrisnappin/play-recaptcha-v2-example
-
-
-sonatype account
-----------------
-https://issues.sonatype.org, chrisnappin/..
-groupId = com.nappin
+local dev env
+-------------
+Using sdkman to manage java, scala, sbt
+Using java 11 (Guava has issues with 16)
+Using scala 2.12.x and 2.13.x as in build.sbt (as supported by Play 2.8)
+Using sbt 1.5.2 
 
 
 to use sbt
 ----------
 run "sbt" (to enter the shell) then run:
+
+use: + <command> to build against all cross scala versions
+use: ++ <version> <command> to use that specific version of scala
+
  clean
  compile
  test
@@ -60,7 +47,7 @@ run "sbt" (to enter the shell) then run:
 or
  + publishLocalSigned
   
-- writes to ~/.ivy2/local/com.nappin/play-recaptcha_2.x/a.b (for each scala version)
+writes to ~/.ivy2/local/com.nappin/play-recaptcha_2.x/a.b (for each scala version)
  
 
 to publish on Maven Central
@@ -92,22 +79,21 @@ Secret key is secring.asc
 
 - add extra pom details needed for Sonatype (see build.sbt)
 
-- created $home\.sbt\0.13\sonatype.sbt:
+- created ~/.sbt/1.0/sonatype.sbt:
     credentials += Credentials("Sonatype Nexus Repository Manager",
                            "oss.sonatype.org",
                            "chrisnappin",
                            "..")
 
 - run:
-  activator + publish-signed 
-
+  sbt + publishSigned 
 
 workflow
 --------
 make test/beta releases to maven central using a "a.b-SNAPHOTS" version number
 - this uploads artifacts to the "snapshots" repo (Maven Central only includes "full" releases)
 - snapshots can be published several times (immediately overwrites)
-- run "activator update" to explicitly refresh remote snapshot dependencies (otherwise it will try to cache locally)
+- run "sbt update" to explicitly refresh remote snapshot dependencies (otherwise it will try to cache locally)
 
 make "full releases" using a regular version number (e.g. "a.b")
 - this uploads artifacts to the "staging" repo
@@ -119,6 +105,7 @@ make "full releases" using a regular version number (e.g. "a.b")
     - look for groupId without dots and with -nnnn suffix
         - status should be "Open"
         - can manually download and test it
+        - check contents includes all Scala versions
         - can select the repo and click "Close" to trigger evaluation
             (takes a couple of minutes)
             - if fails, need to "Drop", resolve issues (see "Ruleset Evaluation Report") then redeploy to staging

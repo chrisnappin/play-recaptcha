@@ -1,5 +1,5 @@
 # Play reCAPTCHA Module 
-[![Travis CI Build Status](https://travis-ci.org/chrisnappin/play-recaptcha.svg?branch=master)](https://travis-ci.org/chrisnappin/play-recaptcha)
+![Build Status](https://github.com/chrisnappin/play-recaptcha/actions/workflows/build.yaml/badge.svg)
 [![Scaladocs](http://www.javadoc.io/badge/com.nappin/play-recaptcha_2.13.svg?label=scaladoc)](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.13)
 
 This is a [Play Framework](http://www.playframework.com) module, for Scala and Play 2.x, to provide integration 

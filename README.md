@@ -1,5 +1,5 @@
 # Play reCAPTCHA Module 
-![GitHub Actions Build Status](https://github.com/chrisnappin/play-recaptcha/actions/workflows/build.yml/badge.svg)
+[![Build Status](https://github.com/chrisnappin/play-recaptcha/actions/workflows/build.yml/badge.svg)]
 [![Scaladocs](http://www.javadoc.io/badge/com.nappin/play-recaptcha_2.13.svg?label=scaladoc)](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.13)
 
 This is a [Play Framework](http://www.playframework.com) module, for Scala and Play 2.x, to provide integration 

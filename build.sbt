@@ -5,7 +5,9 @@ version := "2.5"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-crossScalaVersions := Seq("2.12.8", "2.13.6")
+scalaVersion := "2.13.12"
+// TODO: cross build for 3.3.1
+crossScalaVersions := Seq("2.13.12")
 
 libraryDependencies ++= Seq(
   ws,

@@ -206,8 +206,8 @@ class WidgetHelper @Inject()(settings: RecaptchaSettings) {
     * @return The language code, possibly with country code too
     */
   private def mapToV2Language(lang: Lang): String = {
-    // list of language and country code combinations specifically supported by reCAPTCHA
-    // (taken from https://developers.google.com/recaptcha/docs/language in May 2017)
+    // list of localised languages (with country/variant code) specifically supported by reCAPTCHA
+    // (taken from https://developers.google.com/recaptcha/docs/language last checked March 2024)
     val supportedCountryLocales = Seq(
       Lang("zh", "HK"), Lang("zh", "CN"), Lang("zh", "TW"), Lang("en", "GB"), Lang("fr", "CA"),
       Lang("de", "AT"), Lang("de", "CH"), Lang("pt", "BR"), Lang("pt", "PT"), Lang("es", "419"))

@@ -1,13 +1,11 @@
 name := "play-recaptcha"
 description := "Google reCAPTCHA integration for Play Framework"
 organization := "com.nappin"
-version := "2.5"
+version := "2.6"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.13.12"
-// TODO: cross build for 3.3.1
-crossScalaVersions := Seq("2.13.12")
+scalaVersion := "2.13.13"
 
 libraryDependencies ++= Seq(
   ws,
@@ -62,4 +60,3 @@ pomExtra := (
       <timezone>UTC</timezone>
     </developer>
   </developers>)
-  

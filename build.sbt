@@ -1,25 +1,17 @@
 name := "play-recaptcha"
 description := "Google reCAPTCHA integration for Play Framework"
 organization := "com.nappin"
-version := "2.5"
+version := "2.6"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-crossScalaVersions := Seq("2.12.8", "2.13.6")
+scalaVersion := "2.13.13"
 
 libraryDependencies ++= Seq(
   ws,
   specs2 % Test,
   "org.mockito" % "mockito-core" % "1.+" % Test
 )
-
-// specs2 dependency not in maven central
-resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
-
-// latest sbt-gpg plugin needs to know these explicitly
-pgpSecretRing := file("/Users/Chris.Nappin/Development/SonatypeKey/secring.asc")
-
-pgpPublicRing := file("/Users/Chris.Nappin/Development/SonatypeKey/pubring.asc")
 
 // adds "test-conf" to the test classpath (for message resolving)
 Test / unmanagedClasspath += baseDirectory.value / "test-conf"
@@ -34,6 +26,9 @@ publishTo := {
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
+
+// the plugin's public API can change over minor versions
+ThisBuild / versionScheme := Some("pvp")
 
 Test / publishArtifact := false
 pomIncludeRepository := { _ => false }
@@ -60,4 +55,3 @@ pomExtra := (
       <timezone>UTC</timezone>
     </developer>
   </developers>)
-  

@@ -1,9 +1,9 @@
 Chris Nappin's play-recaptcha project todo list
 ===============================================
 
-done for version 2.5
+done for version 2.6
 --------------------
-- added support for Play 2.8.x+ (starting from PR from @gmixa)
+- added support for Play 2.9.x+ (starting from PR)
 - updated all dependencies
 
 
@@ -16,9 +16,17 @@ Google development documentation is at https://developers.google.com/recaptcha/d
 local dev env
 -------------
 Using sdkman to manage java, scala, sbt
-Using java 11 (Guava has issues with 16)
-Using scala 2.12.x and 2.13.x as in build.sbt (as supported by Play 2.8)
-Using sbt 1.5.2 
+Using java 17 (Play still supports java 11 but not planned for much longer)
+Using scala 2.13.x as in build.sbt (Play no longer supports 2.12.x)
+Using sbt 1.9.x 
+
+If using a laptop with VPN/proxy, need to explicitly import all altered SSL
+certificates into cacerts (on windows, run as admin) for sbt/ivy downloads to work:
+keytool -import -alias <website> -cacerts -file "<website>.crt"
+
+Using gpg 2.2.x included within Git Bash (on windows), added to PATH
+Import my private key to the default keyring by running:
+gpg --import secring.asc
 
 
 to use sbt
@@ -33,6 +41,10 @@ use: ++ <version> <command> to use that specific version of scala
  test
  scalastyle (not scala 2.13)
  run
+
+or
+
+ dependencyTree
 
 or
 
@@ -57,20 +69,19 @@ see http://mfizz.com/blog/2013/07/play-framework-module-maven-central
 and http://central.sonatype.org/pages/ossrh-guide.html
 and http://www.scala-sbt.org/release/docs/Using-Sonatype.html
 
-Using the SBT PGP plugin, rather than using GPG itself
+Using the SBT PGP v2 plugin that runs gpg locally (https://github.com/sbt/sbt-pgp)
 - added to project/plugins.sbt:
-  addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8.3")
+  addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.2.1")
   
-- create PGP keys (in activator/play shell)
-  set pgpReadOnly := false
-  pgp-cmd gen-key
-  
+- PGP keys were originally created using v1 plugin and pgp-cmd
+
 Name: Chris Nappin
 email: chris@nappin.com
-passphrase: ..
+passphrase: Ia..
   
 Public key is pubring.asc
 Secret key is secring.asc
+(Import secret key into default gpg keyring)
 
 - then publish the public key:
   pgp-cmd send-key chris@nappin.com hkp://pool.sks-keyservers.net/

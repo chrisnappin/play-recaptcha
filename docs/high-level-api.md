@@ -19,10 +19,10 @@ Note that if you want to use invisible reCAPTCHA, this is a separate option and 
 The play-recaptcha module is distributed via Maven Central, so you can add the module as a build dependency in SBT. In your top-level *build.sbt* file, add the following:
 
     libraryDependencies ++= Seq(
-      "com.nappin" %% "play-recaptcha" % "2.5" 
+      "com.nappin" %% "play-recaptcha" % "2.6" 
     )
 
-The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.5` is the
+The useful `%%` syntax means SBT will select the appropriate binary for your Scala version, and `2.6` is the
 play-recaptcha module version number being used - since SBT uses ivy the version number can be alternatively be an expression such as `2.+` (meaning any version 2.x release). 
 
 (see [build.sbt](../build.sbt) for a complete example)
@@ -56,7 +56,7 @@ The play-recaptcha module (both reCAPTCHA v2 and Invisible reCAPTCHA) supports t
 
 Unless you need special behaviour (e.g. your website has its own language selection functionality, or it is only ever rendered in one language), use the default `auto` mode.
 
-The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5) is internationalised to two languages (English, French) as an example.
+The [play-recaptcha v2 example application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6) is internationalised to two languages (English, French) as an example.
 
 
 ## View Template
@@ -93,7 +93,7 @@ The `recaptchaField` parameters are as follows:
   * ``messagesProvider: MessagesProvider`` - the current i18n messages to use
   * ``request: Request[AnyContent]`` - the current request
 
-(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/app/views/form.scala.html) for a complete example)
+(see [form.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/app/views/form.scala.html) for a complete example)
 
 The `recaptchaField` view helper tag (ignoring the JavaScript) produces HTML using the same formatting as the built-in Play input helpers, as follows:
 
@@ -134,7 +134,7 @@ The `invisibleButton` parameters are as follows:
   * ``messagesProvider: MessagesProvider`` - the current i18n messages to use
   * ``request: Request[AnyContent]`` - the current web request
 
-(see [invisibleForm.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/app/views/invisibleForm.scala.html) for a complete example)
+(see [invisibleForm.scala.html](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/app/views/invisibleForm.scala.html) for a complete example)
 
 The `invisibleButton` view helper tag (ignoring the JavaScript) produces HTML as follows:
 
@@ -153,7 +153,7 @@ error.required|Shown if no text entered into the captcha field|The Play default
 error.recaptchaNotReachable|Shown if there is an error contacting the reCAPTCHA API (e.g. Network timeout)|Unable to contact Recaptcha
 error.apiError|Shown if reCAPTCHA returns a response that the play-recaptcha module doesn't understand (e.g. Google have changed its functionality)|Invalid response from Recaptcha
 
-(see [messages](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/conf/messages) for a complete example)
+(see [messages](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/conf/messages) for a complete example)
 
 
 ## Controller
@@ -217,24 +217,24 @@ The ``map`` and ``fold`` methods are a great way of handling the ``Future`` and 
         }    
     }
 
-(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/app/controllers/ExampleForm.scala) for a complete example,
-and [ExampleFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/test/controllers/ExampleFormSpec.scala) for example unit tests using specs2)
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/app/controllers/ExampleForm.scala) for a complete example,
+and [ExampleFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/test/controllers/ExampleFormSpec.scala) for example unit tests using specs2)
 
 
 ### reCAPTCHA v2 (using AJAX/JavaScript)
 
 To validate a form submitted via JavaScript follows very similar processing as the reCAPTCHA v2 controller, but the ``widgetHelper.resolveRecaptchaErrors`` method can be used to return any form validation errors as JSON.
 
-(see [JavascriptForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/app/controllers/JavascriptForm.scala) for a complete example,
-see [JavascriptFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/test/controllers/JavascriptFormSpec.scala) for example unit tests using specs2)
+(see [JavascriptForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/app/controllers/JavascriptForm.scala) for a complete example,
+see [JavascriptFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/test/controllers/JavascriptFormSpec.scala) for example unit tests using specs2)
 
 
 ### Invisible reCAPTCHA
 
 To validate a form with an invisible reCAPTCHA follows the same processing as the reCAPTCHA v2 controller, as outlined above.
 
-(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/app/controllers/InvisibleForm.scala) for a complete example,
-and [InvisibleFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/test/controllers/InvisibleFormSpec.scala) for example unit tests using specs2)
+(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/app/controllers/InvisibleForm.scala) for a complete example,
+and [InvisibleFormSpec.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/test/controllers/InvisibleFormSpec.scala) for example unit tests using specs2)
 
 
 ## Security
@@ -316,9 +316,9 @@ The default Content Security Policy applied by ```nonceAction``` is as follows -
 
 where ```{nonce}``` is replaced with a unique nonce generated for each response.
 
-(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/app/controllers/ExampleForm.scala) for a complete example) 
+(see [ExampleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/app/controllers/ExampleForm.scala) for a complete example) 
 
-(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.5/app/controllers/InvisibleForm.scala) for a complete example with action composition) 
+(see [InvisibleForm.scala](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6/app/controllers/InvisibleForm.scala) for a complete example with action composition) 
 
 
 ## Troubleshooting

@@ -18,10 +18,10 @@ package com.nappin.play.recaptcha
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 
-/**
-  * Injection helper for <code>RecaptchaComponents</code>.
+/** Injection helper for <code>RecaptchaComponents</code>.
   *
-  * @author chrisnappin, gmalouf
+  * @author
+  *   chrisnappin, gmalouf
   */
 trait RecaptchaComponents {
   def configuration: Configuration

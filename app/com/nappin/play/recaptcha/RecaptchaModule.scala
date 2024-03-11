@@ -18,11 +18,11 @@ package com.nappin.play.recaptcha
 import play.api.inject.Module
 import play.api.{Environment, Configuration}
 
-/**
- * Recaptcha Play DI Module.
- *
- * @author chrisnappin, gmalouf
- */
+/** Recaptcha Play DI Module.
+  *
+  * @author
+  *   chrisnappin, gmalouf
+  */
 class RecaptchaModule extends Module {
   def bindings(environment: Environment, configuration: Configuration) = {
     Seq(

@@ -15,10 +15,12 @@
  */
 package views.recaptcha
 
-import com.nappin.play.recaptcha.{RecaptchaErrorCode, RecaptchaSettings, RecaptchaVerifier, WidgetHelper}
-import org.specs2.runner.JUnitRunner
-import org.junit.runner.RunWith
-import org.specs2.specification.Scope
+import com.nappin.play.recaptcha.{
+  RecaptchaErrorCode,
+  RecaptchaSettings,
+  RecaptchaVerifier,
+  WidgetHelper
+}
 import play.api.Application
 import play.api.data.Form
 import play.api.data.Forms._
@@ -30,215 +32,289 @@ import java.io.File
 import play.api.mvc.{AnyContent, Request}
 import views.html.recaptcha.{recaptchaField, recaptchaWidget}
 
-/**
-  * Tests the <code>recaptchaField</code> view template.
+/** Tests the <code>recaptchaField</code> view template.
   *
-  * @author chrisnappin
+  * @author
+  *   chrisnappin
   */
-@RunWith(classOf[JUnitRunner])
 class RecaptchaFieldSpec extends PlaySpecification {
 
   // used to bind with
   case class Model(field1: String, field2: Option[Int])
+  object Model {
+    def unapply(m: Model): Option[(String, Option[Int])] = Some(m.field1, m.field2)
+  }
 
-  private val modelForm = Form(mapping(
-    "field1" -> nonEmptyText,
-    "field2" -> optional(number)
-  )(Model.apply)(Model.unapply))
+  private val modelForm = Form(
+    mapping(
+      "field1" -> nonEmptyText,
+      "field2" -> optional(number)
+    )(Model.apply)(Model.unapply)
+  )
 
   "recaptchaField" should {
 
-    val validV2Application = GuiceApplicationBuilder().in(new File("test-conf/"))
-      .configure(Map(
-        "play.i18n.langs" -> Seq("en", "fr"),
-        RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
-        RecaptchaSettings.PublicKeyConfigProp -> "public-key")).build()
+    val validV2Application = GuiceApplicationBuilder()
+      .in(new File("test-conf/"))
+      .configure(
+        Map(
+          "play.i18n.langs" -> Seq("en", "fr"),
+          RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
+          RecaptchaSettings.PublicKeyConfigProp -> "public-key"
+        )
+      )
+      .build()
 
-    "include noscript and tabindex" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+    "include noscript and tabindex" in new WithApplication(validV2Application)
+      with WithWidgetHelper {
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
-      val html = contentAsString(
-        template(modelForm, "myCaptcha", 42, includeNoScript = true, isRequired = false)(messagesProvider, request))
+        val html = contentAsString(
+          template(modelForm, "myCaptcha", 42, includeNoScript = true, isRequired = false)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // no error shown to end user
-      html must not contain("<dd class=\"error\">")
+        // no error shown to end user
+        html must not contain ("<dd class=\"error\">")
 
-      // must include noscript block
-      html must contain("<noscript")
-      html must contain("g-recaptcha-response")
+        // must include noscript block
+        html must contain("<noscript")
+        html must contain("g-recaptcha-response")
 
-      // dl doesn't have error class
-      html must not contain("<dl class=\"error\"")
+        // dl doesn't have error class
+        html must not contain ("<dl class=\"error\"")
 
-      // include tabindex
-      html must contain("data-tabindex=\"42\"")
+        // include tabindex
+        html must contain("data-tabindex=\"42\"")
+      }
     }
 
-    "exclude noscript and required marker when set" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+    "exclude noscript and required marker when set" in new WithApplication(validV2Application)
+      with WithWidgetHelper {
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
-      val html = contentAsString(
-        template(modelForm, "myCaptcha", 1, includeNoScript = false, isRequired = false)(messagesProvider, request))
+        val html = contentAsString(
+          template(modelForm, "myCaptcha", 1, includeNoScript = false, isRequired = false)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // dl doesn't have error class
-      html must not contain("<dl class=\"error\"")
+        // dl doesn't have error class
+        html must not contain ("<dl class=\"error\"")
 
-      // no error shown to end user
-      html must not contain("<dd class=\"error\">")
+        // no error shown to end user
+        html must not contain ("<dd class=\"error\">")
 
-      // must not include noscript block
-      html must not contain("<noscript")
-      html must not contain("g-recaptcha-response")
+        // must not include noscript block
+        html must not contain ("<noscript")
+        html must not contain ("g-recaptcha-response")
 
-      // required marker not shown to end user
-      html must not contain("<dd class=\"info\">")
+        // required marker not shown to end user
+        html must not contain ("<dd class=\"info\">")
+      }
     }
 
-    "show required marker when set" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+    "show required marker when set" in new WithApplication(validV2Application)
+      with WithWidgetHelper {
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
-      val html = contentAsString(
-        template(modelForm, "myCaptcha", 1, includeNoScript = false, isRequired = true)(messagesProvider, request))
+        val html = contentAsString(
+          template(modelForm, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // dl doesn't have error class
-      html must not contain("<dl class=\"error\"")
+        // dl doesn't have error class
+        html must not contain ("<dl class=\"error\"")
 
-      // required marker shown to end user
-      html must contain("<dd class=\"info\">")
+        // required marker shown to end user
+        html must contain("<dd class=\"info\">")
+      }
     }
 
-    "show captcha incorrect error" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val modelFormWithError = modelForm.withError(
-        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
+    "show captcha incorrect error" in new WithApplication(validV2Application)
+      with WithWidgetHelper {
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+        val modelFormWithError =
+          modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
 
-      val html = contentAsString(
-        template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
-          messagesProvider, request))
+        val html = contentAsString(
+          template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // dl has error class
-      html must contain("<dl class=\"error\"")
+        // dl has error class
+        html must contain("<dl class=\"error\"")
 
-      // error shown to end user
-      html must contain("<dd class=\"error\">")
+        // error shown to end user
+        html must contain("<dd class=\"error\">")
+      }
     }
 
-    "show recaptcha not reachable error" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val modelFormWithError = modelForm.withError(
-        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.recaptchaNotReachable)
+    "show recaptcha not reachable error" in new WithApplication(validV2Application)
+      with WithWidgetHelper {
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+        val modelFormWithError = modelForm.withError(
+          RecaptchaVerifier.formErrorKey,
+          RecaptchaErrorCode.recaptchaNotReachable
+        )
 
-      val html = contentAsString(
-        template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
-          messagesProvider, request))
+        val html = contentAsString(
+          template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // dl has error class
-      html must contain("<dl class=\"error\"")
+        // dl has error class
+        html must contain("<dl class=\"error\"")
 
-      // error shown to end user
-      html must contain("<dd class=\"error\">")
+        // error shown to end user
+        html must contain("<dd class=\"error\">")
+      }
     }
 
     "show api error" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val modelFormWithError = modelForm.withError(
-        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+        val modelFormWithError =
+          modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
 
-      val html = contentAsString(
-        template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
-          messagesProvider, request))
+        val html = contentAsString(
+          template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // dl has error class
-      html must contain("<dl class=\"error\"")
+        // dl has error class
+        html must contain("<dl class=\"error\"")
 
-      // error shown to end user
-      html must contain("<dd class=\"error\">")
+        // error shown to end user
+        html must contain("<dd class=\"error\">")
+      }
     }
 
     "show response missing error" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val modelFormWithError = modelForm.withError(
-        RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+        val modelFormWithError =
+          modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
 
-      val html = contentAsString(
-        template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
-          messagesProvider, request))
+        val html = contentAsString(
+          template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // dl has error class
-      html must contain("<dl class=\"error\"")
+        // dl has error class
+        html must contain("<dl class=\"error\"")
 
-      // error shown to end user
-      html must contain("<dd class=\"error\">")
+        // error shown to end user
+        html must contain("<dd class=\"error\">")
+      }
     }
 
     "ignores other errors" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
-      val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+        val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
 
-      val html = contentAsString(
-        template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
-          messagesProvider, request))
+        val html = contentAsString(
+          template(modelFormWithError, "myCaptcha", 1, includeNoScript = false, isRequired = true)(
+            messagesProvider,
+            request
+          )
+        )
 
-      // include v2 recaptcha widget
-      html must contain("api.js")
-      html must contain("g-recaptcha")
+        // include v2 recaptcha widget
+        html must contain("api.js")
+        html must contain("g-recaptcha")
 
-      // dl doesn't have error class
-      html must not contain("<dl class=\"error\"")
+        // dl doesn't have error class
+        html must not contain ("<dl class=\"error\"")
 
-      // error not shown to end user
-      html must not contain("<dd class=\"error\">")
+        // error not shown to end user
+        html must not contain ("<dd class=\"error\">")
+      }
     }
 
-    "include extra classes and attributes" in new WithApplication(validV2Application) with WithWidgetHelper {
-      val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
+    "include extra classes and attributes" in new WithApplication(validV2Application)
+      with WithWidgetHelper {
+      override def running() = {
+        val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
-      val html = contentAsString(
-        template(modelForm, "myCaptcha", 1, includeNoScript = true, isRequired = false, Symbol("class") -> "extraClass",
-          Symbol("bbb") -> "ccc")(messagesProvider, request))
+        val html = contentAsString(
+          template(
+            modelForm,
+            "myCaptcha",
+            1,
+            includeNoScript = true,
+            isRequired = false,
+            Symbol("class") -> "extraClass",
+            Symbol("bbb") -> "ccc"
+          )(messagesProvider, request)
+        )
 
-      // extra class and attribute
-      html must contain("class=\"g-recaptcha extraClass\"")
-      html must contain("bbb=\"ccc\"")
+        // extra class and attribute
+        html must contain("class=\"g-recaptcha extraClass\"")
+        html must contain("bbb=\"ccc\"")
+      }
     }
   }
 
-  /**
-    * Creates a template, with real dependencies populated.
-    * @param app            The current app
-    * @param widgetHelper   The widget helper
-    * @return The template instance, a messages provider, and a request
+  /** Creates a template, with real dependencies populated.
+    * @param app
+    *   The current app
+    * @param widgetHelper
+    *   The widget helper
+    * @return
+    *   The template instance, a messages provider, and a request
     */
-  private def createTemplate(app: Application, widgetHelper: WidgetHelper): (recaptchaField, MessagesProvider,
-        Request[AnyContent]) = {
+  private def createTemplate(
+      app: Application,
+      widgetHelper: WidgetHelper
+  ): (recaptchaField, MessagesProvider, Request[AnyContent]) = {
     val messagesApi = app.injector.instanceOf[MessagesApi]
     val messagesProvider = MessagesImpl(Lang("fr"), messagesApi)
     val widgetTemplate = new recaptchaWidget(widgetHelper)
@@ -247,7 +323,7 @@ class RecaptchaFieldSpec extends PlaySpecification {
     (fieldTemplate, messagesProvider, request)
   }
 
-  trait WithWidgetHelper extends Scope {
+  trait WithWidgetHelper {
     def app: play.api.Application
 
     lazy val settings = new RecaptchaSettings(app.configuration)

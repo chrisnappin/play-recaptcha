@@ -19,54 +19,58 @@ import play.api.Logger
 import play.api.libs.json.{JsResultException, JsValue}
 import javax.inject.{Inject, Singleton}
 
-/**
- * Used to parse verify API responses.
- *
- * Follows the JSON Google reCAPTCHA API, but if it encounters any API errors (e.g. invalid responses) then it returns
- * an error with an artificial error code corresponding to <code>apiError</code>.
- *
- * @author chrisnappin
- */
+/** Used to parse verify API responses.
+  *
+  * Follows the JSON Google reCAPTCHA API, but if it encounters any API errors (e.g. invalid
+  * responses) then it returns an error with an artificial error code corresponding to
+  * <code>apiError</code>.
+  *
+  * @author
+  *   chrisnappin
+  */
 @Singleton
-class ResponseParser @Inject() (){
+class ResponseParser @Inject() () {
 
-    private val logger = Logger(this.getClass)
+  private val logger = Logger(this.getClass)
 
-    /**
-     * Parses a verify API V2 response, which is a very simple JSON object.
-     * @param response		The JSON response
-     * @return Either an Error (with a populated error code) or a Success
-     */
-    def parseV2Response(response: JsValue): Either[Error, Success] = {
-        try {
-            // success boolean flag is mandatory
-            val success = (response \ "success").as[Boolean]
-	        if (success) Right(Success())
-	        else {
-	            // error codes are optional
-	            val errorCodes = (response \ "error-codes").asOpt[Seq[String]]
-	            if (errorCodes.isDefined) {
-	                // use the first error code, ignore the rest (if any)
-	                logger.info(s"Response was: error => $errorCodes")
-	                Left(Error(errorCodes.get.head))
+  /** Parses a verify API V2 response, which is a very simple JSON object.
+    * @param response
+    *   The JSON response
+    * @return
+    *   Either an Error (with a populated error code) or a Success
+    */
+  def parseV2Response(response: JsValue): Either[Error, Success] = {
+    try {
+      // success boolean flag is mandatory
+      val success = (response \ "success").as[Boolean]
+      if (success) Right(Success())
+      else {
+        // error codes are optional
+        val errorCodes = (response \ "error-codes").asOpt[Seq[String]]
+        if (errorCodes.isDefined) {
+          // use the first error code, ignore the rest (if any)
+          logger.info(s"Response was: error => $errorCodes")
+          Left(Error(errorCodes.get.head))
 
-	            } else {
-		            // no specific error code supplied
-			        logger.info(s"Response was: error")
-	                Left(Error(""))
-	            }
-	        }
-        } catch {
-            case ex: JsResultException =>
-                // anything else doesn't meet the API definition
-		        logger.error("Invalid response: " + response)
-		        Left(Error(RecaptchaErrorCode.apiError))
+        } else {
+          // no specific error code supplied
+          logger.info(s"Response was: error")
+          Left(Error(""))
         }
+      }
+    } catch {
+      case ex: JsResultException =>
+        // anything else doesn't meet the API definition
+        logger.error("Invalid response: " + response)
+        Left(Error(RecaptchaErrorCode.apiError))
     }
+  }
 }
 
 /** Signifies the recaptcha response was valid. */
 case class Success()
 
-/** Signifies a recaptcha error, such as captcha response was incorrect or a technical error of some kind. */
+/** Signifies a recaptcha error, such as captcha response was incorrect or a technical error of some
+  * kind.
+  */
 case class Error(code: String)

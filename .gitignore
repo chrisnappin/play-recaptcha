@@ -1,6 +1,11 @@
 /target
+/project/metals.sbt
+/project/.bloop
 /project/target
-/project/project/target
+/project/project
+/.bloop
+/.metals
+/.vscode
 /.settings
 /.cache
 /.classpath

@@ -131,7 +131,7 @@ class RecaptchaVerifier @Inject() (
     *   Implicit - The execution context used for futures
     * @return
     *   A future that will be the form to use, either populated with an error or success
-    * @throws IllegalStateException
+    * @throws java.lang.IllegalStateException
     *   Developer errors that shouldn't happen - no recaptcha challenge, or multiple challenges or
     *   responses found
     */
@@ -189,7 +189,7 @@ class RecaptchaVerifier @Inject() (
     *   The POST parameters
     * @return
     *   The response
-    * @throws IllegalStateException
+    * @throws java.lang.IllegalStateException
     *   If response missing or multiple
     */
   private def readResponse(params: Map[String, Seq[String]]): String =

@@ -63,7 +63,7 @@ class RecaptchaVerifier @Inject() (
 
   private val logger = Logger(this.getClass)
 
-  /** Get the request data, regardless of the request format (form, JSON, etc).
+  /** Get the recaptcha data from the request, regardless of the format (form, JSON, etc).
     *
     * Returns an empty map if an unsupported request format.
     *
@@ -72,72 +72,44 @@ class RecaptchaVerifier @Inject() (
     * @return
     *   A map of request parameter values, keyed by parameter name
     */
-  private def getRequestPostData()(implicit
+  private def getRecaptchaPostData()(implicit
       request: play.api.mvc.Request[?]
   ): Map[String, Seq[String]] = {
     request.body match {
       case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined =>
-        body.asFormUrlEncoded.get
+        body.asFormUrlEncoded.get.filter(data =>
+          data._1 == RecaptchaVerifier.recaptchaV2ResponseField
+        )
 
       case body: play.api.mvc.AnyContent if body.asMultipartFormData.isDefined =>
-        body.asMultipartFormData.get.asFormUrlEncoded
+        body.asMultipartFormData.get.asFormUrlEncoded.filter(data =>
+          data._1 == RecaptchaVerifier.recaptchaV2ResponseField
+        )
 
       case body: play.api.mvc.AnyContent if body.asJson.isDefined =>
-        fromJson(js = body.asJson.get)
+        val recaptchaResponse = body.asJson.get \ RecaptchaVerifier.recaptchaV2ResponseField
+        if recaptchaResponse.isDefined then
+          Map(RecaptchaVerifier.recaptchaV2ResponseField -> Seq(recaptchaResponse.as[String]))
+        else Map.empty[String, Seq[String]]
 
       case body: Map[?, ?] =>
-        body.asInstanceOf[Map[String, Seq[String]]]
+        body
+          .asInstanceOf[Map[String, Seq[String]]]
+          .filter(data => data._1 == RecaptchaVerifier.recaptchaV2ResponseField)
 
       case body: play.api.mvc.MultipartFormData[?] =>
-        body.asFormUrlEncoded
+        body.asFormUrlEncoded.filter(data => data._1 == RecaptchaVerifier.recaptchaV2ResponseField)
 
       case body: play.api.libs.json.JsValue =>
-        fromJson(js = body)
+        val recaptchaResponse = body \ RecaptchaVerifier.recaptchaV2ResponseField
+        if recaptchaResponse.isDefined then
+          Map(RecaptchaVerifier.recaptchaV2ResponseField -> Seq(recaptchaResponse.as[String]))
+        else Map.empty[String, Seq[String]]
 
       case _ =>
         Map.empty[String, Seq[String]]
 
     }
-  }
-
-  /** Recursively converts JSON data.
-    *
-    * This code was provided by AmazingDreams and comes from the Play source code. It does not
-    * support certain corner cases like repeating object names or JSON nulls.
-    *
-    * @param prefix
-    *   The current parameter name prefix
-    * @param js
-    *   The current JSON object
-    * @return
-    *   A map of each request parameter value keyed by parameter name, where sub-objects have names
-    *   of the form "&lt;parent&gt;.&lt;child&gt;" etc (recursing to any number of levels).
-    */
-  private[recaptcha] def fromJson(
-      prefix: String = "",
-      js: JsValue
-  ): Map[String, Seq[String]] = js match {
-    case JsObject(fields) => {
-      val f: Iterable[Map[String, Seq[String]]] = fields.map {
-        case (key, value) => {
-          val recursiveKey = if prefix == "" then key else prefix + "." + key
-          fromJson(recursiveKey, value)
-        }
-      }
-      f.foldLeft(Map.empty[String, Seq[String]])(_ ++ _)
-    }
-    case JsArray(values) => {
-      values.zipWithIndex
-        .map { case (value, i) =>
-          fromJson(prefix + "[" + i + "]", value)
-        }
-        .foldLeft(Map.empty[String, Seq[String]])((a, b) => a ++ b)
-    }
-    case JsNull           => Map.empty[String, Seq[String]]
-    case JsUndefined()    => Map.empty[String, Seq[String]]
-    case JsBoolean(value) => Map(prefix -> Seq(value.toString))
-    case JsNumber(value)  => Map(prefix -> Seq(value.toString))
-    case JsString(value)  => Map(prefix -> Seq(value.toString))
   }
 
   /** High level API (using Play forms).
@@ -173,7 +145,7 @@ class RecaptchaVerifier @Inject() (
 
     val boundForm = form.bindFromRequest()
 
-    val response = readResponse(getRequestPostData())
+    val response = readResponse(getRecaptchaPostData())
 
     if response.length < 1 then {
       // probably an end user error

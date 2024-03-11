@@ -17,9 +17,12 @@ package com.nappin.play.recaptcha
 
 import java.io.IOException
 
+import RecaptchaSettings.{PrivateKeyConfigProp, PublicKeyConfigProp, RequestTimeoutConfigProp}
+
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito.*
+import org.specs2.execute.Result
 import org.specs2.mutable.*
 import play.api.Configuration
 import play.api.data.{Form, FormError}
@@ -28,14 +31,12 @@ import play.api.http.MimeTypes
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws
 import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
+import play.api.mvc.{AnyContent, Request}
 import play.api.test.{FakeRequest, PlaySpecification}
 
 import scala.concurrent.Future
 import scala.concurrent.duration.*
 import scala.util.{Left, Right}
-import RecaptchaSettings.{PrivateKeyConfigProp, PublicKeyConfigProp, RequestTimeoutConfigProp}
-import org.specs2.execute.Result
-import play.api.mvc.{AnyContent, Request}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /** Tests the <code>RecaptchaVerifier</code> class.
@@ -410,66 +411,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     checkRecaptchaV2Request(mockRequest, "r", "127.0.0.1", privateKey)
   }
 
-  "fromJSON" should {
-
-    "Convert valid JSON" in {
-      checkFromJson(
-        """{
-                      "aaa":123,
-                      "bbb":true,
-                      "ccc":"XYZ",
-                      "ddd":[1,2,3],
-                      "eee":null
-                  }""",
-        Map(
-          "aaa" -> Seq("123"),
-          "bbb" -> Seq("true"),
-          "ccc" -> Seq("XYZ"),
-          "ddd[0]" -> Seq("1"),
-          "ddd[1]" -> Seq("2"),
-          "ddd[2]" -> Seq("3")
-          // null values are explicitly filtered out
-        )
-      )
-    }
-
-    "Convert valid nested JSON" in {
-      checkFromJson(
-        """{
-                    "aaa": {
-                        "bbb": {
-                            "ccc":[
-                                {"ddd":42}
-                            ]
-                        }
-                    },
-                    "eee":false
-                    }"""",
-        Map(
-          "aaa.bbb.ccc[0].ddd" -> Seq("42"),
-          "eee" -> Seq("false")
-        )
-      )
-    }
-
-    "Convert empty JSON" in {
-      checkFromJson("{}", Map.empty)
-    }
-
-    "Convert repeated keys JSON" in {
-      checkFromJson(
-        "{" +
-          "\"aaa\":1," +
-          "\"aaa\":2," +
-          "\"aaa\":3" +
-          "}",
-        Map(
-          "aaa" -> Seq("3") // repeated keys not supported, just get latest value
-        )
-      )
-    }
-  }
-
   /** Creates a verifier wired up with mocked dependencies.
     *
     * @param configProps
@@ -518,26 +459,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     val verifier = new RecaptchaVerifier(settings, mockParser, mockWSClient)
 
     (verifier, mockRequest)
-  }
-
-  /** Checks that the <code>fromJson</code> method produces the expected result.
-    *
-    * @param json
-    *   The JSON to convert
-    * @param expected
-    *   The expected result
-    * @return
-    *   The test result
-    */
-  private def checkFromJson(json: String, expected: Map[String, Seq[String]]): Result = {
-    val conf = Configuration.from(validV2Settings)
-    val settings = new RecaptchaSettings(conf)
-    val mockParser = mock(classOf[ResponseParser])
-    val mockWSClient = mock(classOf[WSClient])
-    val verifier = new RecaptchaVerifier(settings, mockParser, mockWSClient)
-
-    val result = verifier.fromJson(js = Json.parse(json))
-    result must equalTo(expected)
   }
 
   /** Checks the API v2 request sent to recaptcha.

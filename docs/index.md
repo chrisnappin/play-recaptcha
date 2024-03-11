@@ -1,4 +1,4 @@
-This is a [Play Framework](http://www.playframework.com) module, for Scala and Play 2.x, to provide integration with [Google reCAPTCHA](http://www.google.com/recaptcha) in a reactive (non-blocking) manner.
+This is a [Play Framework](http://www.playframework.com) module for Scala, to provide integration with [Google reCAPTCHA](http://www.google.com/recaptcha) in a reactive (non-blocking) manner.
 
 * [Release details](#module-release)
 * [Changelog](#changelog)
@@ -9,9 +9,14 @@ This is a [Play Framework](http://www.playframework.com) module, for Scala and P
 
 | Module Revision | reCAPTCHA Versions | Play Version | Scala Versions | ScalaDoc | 
 |:---------------:|:------------------:|:------------:|:--------------:|:--------:|
-|2.6              |v2, invisible       |2.9.0+        |2.13            |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_2.13/2.6)|
+|3.0              |v2, invisible       |3.0.x+        |3.x             |[ScalaDoc](http://www.javadoc.io/doc/com.nappin/play-recaptcha_3/3.0)|
 
 ### Changelog
+
+#### Release 3.0
+* Migrated to support Play 3.0.x+
+* Converted all source code to Scala 3 syntax
+* Migrated unit tests to Scala 3 compatible libraries
 
 #### Release 2.6
 * Migrated to support Play 2.9.2+
@@ -73,19 +78,19 @@ _Why the version number jump?_ Well, the way the module is used (injected via DI
 ## Module Dependency
 The play-recaptcha module is distributed using Maven Central so it can be easily added as a library dependency in your Play Application's SBT build scripts, as follows:
 
-    "com.nappin" %% "play-recaptcha" % "2.6"
+    "com.nappin" %% "play-recaptcha" % "3.0"
 
 ## How to use
 Please see this example:
 
 ![reCAPTCHA version 2 example](recaptcha-example-v2.png)
 
-* [example reCAPTCHA v2 application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-2.6) 
+* [example reCAPTCHA v2 application](https://github.com/chrisnappin/play-recaptcha-v2-example/tree/release-3.0) 
 
-for a ready-to-use internationalised Scala Play 2.x web application using this module, using reCAPTCHA v2 and Invisible reCAPTCHA, with Play Forms and with JavaScript/AJAX. You can download this code and run it in Play, or you can follow the instructions below to add this module to an existing web application.
+for a ready-to-use internationalised Scala Play web application using this module, using reCAPTCHA v2 and Invisible reCAPTCHA, with Play Forms and with JavaScript/AJAX. You can download this code and run it in Play, or you can follow the instructions below to add this module to an existing web application.
 
 The play-recaptcha module comes with two APIs:
 * [High Level API](high-level-api.md) - that integrates with Play's Form APIs
 * [Low Level API](low-level-api.md) - that has no such dependency
 
-Unless you are using a non-standard approach in your Play 2 Scala applications, the High Level API is the one to use - it is much simpler and requires much less code.
+Unless you are using a non-standard approach in your Play Scala applications, the High Level API is the one to use - it is much simpler and requires much less code.

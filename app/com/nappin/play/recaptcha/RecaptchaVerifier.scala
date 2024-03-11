@@ -26,7 +26,7 @@ import play.api.libs.ws.WSClient
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
-import play.api.libs.json._
+import play.api.libs.json.*
 
 object RecaptchaVerifier {
 
@@ -73,7 +73,7 @@ class RecaptchaVerifier @Inject() (
     *   A map of request parameter values, keyed by parameter name
     */
   private def getRequestPostData()(implicit
-      request: play.api.mvc.Request[_]
+      request: play.api.mvc.Request[?]
   ): Map[String, Seq[String]] = {
     request.body match {
       case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined =>
@@ -85,10 +85,10 @@ class RecaptchaVerifier @Inject() (
       case body: play.api.mvc.AnyContent if body.asJson.isDefined =>
         fromJson(js = body.asJson.get)
 
-      case body: Map[_, _] =>
+      case body: Map[?, ?] =>
         body.asInstanceOf[Map[String, Seq[String]]]
 
-      case body: play.api.mvc.MultipartFormData[_] =>
+      case body: play.api.mvc.MultipartFormData[?] =>
         body.asFormUrlEncoded
 
       case body: play.api.libs.json.JsValue =>
@@ -120,7 +120,7 @@ class RecaptchaVerifier @Inject() (
     case JsObject(fields) => {
       val f: Iterable[Map[String, Seq[String]]] = fields.map {
         case (key, value) => {
-          val recursiveKey = if (prefix == "") key else prefix + "." + key
+          val recursiveKey = if prefix == "" then key else prefix + "." + key
           fromJson(recursiveKey, value)
         }
       }
@@ -175,7 +175,7 @@ class RecaptchaVerifier @Inject() (
 
     val response = readResponse(getRequestPostData())
 
-    if (response.length < 1) {
+    if response.length < 1 then {
       // probably an end user error
       logger.debug(
         "User did not enter a captcha response in the form POST submitted"
@@ -229,14 +229,14 @@ class RecaptchaVerifier @Inject() (
   private def readResponse(params: Map[String, Seq[String]]): String = {
     val fieldName = RecaptchaVerifier.recaptchaV2ResponseField
 
-    if (!params.contains(fieldName)) {
+    if !params.contains(fieldName) then {
       // probably a developer error
       val message =
         "No recaptcha response POSTed, check the form submitted was valid"
       logger.error(message)
       throw new IllegalStateException(message)
 
-    } else if (params(fieldName).size > 1) {
+    } else if params(fieldName).size > 1 then {
       // probably a developer error
       val message =
         "Multiple recaptcha responses POSTed, check the form submitted was valid"
@@ -283,7 +283,7 @@ class RecaptchaVerifier @Inject() (
 
     futureResponse.map { response =>
       {
-        if (response.status == play.api.http.Status.OK) {
+        if response.status == play.api.http.Status.OK then {
           parser.parseV2Response(response.json)
 
         } else {

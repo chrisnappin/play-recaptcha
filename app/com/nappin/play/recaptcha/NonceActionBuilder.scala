@@ -116,7 +116,7 @@ class NonceGenerator @Inject() (settings: RecaptchaSettings) {
     */
   private def initialiseRandom(): Random = {
     val seed: Option[Long] = settings.nonceSeed
-    if (seed.isDefined) {
+    if seed.isDefined then {
       new Random(seed.get)
     } else {
       new Random()

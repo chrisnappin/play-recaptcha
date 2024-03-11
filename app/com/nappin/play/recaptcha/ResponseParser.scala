@@ -43,11 +43,11 @@ class ResponseParser @Inject() () {
     try {
       // success boolean flag is mandatory
       val success = (response \ "success").as[Boolean]
-      if (success) Right(Success())
+      if success then Right(Success())
       else {
         // error codes are optional
         val errorCodes = (response \ "error-codes").asOpt[Seq[String]]
-        if (errorCodes.isDefined) {
+        if errorCodes.isDefined then {
           // use the first error code, ignore the rest (if any)
           logger.info(s"Response was: error => $errorCodes")
           Left(Error(errorCodes.get.head))

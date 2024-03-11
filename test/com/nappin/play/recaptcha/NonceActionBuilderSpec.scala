@@ -18,7 +18,7 @@ package com.nappin.play.recaptcha
 import javax.inject.Inject
 
 import com.nappin.play.recaptcha.RecaptchaSettings.{PrivateKeyConfigProp, PublicKeyConfigProp}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{
   AbstractController,

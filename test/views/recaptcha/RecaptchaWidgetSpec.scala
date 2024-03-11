@@ -196,15 +196,15 @@ class RecaptchaWidgetSpec extends PlaySpecification {
       RecaptchaSettings.PublicKeyConfigProp -> "public-key"
     )
 
-    if (theme.isDefined) {
+    if theme.isDefined then {
       config += RecaptchaSettings.ThemeConfigProp -> theme.get
     }
 
-    if (captchaType.isDefined) {
+    if captchaType.isDefined then {
       config += RecaptchaSettings.CaptchaTypeConfigProp -> captchaType.get
     }
 
-    if (captchaSize.isDefined) {
+    if captchaSize.isDefined then {
       config += RecaptchaSettings.CaptchaSizeConfigProp -> captchaSize.get
     }
 

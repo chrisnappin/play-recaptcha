@@ -75,9 +75,9 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
       error: Option[String] = None
   )(implicit messagesProvider: MessagesProvider): String = {
     settings.widgetScriptUrl + (
-      if (settings.languageMode == "force") {
+      if settings.languageMode == "force" then {
         "?hl=" + settings.forceLanguage.get
-      } else if (settings.languageMode == "play") {
+      } else if settings.languageMode == "play" then {
         "?hl=" + mapToV2Language(messagesProvider.messages.lang)
       } else {
         ""
@@ -110,17 +110,18 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
     * @return
     *   The form, updated if required
     */
-  def resolveRecaptchaErrors(fieldname: String, form: Form[_])(implicit
+  def resolveRecaptchaErrors(fieldname: String, form: Form[?])(implicit
       messagesProvider: MessagesProvider
-  ): Form[_] = {
+  ): Form[?] = {
     val resolvedRecaptchaErrorMessage = getFieldError(form)
-    if (resolvedRecaptchaErrorMessage.isDefined) {
+    if resolvedRecaptchaErrorMessage.isDefined then {
       // remove previous errors, add resolved recaptcha error
       var newForm = form.discardingErrors.withError(fieldname, resolvedRecaptchaErrorMessage.get)
 
       // add back in the other errors (apart from the original recaptcha error)
       form.errors.foreach(e =>
-        if (e.key != RecaptchaVerifier.formErrorKey) newForm = newForm.withError(e.key, e.message)
+        if e.key != RecaptchaVerifier.formErrorKey then
+          newForm = newForm.withError(e.key, e.message)
       )
 
       newForm
@@ -140,7 +141,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
     * @return
     *   The error message, if any
     */
-  def getFieldError(form: Form[_])(implicit messagesProvider: MessagesProvider): Option[String] = {
+  def getFieldError(form: Form[?])(implicit messagesProvider: MessagesProvider): Option[String] = {
     form
       .error(RecaptchaVerifier.formErrorKey)
       .map(e => {
@@ -202,7 +203,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
     *   The nonce HTML, or nothing
     */
   def outputNonce()(implicit request: Request[AnyContent]): String = {
-    if (request.attrs.contains(NonceRequestAttributes.Nonce)) {
+    if request.attrs.contains(NonceRequestAttributes.Nonce) then {
       "nonce=\"" + request.attrs(NonceRequestAttributes.Nonce) + "\""
     } else {
       ""
@@ -223,7 +224,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
   private def messageOrDefault(key: String, default: String)(implicit
       messagesProvider: MessagesProvider
   ): String = {
-    if (messagesProvider.messages.isDefinedAt(key)) {
+    if messagesProvider.messages.isDefinedAt(key) then {
       messagesProvider.messages(key)
     } else {
       default
@@ -253,7 +254,7 @@ class WidgetHelper @Inject() (settings: RecaptchaSettings) {
       Lang("es", "419")
     )
 
-    if (supportedCountryLocales.contains(lang)) {
+    if supportedCountryLocales.contains(lang) then {
       // use language and country code
       lang.language + "-" + lang.country
     } else {

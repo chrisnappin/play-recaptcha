@@ -163,10 +163,10 @@ class InvisibleButtonSpec extends PlaySpecification {
       RecaptchaSettings.PublicKeyConfigProp -> "public-key"
     )
 
-    if (forceLanguage.isDefined) {
+    if forceLanguage.isDefined then {
       config += RecaptchaSettings.LanguageModeConfigProp -> "force"
       config += RecaptchaSettings.ForceLanguageConfigProp -> forceLanguage.get
-    } else if (playLanguage) {
+    } else if playLanguage then {
       config += RecaptchaSettings.LanguageModeConfigProp -> "play"
       config += "play.i18n.langs" -> Seq("fr", "en", "en-US", "en-GB")
     }

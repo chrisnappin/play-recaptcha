@@ -26,7 +26,7 @@ import javax.inject.{Inject, Singleton}
   */
 @Singleton
 class RecaptchaSettings @Inject() (configuration: Configuration) {
-  import RecaptchaSettings._
+  import RecaptchaSettings.*
 
   private val logger = Logger(this.getClass())
 
@@ -130,13 +130,13 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
 
     // keep looping so all missing items get logged, not just the first one...
     mandatoryConfiguration.foreach(key => {
-      if (!configuration.keys.contains(key)) {
+      if !configuration.keys.contains(key) then {
         logger.error(key + " not found in application configuration")
         mandatoryConfigurationPresent = false
       }
     })
 
-    if (!mandatoryConfigurationPresent) {
+    if !mandatoryConfigurationPresent then {
       logger.error(
         "Mandatory configuration missing. Please check the module " +
           "documentation and add the missing items to your application.conf file."
@@ -152,7 +152,7 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
     */
   private def checkConfigurationValid(configuration: Configuration): Unit = {
     // if languageMode is set to "force" then "forceLanguage" must be defined
-    if (languageMode == "force" && forceLanguage.isEmpty) {
+    if languageMode == "force" && forceLanguage.isEmpty then {
       logger.error("If languageMode is \"force\" then forceLanguage must be defined")
       throw new ConfigException.Missing(LanguageModeConfigProp)
     }
@@ -196,7 +196,7 @@ object RecaptchaSettings {
   val NonceSeedProp = s"$root.nonceAction.nonceSeed"
 
   // Default Values
-  import scala.concurrent.duration._
+  import scala.concurrent.duration.*
   val RequestTimeoutMsDefault = 10.seconds
   val DefaultLanguageDefault = "en"
   val CaptchaTypeDefault = "image"

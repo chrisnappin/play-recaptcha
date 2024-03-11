@@ -23,7 +23,7 @@ import com.nappin.play.recaptcha.{
 }
 import play.api.Application
 import play.api.data.Form
-import play.api.data.Forms._
+import play.api.data.Forms.*
 import play.api.i18n.{Lang, MessagesApi, MessagesImpl, MessagesProvider}
 import play.api.test.{FakeRequest, PlaySpecification, WithApplication}
 import play.api.inject.guice.GuiceApplicationBuilder

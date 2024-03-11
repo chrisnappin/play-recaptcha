@@ -15,7 +15,7 @@
  */
 package com.nappin.play.recaptcha
 
-import RecaptchaSettings._
+import RecaptchaSettings.*
 import play.api.data.{Form, FormError}
 import play.api.data.Forms.{mapping, nonEmptyText, number, optional}
 import play.api.i18n.{Lang, Messages, MessagesApi}

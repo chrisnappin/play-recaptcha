@@ -18,8 +18,8 @@ package com.nappin.play.recaptcha
 import org.specs2.mutable.Specification
 import play.api.{PlayException, Configuration}
 import com.typesafe.config.ConfigException
-import RecaptchaSettings._
-import scala.concurrent.duration._
+import RecaptchaSettings.*
+import scala.concurrent.duration.*
 
 /** Tests the <code>RecaptchaSettings</code> class.
   *

@@ -18,12 +18,12 @@ package com.nappin.play.recaptcha
 import java.io.IOException
 
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers._
-import org.mockito.Mockito._
-import org.specs2.mutable._
+import org.mockito.ArgumentMatchers.*
+import org.mockito.Mockito.*
+import org.specs2.mutable.*
 import play.api.Configuration
 import play.api.data.{Form, FormError}
-import play.api.data.Forms._
+import play.api.data.Forms.*
 import play.api.http.MimeTypes
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws
@@ -31,7 +31,7 @@ import play.api.libs.ws.{BodyWritable, WSClient, WSRequest, WSResponse}
 import play.api.test.{FakeRequest, PlaySpecification}
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.util.{Left, Right}
 import RecaptchaSettings.{PrivateKeyConfigProp, PublicKeyConfigProp, RequestTimeoutConfigProp}
 import org.specs2.execute.Result
@@ -497,7 +497,7 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     val mockRequest = mock(classOf[WSRequest])
     val mockResponse = mock(classOf[WSResponse])
     val futureResponse = Future {
-      if (futureThrowsError) throw new IOException("Oops") else mockResponse
+      if futureThrowsError then throw new IOException("Oops") else mockResponse
     }
     val mockParser = mock(classOf[ResponseParser])
 
@@ -573,6 +573,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
   private def checkRecaptchaNotInvoked(request: WSRequest): Result = {
     verify(request, never())
       .post(any(classOf[Map[String, Seq[String]]]))(any[BodyWritable[Map[String, Seq[String]]]])
-    true must equalTo(true)  // produce a result
+    true must equalTo(true) // produce a result
   }
 }

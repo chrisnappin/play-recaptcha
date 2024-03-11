@@ -44,7 +44,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * @author
   *   chrisnappin
   */
-class RecaptchaVerifierSpec extends PlaySpecification {
+class RecaptchaVerifierSpec extends PlaySpecification:
 
   val privateKey = "private-key"
 
@@ -54,9 +54,9 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     RequestTimeoutConfigProp -> "5 seconds"
   )
 
-  "(v2) RecaptchaVerifier (low level API)" should {
+  "(v2) RecaptchaVerifier (low level API)" should:
 
-    "handle a valid response as a success" in {
+    "handle a valid response as a success" in:
 
       val (verifier, mockRequest) =
         createMocks(
@@ -68,9 +68,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
 
       await(verifier.verifyV2("aaa", "bbb")) must beRight(Success())
       checkRecaptchaV2Request(mockRequest, "aaa", "bbb", privateKey)
-    }
 
-    "handle a parser error as an error" in {
+    "handle a parser error as an error" in:
       val (verifier, mockRequest) =
         createMocks(
           validV2Settings,
@@ -81,32 +80,27 @@ class RecaptchaVerifierSpec extends PlaySpecification {
 
       await(verifier.verifyV2("aaa", "bbb")) must beLeft(Error(RecaptchaErrorCode.apiError))
       checkRecaptchaV2Request(mockRequest, "aaa", "bbb", privateKey)
-    }
 
-    "handle a 404 response as an error" in {
+    "handle a 404 response as an error" in:
       val (verifier, mockRequest) = createMocks(validV2Settings, NOT_FOUND, None, false)
 
       await(verifier.verifyV2("aaa", "bbb")) must beLeft(
         Error(RecaptchaErrorCode.recaptchaNotReachable)
       )
       checkRecaptchaV2Request(mockRequest, "aaa", "bbb", privateKey)
-    }
 
-    "handle an IOException as an error" in {
+    "handle an IOException as an error" in:
       val (verifier, mockRequest) = createMocks(validV2Settings, OK, None, true)
 
       await(verifier.verifyV2("aaa", "bbb")) must beLeft(
         Error(RecaptchaErrorCode.recaptchaNotReachable)
       )
       checkRecaptchaV2Request(mockRequest, "aaa", "bbb", privateKey)
-    }
-  }
 
   // used to bind with
   case class Model(field1: String, field2: Option[Int])
-  object Model {
+  object Model:
     def unapply(m: Model): Option[(String, Option[Int])] = Some(m.field1, m.field2)
-  }
 
   val modelForm = Form(
     mapping(
@@ -117,9 +111,9 @@ class RecaptchaVerifierSpec extends PlaySpecification {
 
   private val context = scala.concurrent.ExecutionContext.Implicits.global
 
-  "RecaptchaVerifier (high level API) - form URL encoded body" should {
+  "RecaptchaVerifier (high level API) - form URL encoded body" should:
 
-    "stop at a binding error and not call recaptcha" in {
+    "stop at a binding error and not call recaptcha" in:
       highLevelApiBindingError(
         FakeRequest()
           .withFormUrlEncodedBody(
@@ -128,9 +122,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.FORM)
       )
-    }
 
-    "throw exception if no recaptcha response" in {
+    "throw exception if no recaptcha response" in:
       highLevelApiNoRecaptchaResponse(
         FakeRequest()
           .withFormUrlEncodedBody(
@@ -139,9 +132,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.FORM)
       )
-    }
 
-    "throw exception if multiple recaptcha responses" in {
+    "throw exception if multiple recaptcha responses" in:
       highLevelApiMultipleRecaptchaResponses(
         FakeRequest()
           .withFormUrlEncodedBody(
@@ -151,9 +143,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.FORM)
       )
-    }
 
-    "return form error if empty recaptcha response" in {
+    "return form error if empty recaptcha response" in:
       highLevelApiEmptyRecaptchaResponse(
         FakeRequest()
           .withFormUrlEncodedBody(
@@ -162,9 +153,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.FORM)
       )
-    }
 
-    "return form errors if empty recaptcha response and form bind error" in {
+    "return form errors if empty recaptcha response and form bind error" in:
       highLevelApiEmptyRecaptchaResponseAndBindError(
         FakeRequest()
           .withFormUrlEncodedBody(
@@ -173,9 +163,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.FORM)
       )
-    }
 
-    "return form error if recaptcha error" in {
+    "return form error if recaptcha error" in:
       highLevelApiRecaptchaError(
         FakeRequest()
           .withFormUrlEncodedBody(
@@ -184,9 +173,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.FORM)
       )
-    }
 
-    "return form if recaptcha is successful" in {
+    "return form if recaptcha is successful" in:
       highLevelApiRecaptchaValid(
         FakeRequest()
           .withFormUrlEncodedBody(
@@ -195,12 +183,10 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.FORM)
       )
-    }
-  }
 
-  "RecaptchaVerifier (high level API) - JSON body" should {
+  "RecaptchaVerifier (high level API) - JSON body" should:
 
-    "stop at a binding error and not call recaptcha" in {
+    "stop at a binding error and not call recaptcha" in:
       highLevelApiBindingError(
         FakeRequest()
           .withJsonBody(
@@ -211,9 +197,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
       )
-    }
 
-    "throw exception if no recaptcha response" in {
+    "throw exception if no recaptcha response" in:
       highLevelApiNoRecaptchaResponse(
         FakeRequest()
           .withJsonBody(
@@ -224,11 +209,10 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
       )
-    }
 
     // Note: not testing multiple recaptcha responses, since the JSON to parameter map doesn't support this
 
-    "return form error if empty recaptcha response" in {
+    "return form error if empty recaptcha response" in:
       highLevelApiEmptyRecaptchaResponse(
         FakeRequest()
           .withJsonBody(
@@ -239,9 +223,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
       )
-    }
 
-    "return form errors if empty recaptcha response and form bind error" in {
+    "return form errors if empty recaptcha response and form bind error" in:
       highLevelApiEmptyRecaptchaResponseAndBindError(
         FakeRequest()
           .withJsonBody(
@@ -252,9 +235,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
       )
-    }
 
-    "return form error if recaptcha error" in {
+    "return form error if recaptcha error" in:
       highLevelApiRecaptchaError(
         FakeRequest()
           .withJsonBody(
@@ -265,9 +247,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
       )
-    }
 
-    "return form if recaptcha is successful" in {
+    "return form if recaptcha is successful" in:
       highLevelApiRecaptchaValid(
         FakeRequest()
           .withJsonBody(
@@ -278,8 +259,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
           )
           .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
       )
-    }
-  }
 
   /** Tests that the high level API stops at a binding error and doesn't invoke recaptcha.
     *
@@ -288,7 +267,7 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     * @return
     *   The test result
     */
-  private def highLevelApiBindingError(request: Request[AnyContent]): Result = {
+  private def highLevelApiBindingError(request: Request[AnyContent]): Result =
     val (verifier, mockRequest) = createMocks(validV2Settings, OK, None, false)
 
     val result = await(verifier.bindFromRequestAndVerify(modelForm)(request, context))
@@ -296,7 +275,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     result.hasErrors must equalTo(true)
     result.error("field2") must beSome(FormError("field2", "error.number"))
     checkRecaptchaNotInvoked(mockRequest)
-  }
 
   /** Tests that the high level API throws an exception if request contains no recaptcha response.
     *
@@ -305,14 +283,13 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     * @return
     *   The test result
     */
-  private def highLevelApiNoRecaptchaResponse(request: Request[AnyContent]): Result = {
+  private def highLevelApiNoRecaptchaResponse(request: Request[AnyContent]): Result =
     val (verifier, mockRequest) = createMocks(validV2Settings, OK, None, false)
 
     await(verifier.bindFromRequestAndVerify(modelForm)(request, context)) must throwA[
       IllegalStateException
     ]
     checkRecaptchaNotInvoked(mockRequest)
-  }
 
   /** Tests that the high level API throws an exception if request contains multiple recaptcha
     * responses.
@@ -322,14 +299,13 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     * @return
     *   The test result
     */
-  private def highLevelApiMultipleRecaptchaResponses(request: Request[AnyContent]): Result = {
+  private def highLevelApiMultipleRecaptchaResponses(request: Request[AnyContent]): Result =
     val (verifier, mockRequest) = createMocks(validV2Settings, OK, None, false)
 
     await(verifier.bindFromRequestAndVerify(modelForm)(request, context)) must throwA[
       IllegalStateException
     ]
     checkRecaptchaNotInvoked(mockRequest)
-  }
 
   /** Tests that the high level API returns a form error if the recaptcha response is empty.
     *
@@ -338,7 +314,7 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     * @return
     *   The test result
     */
-  private def highLevelApiEmptyRecaptchaResponse(request: Request[AnyContent]): Result = {
+  private def highLevelApiEmptyRecaptchaResponse(request: Request[AnyContent]): Result =
     val (verifier, mockRequest) = createMocks(validV2Settings, OK, None, false)
 
     val result = await(verifier.bindFromRequestAndVerify(modelForm)(request, context))
@@ -347,7 +323,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     result.error(RecaptchaVerifier.formErrorKey) must
       beSome(FormError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing))
     checkRecaptchaNotInvoked(mockRequest)
-  }
 
   /** Tests that the high level API returns multiple form errors if the recaptcha response is empty
     * and there are also other bind errors.
@@ -359,7 +334,7 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     */
   private def highLevelApiEmptyRecaptchaResponseAndBindError(
       request: Request[AnyContent]
-  ): Result = {
+  ): Result =
     val (verifier, mockRequest) = createMocks(validV2Settings, OK, None, false)
 
     val result = await(verifier.bindFromRequestAndVerify(modelForm)(request, context))
@@ -369,7 +344,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     result.error(RecaptchaVerifier.formErrorKey) must
       beSome(FormError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing))
     checkRecaptchaNotInvoked(mockRequest)
-  }
 
   /** Tests that the high level API returns a form error if recaptcha verification fails.
     *
@@ -378,7 +352,7 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     * @return
     *   The test result
     */
-  private def highLevelApiRecaptchaError(request: Request[AnyContent]): Result = {
+  private def highLevelApiRecaptchaError(request: Request[AnyContent]): Result =
     val (verifier, mockRequest) = createMocks(
       validV2Settings,
       OK,
@@ -392,7 +366,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     result.error(RecaptchaVerifier.formErrorKey) must
       beSome(FormError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect))
     checkRecaptchaV2Request(mockRequest, "r", "127.0.0.1", privateKey)
-  }
 
   /** Tests that the high level API returns a form if recaptcha verification succeeds.
     *
@@ -401,7 +374,7 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     * @return
     *   The test result
     */
-  private def highLevelApiRecaptchaValid(request: Request[AnyContent]): Result = {
+  private def highLevelApiRecaptchaValid(request: Request[AnyContent]): Result =
     val (verifier, mockRequest) =
       createMocks(validV2Settings, OK, Some(Json.parse("{}"), Right(Success())), false)
 
@@ -409,7 +382,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
 
     result.hasErrors must equalTo(false)
     checkRecaptchaV2Request(mockRequest, "r", "127.0.0.1", privateKey)
-  }
 
   /** Creates a verifier wired up with mocked dependencies.
     *
@@ -429,7 +401,7 @@ class RecaptchaVerifierSpec extends PlaySpecification {
       recaptchaResponseCode: Int,
       v2bodyAndParserResult: Option[(JsValue, Either[Error, Success])],
       futureThrowsError: Boolean
-  ): (RecaptchaVerifier, WSRequest) = {
+  ): (RecaptchaVerifier, WSRequest) =
     val conf = Configuration.from(configProps)
 
     val settings = new RecaptchaSettings(conf)
@@ -437,9 +409,8 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     val mockWSClient = mock(classOf[WSClient])
     val mockRequest = mock(classOf[WSRequest])
     val mockResponse = mock(classOf[WSResponse])
-    val futureResponse = Future {
+    val futureResponse = Future:
       if futureThrowsError then throw new IOException("Oops") else mockResponse
-    }
     val mockParser = mock(classOf[ResponseParser])
 
     when(mockWSClient.url(settings.verifyUrl)).thenReturn(mockRequest)
@@ -459,7 +430,6 @@ class RecaptchaVerifierSpec extends PlaySpecification {
     val verifier = new RecaptchaVerifier(settings, mockParser, mockWSClient)
 
     (verifier, mockRequest)
-  }
 
   /** Checks the API v2 request sent to recaptcha.
     *
@@ -477,23 +447,20 @@ class RecaptchaVerifierSpec extends PlaySpecification {
       response: String,
       remoteIP: String,
       privateKey: String
-  ): Result = {
+  ): Result =
     val captor = ArgumentCaptor.forClass(classOf[Map[String, Seq[String]]])
     verify(request).post(captor.capture())(any[BodyWritable[Map[String, Seq[String]]]])
     val argument = captor.getValue
     argument("response") must equalTo(Seq(response))
     argument("remoteip") must equalTo(Seq(remoteIP))
     argument("secret") must equalTo(Seq(privateKey))
-  }
 
   /** Checks that the recaptcha request was never sent.
     *
     * @param request
     *   The mock request to check
     */
-  private def checkRecaptchaNotInvoked(request: WSRequest): Result = {
+  private def checkRecaptchaNotInvoked(request: WSRequest): Result =
     verify(request, never())
       .post(any(classOf[Map[String, Seq[String]]]))(any[BodyWritable[Map[String, Seq[String]]]])
     true must equalTo(true) // produce a result
-  }
-}

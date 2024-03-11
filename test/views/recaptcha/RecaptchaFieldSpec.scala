@@ -37,13 +37,12 @@ import views.html.recaptcha.{recaptchaField, recaptchaWidget}
   * @author
   *   chrisnappin
   */
-class RecaptchaFieldSpec extends PlaySpecification {
+class RecaptchaFieldSpec extends PlaySpecification:
 
   // used to bind with
   case class Model(field1: String, field2: Option[Int])
-  object Model {
+  object Model:
     def unapply(m: Model): Option[(String, Option[Int])] = Some(m.field1, m.field2)
-  }
 
   private val modelForm = Form(
     mapping(
@@ -52,7 +51,7 @@ class RecaptchaFieldSpec extends PlaySpecification {
     )(Model.apply)(Model.unapply)
   )
 
-  "recaptchaField" should {
+  "recaptchaField" should:
 
     val validV2Application = GuiceApplicationBuilder()
       .in(new File("test-conf/"))
@@ -66,8 +65,8 @@ class RecaptchaFieldSpec extends PlaySpecification {
       .build()
 
     "include noscript and tabindex" in new WithApplication(validV2Application)
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
         val html = contentAsString(
@@ -93,12 +92,10 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // include tabindex
         html must contain("data-tabindex=\"42\"")
-      }
-    }
 
     "exclude noscript and required marker when set" in new WithApplication(validV2Application)
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
         val html = contentAsString(
@@ -124,12 +121,10 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // required marker not shown to end user
         html must not contain ("<dd class=\"info\">")
-      }
-    }
 
     "show required marker when set" in new WithApplication(validV2Application)
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
         val html = contentAsString(
@@ -148,12 +143,10 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // required marker shown to end user
         html must contain("<dd class=\"info\">")
-      }
-    }
 
     "show captcha incorrect error" in new WithApplication(validV2Application)
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val modelFormWithError =
           modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.captchaIncorrect)
@@ -174,12 +167,10 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // error shown to end user
         html must contain("<dd class=\"error\">")
-      }
-    }
 
     "show recaptcha not reachable error" in new WithApplication(validV2Application)
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val modelFormWithError = modelForm.withError(
           RecaptchaVerifier.formErrorKey,
@@ -202,11 +193,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // error shown to end user
         html must contain("<dd class=\"error\">")
-      }
-    }
 
-    "show api error" in new WithApplication(validV2Application) with WithWidgetHelper {
-      override def running() = {
+    "show api error" in new WithApplication(validV2Application) with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val modelFormWithError =
           modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.apiError)
@@ -227,11 +216,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // error shown to end user
         html must contain("<dd class=\"error\">")
-      }
-    }
 
-    "show response missing error" in new WithApplication(validV2Application) with WithWidgetHelper {
-      override def running() = {
+    "show response missing error" in new WithApplication(validV2Application) with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val modelFormWithError =
           modelForm.withError(RecaptchaVerifier.formErrorKey, RecaptchaErrorCode.responseMissing)
@@ -252,11 +239,9 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // error shown to end user
         html must contain("<dd class=\"error\">")
-      }
-    }
 
-    "ignores other errors" in new WithApplication(validV2Application) with WithWidgetHelper {
-      override def running() = {
+    "ignores other errors" in new WithApplication(validV2Application) with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val modelFormWithError = modelForm.withError(RecaptchaVerifier.formErrorKey, "wibble")
 
@@ -276,12 +261,10 @@ class RecaptchaFieldSpec extends PlaySpecification {
 
         // error not shown to end user
         html must not contain ("<dd class=\"error\">")
-      }
-    }
 
     "include extra classes and attributes" in new WithApplication(validV2Application)
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
 
         val html = contentAsString(
@@ -299,9 +282,6 @@ class RecaptchaFieldSpec extends PlaySpecification {
         // extra class and attribute
         html must contain("class=\"g-recaptcha extraClass\"")
         html must contain("bbb=\"ccc\"")
-      }
-    }
-  }
 
   /** Creates a template, with real dependencies populated.
     * @param app
@@ -314,20 +294,17 @@ class RecaptchaFieldSpec extends PlaySpecification {
   private def createTemplate(
       app: Application,
       widgetHelper: WidgetHelper
-  ): (recaptchaField, MessagesProvider, Request[AnyContent]) = {
+  ): (recaptchaField, MessagesProvider, Request[AnyContent]) =
     val messagesApi = app.injector.instanceOf[MessagesApi]
     val messagesProvider = MessagesImpl(Lang("fr"), messagesApi)
     val widgetTemplate = new recaptchaWidget(widgetHelper)
     val fieldTemplate = new recaptchaField(widgetHelper, widgetTemplate)
     val request = FakeRequest()
     (fieldTemplate, messagesProvider, request)
-  }
 
-  trait WithWidgetHelper {
+  trait WithWidgetHelper:
     def app: play.api.Application
 
     lazy val settings = new RecaptchaSettings(app.configuration)
     lazy val widgetHelper = new WidgetHelper(settings)
-  }
 
-}

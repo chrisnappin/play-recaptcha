@@ -23,13 +23,11 @@ import play.api.{Environment, Configuration}
   * @author
   *   chrisnappin, gmalouf
   */
-class RecaptchaModule extends Module {
-  def bindings(environment: Environment, configuration: Configuration) = {
+class RecaptchaModule extends Module:
+  def bindings(environment: Environment, configuration: Configuration) =
     Seq(
       bind[RecaptchaSettings].toSelf.eagerly(),
       bind[ResponseParser].toSelf.eagerly(),
       bind[RecaptchaVerifier].toSelf.eagerly(),
       bind[WidgetHelper].toSelf.eagerly()
     )
-  }
-}

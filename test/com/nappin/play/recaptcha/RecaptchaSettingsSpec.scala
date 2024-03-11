@@ -26,7 +26,7 @@ import scala.concurrent.duration.*
   * @author
   *   chrisnappin
   */
-class RecaptchaSettingsSpec extends Specification {
+class RecaptchaSettingsSpec extends Specification:
 
   val privateKeyValue = "myprivkey"
   val publicKeyValue = "mypubkey"
@@ -47,8 +47,8 @@ class RecaptchaSettingsSpec extends Specification {
   val mandatoryV2Config =
     Map(PrivateKeyConfigProp -> privateKeyValue, PublicKeyConfigProp -> publicKeyValue)
 
-  "Construction of RecaptchaSettings" should {
-    "succeed if only the mandatory configuration was present" in {
+  "Construction of RecaptchaSettings" should:
+    "succeed if only the mandatory configuration was present" in:
       val conf = Configuration.from(mandatoryV2Config)
       val s = new RecaptchaSettings(conf)
 
@@ -66,9 +66,8 @@ class RecaptchaSettingsSpec extends Specification {
       s.contentSecurityPolicy ==== ContentSecurityPolicyDefault
       s.nonceLength ==== NonceLengthDefault
       s.nonceSeed ==== None
-    }
 
-    "succeed if all possible configuration was present" in {
+    "succeed if all possible configuration was present" in:
       val conf = Configuration.from(
         mandatoryV2Config ++ Map(
           RequestTimeoutConfigProp -> requestTimeoutValueStr,
@@ -96,67 +95,53 @@ class RecaptchaSettingsSpec extends Specification {
       s.contentSecurityPolicy ==== contentSecurityPolicyValue
       s.nonceLength === nonceLengthValue
       s.nonceSeed ==== Some(nonceSeedValue)
-    }
 
-    "fail if no configuration" in {
+    "fail if no configuration" in:
       val conf = Configuration.from(Map())
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if private key is missing" in {
+    "fail if private key is missing" in:
       val conf = Configuration.from(mandatoryV2Config - PrivateKeyConfigProp)
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if public key is missing" in {
+    "fail if public key is missing" in:
       val conf = Configuration.from(mandatoryV2Config - PublicKeyConfigProp)
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if requestTimeout config value can not parsed as a valid duration" in {
+    "fail if requestTimeout config value can not parsed as a valid duration" in:
       val conf =
         Configuration.from(mandatoryV2Config + (RequestTimeoutConfigProp -> "10 million dollars"))
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if captcha type is not one of allowed values" in {
+    "fail if captcha type is not one of allowed values" in:
       val conf = Configuration.from(mandatoryV2Config + (CaptchaTypeConfigProp -> "movie"))
 
       new RecaptchaSettings(conf) must throwAn[PlayException]
-    }
 
-    "fail if captcha size is not one of allowed values" in {
+    "fail if captcha size is not one of allowed values" in:
       val conf = Configuration.from(mandatoryV2Config + (CaptchaSizeConfigProp -> "wibble"))
 
       new RecaptchaSettings(conf) must throwAn[PlayException]
-    }
 
-    "fail if languageMode is force but forceLanguage not set" in {
+    "fail if languageMode is force but forceLanguage not set" in:
       val conf = Configuration.from(mandatoryV2Config + (LanguageModeConfigProp -> "force"))
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
-  }
 
-  "Recaptcha Settings widgetScriptUrl" should {
-    "return a secure api v2 url" in {
+  "Recaptcha Settings widgetScriptUrl" should:
+    "return a secure api v2 url" in:
       val conf = Configuration.from(mandatoryV2Config)
 
       new RecaptchaSettings(conf).widgetScriptUrl ==== "https://www.google.com/recaptcha/api.js"
-    }
-  }
 
-  "Recaptcha Settings widgetNoScriptUrl" should {
-    "return a secure api v2 url" in {
+  "Recaptcha Settings widgetNoScriptUrl" should:
+    "return a secure api v2 url" in:
       val conf = Configuration.from(mandatoryV2Config)
 
       new RecaptchaSettings(
         conf
       ).widgetNoScriptUrl ==== "https://www.google.com/recaptcha/api/fallback"
-    }
-  }
-}

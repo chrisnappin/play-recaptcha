@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author
   *   chrisnappin
   */
-class NonceActionBuilderSpec extends PlaySpecification {
+class NonceActionBuilderSpec extends PlaySpecification:
 
   private implicit val context: ExecutionContext = ExecutionContext.Implicits.global
 
@@ -52,10 +52,10 @@ class NonceActionBuilderSpec extends PlaySpecification {
 
   private val request = FakeRequest(GET, "/test")
 
-  "Controller1 using NonceActionBuilder" should {
+  "Controller1 using NonceActionBuilder" should:
 
-    "Wrap simple response with no implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap simple response with no implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller1]
         val response = controller.method1().apply(request)
 
@@ -66,11 +66,9 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
 
-    "Wrap simple response with implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap simple response with implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller1]
         val response = controller.method2().apply(request)
 
@@ -83,11 +81,9 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
 
-    "Wrap future response without implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap future response without implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller1]
         val response = controller.method3().apply(request)
 
@@ -98,11 +94,9 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
 
-    "Wrap Action without implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap Action without implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller1]
         val response = controller.method4().apply(request)
 
@@ -113,8 +107,6 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
 
     "Wrap Action with implicit request and nonce config" in new WithWidgetHelper(
       configuration ++ Map(
@@ -122,8 +114,8 @@ class NonceActionBuilderSpec extends PlaySpecification {
         "recaptcha.nonceAction.contentSecurityPolicy" -> "custom-policy {nonce}",
         "recaptcha.nonceAction.nonceSeed" -> 123456789012345678L
       )
-    ) {
-      override def running() = {
+    ):
+      override def running() =
         val controller = app.injector.instanceOf[Controller1]
         val response = controller.method5().apply(request)
 
@@ -136,14 +128,11 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "custom-policy ([0-9|a-z|A-Z]{30})"
         )
-      }
-    }
-  }
 
-  "Controller2 using NonceActionBuilder" should {
+  "Controller2 using NonceActionBuilder" should:
 
-    "Wrap messages action with no implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap messages action with no implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller2]
         val response = controller.method1().apply(request)
 
@@ -154,11 +143,9 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
 
-    "Wrap messages action with implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap messages action with implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller2]
         val response = controller.method2().apply(request)
 
@@ -171,11 +158,9 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
 
-    "Wrap future messages action without implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap future messages action without implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller2]
         val response = controller.method3().apply(request)
 
@@ -186,11 +171,9 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
 
-    "Wrap future messages action with implicit request" in new WithWidgetHelper(configuration) {
-      override def running() = {
+    "Wrap future messages action with implicit request" in new WithWidgetHelper(configuration):
+      override def running() =
         val controller = app.injector.instanceOf[Controller2]
         val response = controller.method4().apply(request)
 
@@ -203,46 +186,34 @@ class NonceActionBuilderSpec extends PlaySpecification {
         header(CONTENT_SECURITY_POLICY_HEADER, response).get must =~(
           "script-src 'self' 'nonce-([0-9|a-z|A-Z]{20})'; "
         )
-      }
-    }
-  }
-}
 
 /** Simple controller not using any other action builders. */
 class Controller1 @Inject() (nonceAction: NonceActionBuilder, cc: ControllerComponents)(implicit
     ec: ExecutionContext
-) extends AbstractController(cc) {
+) extends AbstractController(cc):
 
-  def method1() = nonceAction {
+  def method1() = nonceAction:
     Ok("response1")
-  }
 
   def method2() = nonceAction { implicit request: Request[AnyContent] =>
     Ok("response2 " + request.attrs.get(NonceRequestAttributes.Nonce).get)
   }
 
-  def method3() = nonceAction.async {
-    Future {
+  def method3() = nonceAction.async:
+    Future:
       Ok("response3")
-    }
-  }
 
-  def method4() = nonceAction {
-    Action {
+  def method4() = nonceAction:
+    Action:
       Ok("response4")
-    }
-  }
 
-  def method5() = nonceAction {
+  def method5() = nonceAction:
     Action { implicit request: Request[AnyContent] =>
       Ok("response5 " + request.attrs.get(NonceRequestAttributes.Nonce).get)
     }
-  }
 
-  def method6() = Action {
+  def method6() = Action:
     Ok("response6")
-  }
-}
 
 /** Simple controller also using the i18n action builder. */
 class Controller2 @Inject() (
@@ -250,37 +221,27 @@ class Controller2 @Inject() (
     nonceAction: NonceActionBuilder,
     cc: ControllerComponents
 )(implicit executionContext: ExecutionContext)
-    extends AbstractController(cc) {
+    extends AbstractController(cc):
 
-  def method1() = nonceAction {
-    messagesAction {
+  def method1() = nonceAction:
+    messagesAction:
       Ok("response1")
-    }
-  }
 
-  def method2() = nonceAction {
+  def method2() = nonceAction:
     messagesAction { implicit request: MessagesRequest[AnyContent] =>
       Ok("response2 " + request.attrs.get(NonceRequestAttributes.Nonce).get)
     }
-  }
 
-  def method3() = nonceAction {
-    messagesAction.async {
-      Future {
+  def method3() = nonceAction:
+    messagesAction.async:
+      Future:
         Ok("response3")
-      }
-    }
-  }
 
-  def method4() = nonceAction {
+  def method4() = nonceAction:
     messagesAction.async { implicit request: MessagesRequest[AnyContent] =>
-      Future {
+      Future:
         Ok("response4 " + request.attrs.get(NonceRequestAttributes.Nonce).get)
-      }
     }
-  }
 
-  def method5() = messagesAction {
+  def method5() = messagesAction:
     Ok("response5")
-  }
-}

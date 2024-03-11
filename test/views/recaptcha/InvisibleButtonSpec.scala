@@ -28,13 +28,13 @@ import views.html.recaptcha.invisibleButton
   * @author
   *   chrisnappin
   */
-class InvisibleButtonSpec extends PlaySpecification {
+class InvisibleButtonSpec extends PlaySpecification:
 
-  "invisibleButton" should {
+  "invisibleButton" should:
 
     "render widget with no explicit language" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template("myForm", "Submit")(messagesProvider, request))
 
@@ -53,48 +53,40 @@ class InvisibleButtonSpec extends PlaySpecification {
 
         // no request attribute so no nonces
         html must not contain ("nonce=")
-      }
-    }
 
     "render widget with language forced" in new WithApplication(
       getApplication(forceLanguage = Some("ru"))
-    ) with WithWidgetHelper {
-      override def running() = {
+    ) with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template("myForm", "Submit")(messagesProvider, request))
 
         // includes script
         html must contain("recaptcha/api.js?hl=ru")
-      }
-    }
 
     "render widget with play language" in new WithApplication(getApplication(playLanguage = true))
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template("myForm", "Submit")(messagesProvider, request))
 
         // includes script
         html must contain("recaptcha/api.js?hl=fr")
-      }
-    }
 
     "render widget with play language and country" in new WithApplication(
       getApplication(playLanguage = true)
-    ) with WithWidgetHelper {
-      override def running() = {
+    ) with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) =
           createTemplate(app, widgetHelper, Lang("en", "GB"))
         val html = contentAsString(template("myForm", "Submit")(messagesProvider, request))
 
         // includes script
         html must contain("recaptcha/api.js?hl=en-GB")
-      }
-    }
 
     "render widget with additional class" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(
           template("myForm", "Submit", Symbol("class") -> "extraClass")(messagesProvider, request)
@@ -102,12 +94,10 @@ class InvisibleButtonSpec extends PlaySpecification {
 
         // button html
         html must contain("class=\"g-recaptcha extraClass\"")
-      }
-    }
 
     "render widget with additional attributes" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(
           template(
@@ -122,12 +112,10 @@ class InvisibleButtonSpec extends PlaySpecification {
         // button html
         html must contain("class=\"g-recaptcha extraClass\"")
         html must contain("id=\"myId\" tabindex=\"5\"")
-      }
-    }
 
     "render widget with nonces if request attribute set" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(
           template("myForm", "Submit")(
@@ -141,9 +129,6 @@ class InvisibleButtonSpec extends PlaySpecification {
 
         // inline javascript block has nonce
         html must contain("<script nonce=\"1234abcd\">")
-      }
-    }
-  }
 
   /** Get the fake application context.
     *
@@ -157,22 +142,20 @@ class InvisibleButtonSpec extends PlaySpecification {
   private def getApplication(
       forceLanguage: Option[String] = None,
       playLanguage: Boolean = false
-  ): Application = {
+  ): Application =
     var config: Map[String, Any] = Map(
       RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
       RecaptchaSettings.PublicKeyConfigProp -> "public-key"
     )
 
-    if forceLanguage.isDefined then {
+    if forceLanguage.isDefined then
       config += RecaptchaSettings.LanguageModeConfigProp -> "force"
       config += RecaptchaSettings.ForceLanguageConfigProp -> forceLanguage.get
-    } else if playLanguage then {
+    else if playLanguage then
       config += RecaptchaSettings.LanguageModeConfigProp -> "play"
       config += "play.i18n.langs" -> Seq("fr", "en", "en-US", "en-GB")
-    }
 
     new GuiceApplicationBuilder().configure(config).build()
-  }
 
   /** Creates the template instance.
     * @param app
@@ -188,18 +171,15 @@ class InvisibleButtonSpec extends PlaySpecification {
       app: Application,
       widgetHelper: WidgetHelper,
       lang: Lang = Lang("fr")
-  ): (invisibleButton, MessagesProvider, Request[AnyContent]) = {
+  ): (invisibleButton, MessagesProvider, Request[AnyContent]) =
     val messagesApi = app.injector.instanceOf[MessagesApi]
     val messagesProvider = MessagesImpl(lang, messagesApi)
     val template = new invisibleButton(widgetHelper)
     val request = FakeRequest()
     (template, messagesProvider, request)
-  }
 
-  trait WithWidgetHelper {
+  trait WithWidgetHelper:
     def app: play.api.Application
 
     lazy val settings = new RecaptchaSettings(app.configuration)
     lazy val widgetHelper = new WidgetHelper(settings)
-  }
-}

@@ -28,7 +28,7 @@ import scala.concurrent.duration.Duration
 import java.util.concurrent.TimeUnit
 import play.api.libs.json.*
 
-object RecaptchaVerifier {
+object RecaptchaVerifier:
 
   /** The artificial form field key used for captcha errors. */
   val formErrorKey = "com.nappin.play.recaptcha.error"
@@ -38,7 +38,6 @@ object RecaptchaVerifier {
 
   /** The recaptcha (v2) response field name. */
   val recaptchaV2ResponseField = "g-recaptcha-response"
-}
 
 /** Verifies whether a recaptcha response is valid, by invoking the Google Recaptcha verify web
   * service.
@@ -59,7 +58,7 @@ class RecaptchaVerifier @Inject() (
     settings: RecaptchaSettings,
     parser: ResponseParser,
     wsClient: WSClient
-) {
+):
 
   private val logger = Logger(this.getClass)
 
@@ -74,8 +73,8 @@ class RecaptchaVerifier @Inject() (
     */
   private def getRecaptchaPostData()(implicit
       request: play.api.mvc.Request[?]
-  ): Map[String, Seq[String]] = {
-    request.body match {
+  ): Map[String, Seq[String]] =
+    request.body match
       case body: play.api.mvc.AnyContent if body.asFormUrlEncoded.isDefined =>
         body.asFormUrlEncoded.get.filter(data =>
           data._1 == RecaptchaVerifier.recaptchaV2ResponseField
@@ -109,8 +108,6 @@ class RecaptchaVerifier @Inject() (
       case _ =>
         Map.empty[String, Seq[String]]
 
-    }
-  }
 
   /** High level API (using Play forms).
     *
@@ -141,26 +138,24 @@ class RecaptchaVerifier @Inject() (
   def bindFromRequestAndVerify[T](form: Form[T])(implicit
       request: Request[AnyContent],
       context: ExecutionContext
-  ): Future[Form[T]] = {
+  ): Future[Form[T]] =
 
     val boundForm = form.bindFromRequest()
 
     val response = readResponse(getRecaptchaPostData())
 
-    if response.length < 1 then {
+    if response.length < 1 then
       // probably an end user error
       logger.debug(
         "User did not enter a captcha response in the form POST submitted"
       )
 
       // return the missing required field, plus any other form bind errors that might have happened
-      return Future {
+      return Future:
         boundForm.withError(
           RecaptchaVerifier.formErrorKey,
           RecaptchaErrorCode.responseMissing
         )
-      }
-    }
 
     boundForm.fold(
       // form binding failed, so don't call recaptcha
@@ -187,7 +182,6 @@ class RecaptchaVerifier @Inject() (
         }
       }
     )
-  }
 
   /** Read the response field from the POST'ed response.
     *
@@ -198,25 +192,23 @@ class RecaptchaVerifier @Inject() (
     * @throws IllegalStateException
     *   If response missing or multiple
     */
-  private def readResponse(params: Map[String, Seq[String]]): String = {
+  private def readResponse(params: Map[String, Seq[String]]): String =
     val fieldName = RecaptchaVerifier.recaptchaV2ResponseField
 
-    if !params.contains(fieldName) then {
+    if !params.contains(fieldName) then
       // probably a developer error
       val message =
         "No recaptcha response POSTed, check the form submitted was valid"
       logger.error(message)
       throw new IllegalStateException(message)
 
-    } else if params(fieldName).size > 1 then {
+    else if params(fieldName).size > 1 then
       // probably a developer error
       val message =
         "Multiple recaptcha responses POSTed, check the form submitted was valid"
       logger.error(message)
       throw new IllegalStateException(message)
-    }
     params(fieldName).head
-  }
 
   /** Low level API (independent of Play form and request APIs).
     *
@@ -234,7 +226,7 @@ class RecaptchaVerifier @Inject() (
     */
   def verifyV2(response: String, remoteIp: String)(implicit
       context: ExecutionContext
-  ): Future[Either[Error, Success]] = {
+  ): Future[Either[Error, Success]] =
 
     // create the v2 POST payload
     val payload = Map(
@@ -255,18 +247,17 @@ class RecaptchaVerifier @Inject() (
 
     futureResponse.map { response =>
       {
-        if response.status == play.api.http.Status.OK then {
+        if response.status == play.api.http.Status.OK then
           parser.parseV2Response(response.json)
 
-        } else {
+        else
           logger.error(
             "Error calling recaptcha v2 API, HTTP response " + response.status
           )
           Left(Error(RecaptchaErrorCode.recaptchaNotReachable))
-        }
       }
 
-    } recover {
+    } recover:
       case ex: java.io.IOException =>
         logger.error("Unable to call recaptcha v2 API", ex)
         Left(Error(RecaptchaErrorCode.recaptchaNotReachable))
@@ -275,15 +266,12 @@ class RecaptchaVerifier @Inject() (
       case other: Any =>
         logger.error("Error calling recaptcha v2 API: " + other.getMessage)
         Left(Error(RecaptchaErrorCode.apiError))
-    }
-  }
-}
 
 /** Used to hold various recaptcha error codes. Some are defined by Google Recaptcha, some are used
   * solely by this module. Yes, the Google Recpatcha documentation states not to rely on these, so
   * we deliberately keep these to a minimum.
   */
-object RecaptchaErrorCode {
+object RecaptchaErrorCode:
 
   /** Defined in Google Recaptcha documentation, returned by Recaptcha itself, means the captcha was
     * incorrect.
@@ -301,4 +289,3 @@ object RecaptchaErrorCode {
   /** The recaptcha response was missing from the request (probably an end user error).
     */
   val responseMissing = "recaptcha-response-missing"
-}

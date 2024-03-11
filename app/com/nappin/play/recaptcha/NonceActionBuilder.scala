@@ -41,7 +41,7 @@ class NonceActionBuilder @Inject() (
     nonceGenerator: NonceGenerator,
     parser: BodyParsers.Default
 )(implicit ec: ExecutionContext)
-    extends ActionBuilderImpl(parser) {
+    extends ActionBuilderImpl(parser):
 
   /** The logger to use. */
   private val logger = Logger(this.getClass)
@@ -73,7 +73,7 @@ class NonceActionBuilder @Inject() (
   override def invokeBlock[A](
       request: Request[A],
       block: (Request[A]) => Future[Result]
-  ): Future[Result] = {
+  ): Future[Result] =
     logger.debug("In invokeBlock")
 
     val nonce: String = nonceGenerator.generateNonce
@@ -88,16 +88,13 @@ class NonceActionBuilder @Inject() (
     block(newRequest).map(
       _.withHeaders(SecurityHeadersFilter.CONTENT_SECURITY_POLICY_HEADER -> policy)
     )
-  }
-}
 
 /** The request attribute used to store the nonce. */
-object NonceRequestAttributes {
+object NonceRequestAttributes:
   val Nonce: TypedKey[String] = TypedKey("nonce")
-}
 
 @Singleton
-class NonceGenerator @Inject() (settings: RecaptchaSettings) {
+class NonceGenerator @Inject() (settings: RecaptchaSettings):
 
   /** The random number generator to use. */
   private val random = initialiseRandom()
@@ -106,20 +103,16 @@ class NonceGenerator @Inject() (settings: RecaptchaSettings) {
     * @return
     *   Random numbers and upper/lower case alphabetic characters
     */
-  def generateNonce: String = {
+  def generateNonce: String =
     random.alphanumeric.take(settings.nonceLength).mkString
-  }
 
   /** Initialises the random number generator, possibly with a seed.
     * @return
     *   The generator
     */
-  private def initialiseRandom(): Random = {
+  private def initialiseRandom(): Random =
     val seed: Option[Long] = settings.nonceSeed
-    if seed.isDefined then {
+    if seed.isDefined then
       new Random(seed.get)
-    } else {
+    else
       new Random()
-    }
-  }
-}

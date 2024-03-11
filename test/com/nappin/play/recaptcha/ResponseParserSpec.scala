@@ -23,7 +23,7 @@ import play.api.libs.json.Json
   * @author
   *   chrisnappin
   */
-class ResponseParserSpec extends Specification {
+class ResponseParserSpec extends Specification:
 
   /** The class under test. */
   val parser = new ResponseParser()
@@ -34,46 +34,36 @@ class ResponseParserSpec extends Specification {
   /** Expected successful result. */
   val successResult = Right(Success())
 
-  "ResponseParser" should {
+  "ResponseParser" should:
 
-    "reject an empty response" in {
+    "reject an empty response" in:
       parser.parseV2Response(Json.parse("{}")) must equalTo(apiError)
-    }
 
-    "reject a null response" in {
+    "reject a null response" in:
       parser.parseV2Response(Json.parse("{ \"success\": null }")) must equalTo(apiError)
-    }
 
-    "reject a invalid success (wrong type) response" in {
+    "reject a invalid success (wrong type) response" in:
       parser.parseV2Response(Json.parse("{ \"success\": 123 }")) must equalTo(apiError)
-    }
 
-    "accept a single line valid response" in {
+    "accept a single line valid response" in:
       parser.parseV2Response(Json.parse("{ \"success\": true }")) must equalTo(successResult)
-    }
 
-    "accept a multi line valid response" in {
+    "accept a multi line valid response" in:
       parser.parseV2Response(Json.parse("{ \n\"success\": true\n }")) must equalTo(successResult)
-    }
 
-    "accept a failure response without error code" in {
+    "accept a failure response without error code" in:
       parser.parseV2Response(Json.parse("{ \"success\": false }")) must beLeft(Error(""))
-    }
 
-    "accept a failure response with error code" in {
+    "accept a failure response with error code" in:
       parser.parseV2Response(Json.parse("""
 {
     "success": false,
     "error-codes": ["abc"]
 }""")) must beLeft(Error("abc"))
-    }
 
-    "accept a failure response with multiple error codes" in {
+    "accept a failure response with multiple error codes" in:
       parser.parseV2Response(Json.parse("""
 {
     "success": false,
     "error-codes": ["aa", "bb", "cc"]
 }""")) must beLeft(Error("aa"))
-    }
-  }
-}

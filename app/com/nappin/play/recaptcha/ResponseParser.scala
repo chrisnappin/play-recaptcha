@@ -29,7 +29,7 @@ import javax.inject.{Inject, Singleton}
   *   chrisnappin
   */
 @Singleton
-class ResponseParser @Inject() () {
+class ResponseParser @Inject() ():
 
   private val logger = Logger(this.getClass)
 
@@ -39,33 +39,28 @@ class ResponseParser @Inject() () {
     * @return
     *   Either an Error (with a populated error code) or a Success
     */
-  def parseV2Response(response: JsValue): Either[Error, Success] = {
-    try {
+  def parseV2Response(response: JsValue): Either[Error, Success] =
+    try
       // success boolean flag is mandatory
       val success = (response \ "success").as[Boolean]
       if success then Right(Success())
-      else {
+      else
         // error codes are optional
         val errorCodes = (response \ "error-codes").asOpt[Seq[String]]
-        if errorCodes.isDefined then {
+        if errorCodes.isDefined then
           // use the first error code, ignore the rest (if any)
           logger.info(s"Response was: error => $errorCodes")
           Left(Error(errorCodes.get.head))
 
-        } else {
+        else
           // no specific error code supplied
           logger.info(s"Response was: error")
           Left(Error(""))
-        }
-      }
-    } catch {
+    catch
       case ex: JsResultException =>
         // anything else doesn't meet the API definition
         logger.error("Invalid response: " + response)
         Left(Error(RecaptchaErrorCode.apiError))
-    }
-  }
-}
 
 /** Signifies the recaptcha response was valid. */
 case class Success()

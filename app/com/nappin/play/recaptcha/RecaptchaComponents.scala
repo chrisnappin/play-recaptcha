@@ -23,7 +23,7 @@ import play.api.libs.ws.WSClient
   * @author
   *   chrisnappin, gmalouf
   */
-trait RecaptchaComponents {
+trait RecaptchaComponents:
   def configuration: Configuration
   def wsClient: WSClient
 
@@ -31,4 +31,3 @@ trait RecaptchaComponents {
   lazy val responseParser = new ResponseParser()
   lazy val recaptchaVerifier = new RecaptchaVerifier(recaptchaSettings, responseParser, wsClient)
   lazy val recaptchaWidgetHelper = new WidgetHelper(recaptchaSettings)
-}

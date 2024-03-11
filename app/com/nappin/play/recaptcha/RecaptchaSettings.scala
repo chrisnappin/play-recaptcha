@@ -25,7 +25,7 @@ import javax.inject.{Inject, Singleton}
   *   chrisnappin, gmalouf
   */
 @Singleton
-class RecaptchaSettings @Inject() (configuration: Configuration) {
+class RecaptchaSettings @Inject() (configuration: Configuration):
   import RecaptchaSettings.*
 
   private val logger = Logger(this.getClass())
@@ -38,46 +38,42 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
 
   /** The millisecond request timeout duration, when connecting to the recaptcha web API. */
   val requestTimeoutMs: Long =
-    configuration.getOptional[String](RequestTimeoutConfigProp) match {
+    configuration.getOptional[String](RequestTimeoutConfigProp) match
       case Some(_) => configuration.getMillis(RequestTimeoutConfigProp)
       case None    => RequestTimeoutMsDefault.toMillis
-    }
 
   /** The theme for the recaptcha widget to use (if any). */
   val theme: Option[String] = configuration.getOptional[String](ThemeConfigProp)
 
   /** The captcha type to use (if any). */
   val captchaType: String =
-    configuration.getOptional[String](CaptchaTypeConfigProp) match {
+    configuration.getOptional[String](CaptchaTypeConfigProp) match
       case Some(_) =>
         configuration.getAndValidate[String](
           CaptchaTypeConfigProp,
           values = Set("image", "audio")
         )
       case None => CaptchaTypeDefault
-    }
 
   /** The captcha size to use (if any). */
   val captchaSize: String =
-    configuration.getOptional[String](CaptchaSizeConfigProp) match {
+    configuration.getOptional[String](CaptchaSizeConfigProp) match
       case Some(_) =>
         configuration.getAndValidate[String](
           CaptchaSizeConfigProp,
           values = Set("normal", "compact")
         )
       case None => CaptchaSizeDefault
-    }
 
   /** The captcha language mode to use (if any). */
   val languageMode: String =
-    configuration.getOptional[String](LanguageModeConfigProp) match {
+    configuration.getOptional[String](LanguageModeConfigProp) match
       case Some(_) =>
         configuration.getAndValidate[String](
           LanguageModeConfigProp,
           values = Set("auto", "play", "force")
         )
       case None => LanguageModeDefault
-    }
 
   /** The language to force use of (if any). */
   val forceLanguage: Option[String] = configuration.getOptional[String](ForceLanguageConfigProp)
@@ -125,7 +121,7 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
     * @param configuration
     *   The configuration to check
     */
-  private def checkMandatoryConfigurationPresent(configuration: Configuration): Unit = {
+  private def checkMandatoryConfigurationPresent(configuration: Configuration): Unit =
     var mandatoryConfigurationPresent = true
 
     // keep looping so all missing items get logged, not just the first one...
@@ -136,13 +132,11 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
       }
     })
 
-    if !mandatoryConfigurationPresent then {
+    if !mandatoryConfigurationPresent then
       logger.error(
         "Mandatory configuration missing. Please check the module " +
           "documentation and add the missing items to your application.conf file."
       )
-    }
-  }
 
   /** Check whether the configuration is valid. If not a suitable error log message will be written.
     * @param configuration
@@ -150,16 +144,13 @@ class RecaptchaSettings @Inject() (configuration: Configuration) {
     * @throws ConfigException.Missing
     *   If configuration is invalid
     */
-  private def checkConfigurationValid(configuration: Configuration): Unit = {
+  private def checkConfigurationValid(configuration: Configuration): Unit =
     // if languageMode is set to "force" then "forceLanguage" must be defined
-    if languageMode == "force" && forceLanguage.isEmpty then {
+    if languageMode == "force" && forceLanguage.isEmpty then
       logger.error("If languageMode is \"force\" then forceLanguage must be defined")
       throw new ConfigException.Missing(LanguageModeConfigProp)
-    }
-  }
-}
 
-object RecaptchaSettings {
+object RecaptchaSettings:
   private val root = "recaptcha"
 
   /** The application's recaptcha private key. */
@@ -209,4 +200,3 @@ object RecaptchaSettings {
 
   /** The mandatory configuration items that must exist for this module to work. */
   private[recaptcha] val mandatoryConfiguration = Seq(PrivateKeyConfigProp, PublicKeyConfigProp)
-}

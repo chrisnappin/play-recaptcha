@@ -28,13 +28,13 @@ import views.html.recaptcha.recaptchaWidget
   * @author
   *   chrisnappin
   */
-class RecaptchaWidgetSpec extends PlaySpecification {
+class RecaptchaWidgetSpec extends PlaySpecification:
 
-  "recaptchaWidget" should {
+  "recaptchaWidget" should:
 
     "render widget with noscript block" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template(true, 1)(messagesProvider, request))
 
@@ -58,12 +58,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         // no request attribute so no nonce
         html must not contain ("nonce=")
-      }
-    }
 
     "render widget without noscript" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template(false, 1)(messagesProvider, request))
 
@@ -81,12 +79,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         html must not contain ("<noscript")
         html must not contain ("g-recaptcha-response")
         html must not contain ("fallback?k=public-key")
-      }
-    }
 
     "render widget with theme" in new WithApplication(getApplication(Some("dark")))
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template(true, 1)(messagesProvider, request))
 
@@ -94,12 +90,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         html must contain("data-theme=\"dark\"")
         html must contain("data-type=\"image\"")
         html must contain("data-size=\"normal\"")
-      }
-    }
 
     "render widget with type" in new WithApplication(getApplication(captchaType = Some("audio")))
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template(true, 1)(messagesProvider, request))
 
@@ -107,13 +101,11 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         html must contain("data-theme=\"light\"")
         html must contain("data-type=\"audio\"")
         html must contain("data-size=\"normal\"")
-      }
-    }
 
     "render v2 widget with size" in new WithApplication(
       getApplication(captchaSize = Some("compact"))
-    ) with WithWidgetHelper {
-      override def running() = {
+    ) with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(template(true, 1)(messagesProvider, request))
 
@@ -121,24 +113,20 @@ class RecaptchaWidgetSpec extends PlaySpecification {
         html must contain("data-theme=\"light\"")
         html must contain("data-type=\"image\"")
         html must contain("data-size=\"compact\"")
-      }
-    }
 
     "render widget with extra classes" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html =
           contentAsString(template(true, 1, Symbol("class") -> "extra")(messagesProvider, request))
 
         // recaptcha and extra class
         html must contain("class=\"g-recaptcha extra\"")
-      }
-    }
 
     "render widget with extra attributes" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(
           template(
@@ -155,12 +143,10 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         // extra attributes (not class)
         html must contain("aaa=\"bbb\" ccc=\"ddd\"")
-      }
-    }
 
     "render widget with nonce if request attribute set" in new WithApplication(getApplication())
-      with WithWidgetHelper {
-      override def running() = {
+      with WithWidgetHelper:
+      override def running() =
         val (template, messagesProvider, request) = createTemplate(app, widgetHelper)
         val html = contentAsString(
           template(true, 1)(
@@ -171,9 +157,6 @@ class RecaptchaWidgetSpec extends PlaySpecification {
 
         // recaptcha javascript block has nonce
         html must contain("<script type=\"text/javascript\" nonce=\"1234abcd\" src=")
-      }
-    }
-  }
 
   /** Get the fake application context.
     *
@@ -190,26 +173,22 @@ class RecaptchaWidgetSpec extends PlaySpecification {
       theme: Option[String] = None,
       captchaType: Option[String] = None,
       captchaSize: Option[String] = None
-  ): Application = {
+  ): Application =
     var config = Map(
       RecaptchaSettings.PrivateKeyConfigProp -> "private-key",
       RecaptchaSettings.PublicKeyConfigProp -> "public-key"
     )
 
-    if theme.isDefined then {
+    if theme.isDefined then
       config += RecaptchaSettings.ThemeConfigProp -> theme.get
-    }
 
-    if captchaType.isDefined then {
+    if captchaType.isDefined then
       config += RecaptchaSettings.CaptchaTypeConfigProp -> captchaType.get
-    }
 
-    if captchaSize.isDefined then {
+    if captchaSize.isDefined then
       config += RecaptchaSettings.CaptchaSizeConfigProp -> captchaSize.get
-    }
 
     new GuiceApplicationBuilder().configure(config).build()
-  }
 
   /** Creates a new template instance.
     * @param app
@@ -222,19 +201,16 @@ class RecaptchaWidgetSpec extends PlaySpecification {
   private def createTemplate(
       app: Application,
       widgetHelper: WidgetHelper
-  ): (recaptchaWidget, MessagesProvider, Request[AnyContent]) = {
+  ): (recaptchaWidget, MessagesProvider, Request[AnyContent]) =
     val messagesApi = app.injector.instanceOf[MessagesApi]
     val messagesProvider = MessagesImpl(Lang("fr"), messagesApi)
     val template = new recaptchaWidget(widgetHelper)
     val request = FakeRequest()
     (template, messagesProvider, request)
-  }
 
-  trait WithWidgetHelper {
+  trait WithWidgetHelper:
     def app: play.api.Application
 
     lazy val settings = new RecaptchaSettings(app.configuration)
     lazy val widgetHelper = new WidgetHelper(settings)
-  }
 
-}

@@ -15,21 +15,18 @@
  */
 package com.nappin.play.recaptcha
 
-import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 import play.api.{PlayException, Configuration}
 import com.typesafe.config.ConfigException
-import RecaptchaSettings._
-import scala.concurrent.duration._
+import RecaptchaSettings.*
+import scala.concurrent.duration.*
 
-/**
-  * Tests the <code>RecaptchaSettings</code> class.
+/** Tests the <code>RecaptchaSettings</code> class.
   *
-  * @author chrisnappin
+  * @author
+  *   chrisnappin
   */
-@RunWith(classOf[JUnitRunner])
-class RecaptchaSettingsSpec extends Specification {
+class RecaptchaSettingsSpec extends Specification:
 
   val privateKeyValue = "myprivkey"
   val publicKeyValue = "mypubkey"
@@ -47,12 +44,11 @@ class RecaptchaSettingsSpec extends Specification {
   val nonceLengthValue = 30
   val nonceSeedValue = 123456789012345678L
 
-  val mandatoryV2Config = Map(
-    PrivateKeyConfigProp -> privateKeyValue,
-    PublicKeyConfigProp -> publicKeyValue)
+  val mandatoryV2Config =
+    Map(PrivateKeyConfigProp -> privateKeyValue, PublicKeyConfigProp -> publicKeyValue)
 
-  "Construction of RecaptchaSettings" should {
-    "succeed if only the mandatory configuration was present" in {
+  "Construction of RecaptchaSettings" should:
+    "succeed if only the mandatory configuration was present" in:
       val conf = Configuration.from(mandatoryV2Config)
       val s = new RecaptchaSettings(conf)
 
@@ -70,20 +66,21 @@ class RecaptchaSettingsSpec extends Specification {
       s.contentSecurityPolicy ==== ContentSecurityPolicyDefault
       s.nonceLength ==== NonceLengthDefault
       s.nonceSeed ==== None
-    }
 
-    "succeed if all possible configuration was present" >> {
-      val conf = Configuration.from(mandatoryV2Config ++ Map(
-        RequestTimeoutConfigProp -> requestTimeoutValueStr,
-        ThemeConfigProp -> captchaThemeValue,
-        CaptchaTypeConfigProp -> captchaTypeValue,
-        CaptchaSizeConfigProp -> captchaSizeValue,
-        LanguageModeConfigProp -> languageModeValue,
-        ForceLanguageConfigProp -> forceLanguageValue,
-        ContentSecurityPolicyProp -> contentSecurityPolicyValue,
-        NonceLengthProp -> nonceLengthValue,
-        NonceSeedProp -> nonceSeedValue
-      ))
+    "succeed if all possible configuration was present" in:
+      val conf = Configuration.from(
+        mandatoryV2Config ++ Map(
+          RequestTimeoutConfigProp -> requestTimeoutValueStr,
+          ThemeConfigProp -> captchaThemeValue,
+          CaptchaTypeConfigProp -> captchaTypeValue,
+          CaptchaSizeConfigProp -> captchaSizeValue,
+          LanguageModeConfigProp -> languageModeValue,
+          ForceLanguageConfigProp -> forceLanguageValue,
+          ContentSecurityPolicyProp -> contentSecurityPolicyValue,
+          NonceLengthProp -> nonceLengthValue,
+          NonceSeedProp -> nonceSeedValue
+        )
+      )
       val s = new RecaptchaSettings(conf)
 
       // check all settings
@@ -98,64 +95,53 @@ class RecaptchaSettingsSpec extends Specification {
       s.contentSecurityPolicy ==== contentSecurityPolicyValue
       s.nonceLength === nonceLengthValue
       s.nonceSeed ==== Some(nonceSeedValue)
-    }
 
-    "fail if no configuration" >> {
+    "fail if no configuration" in:
       val conf = Configuration.from(Map())
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if private key is missing" >> {
+    "fail if private key is missing" in:
       val conf = Configuration.from(mandatoryV2Config - PrivateKeyConfigProp)
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if public key is missing" >> {
+    "fail if public key is missing" in:
       val conf = Configuration.from(mandatoryV2Config - PublicKeyConfigProp)
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if requestTimeout config value can not parsed as a valid duration" >> {
-      val conf = Configuration.from(mandatoryV2Config + (RequestTimeoutConfigProp -> "10 million dollars"))
+    "fail if requestTimeout config value can not parsed as a valid duration" in:
+      val conf =
+        Configuration.from(mandatoryV2Config + (RequestTimeoutConfigProp -> "10 million dollars"))
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
 
-    "fail if captcha type is not one of allowed values" >> {
+    "fail if captcha type is not one of allowed values" in:
       val conf = Configuration.from(mandatoryV2Config + (CaptchaTypeConfigProp -> "movie"))
 
       new RecaptchaSettings(conf) must throwAn[PlayException]
-    }
 
-    "fail if captcha size is not one of allowed values" >> {
+    "fail if captcha size is not one of allowed values" in:
       val conf = Configuration.from(mandatoryV2Config + (CaptchaSizeConfigProp -> "wibble"))
 
       new RecaptchaSettings(conf) must throwAn[PlayException]
-    }
 
-    "fail if languageMode is force but forceLanguage not set" >> {
+    "fail if languageMode is force but forceLanguage not set" in:
       val conf = Configuration.from(mandatoryV2Config + (LanguageModeConfigProp -> "force"))
 
       new RecaptchaSettings(conf) must throwAn[ConfigException]
-    }
-  }
 
-  "Recaptcha Settings widgetScriptUrl" should {
-    "return a secure api v2 url" >> {
+  "Recaptcha Settings widgetScriptUrl" should:
+    "return a secure api v2 url" in:
       val conf = Configuration.from(mandatoryV2Config)
 
       new RecaptchaSettings(conf).widgetScriptUrl ==== "https://www.google.com/recaptcha/api.js"
-    }
-  }
 
-  "Recaptcha Settings widgetNoScriptUrl" should {
-    "return a secure api v2 url" >> {
+  "Recaptcha Settings widgetNoScriptUrl" should:
+    "return a secure api v2 url" in:
       val conf = Configuration.from(mandatoryV2Config)
 
-      new RecaptchaSettings(conf).widgetNoScriptUrl ==== "https://www.google.com/recaptcha/api/fallback"
-    }
-  }
-}
+      new RecaptchaSettings(
+        conf
+      ).widgetNoScriptUrl ==== "https://www.google.com/recaptcha/api/fallback"

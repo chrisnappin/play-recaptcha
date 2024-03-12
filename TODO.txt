@@ -1,10 +1,12 @@
 Chris Nappin's play-recaptcha project todo list
 ===============================================
 
-done for version 2.6
+done for version 3.0
 --------------------
-- added support for Play 2.9.x+ (starting from PR)
-- updated all dependencies
+- added support for Play 3.x, Scala 3.x
+- updated all dependencies and docs
+- converted unit tests to use "plain" mockito, because mockito-scala and specs2-mock doesn't
+  support Scala 3.x
 
 
 Google reCAPTCHA

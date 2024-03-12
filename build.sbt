@@ -1,16 +1,16 @@
 name := "play-recaptcha"
 description := "Google reCAPTCHA integration for Play Framework"
 organization := "com.nappin"
-version := "2.6"
+version := "3.0"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.13.13"
+scalaVersion := "3.3.3"
 
 libraryDependencies ++= Seq(
   ws,
   specs2 % Test,
-  "org.mockito" % "mockito-core" % "1.+" % Test
+  "org.mockito" % "mockito-core" % "5.+" % Test
 )
 
 // adds "test-conf" to the test classpath (for message resolving)

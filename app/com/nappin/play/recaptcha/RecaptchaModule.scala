@@ -18,18 +18,16 @@ package com.nappin.play.recaptcha
 import play.api.inject.Module
 import play.api.{Environment, Configuration}
 
-/**
- * Recaptcha Play DI Module.
- *
- * @author chrisnappin, gmalouf
- */
-class RecaptchaModule extends Module {
-  def bindings(environment: Environment, configuration: Configuration) = {
+/** Recaptcha Play DI Module.
+  *
+  * @author
+  *   chrisnappin, gmalouf
+  */
+class RecaptchaModule extends Module:
+  def bindings(environment: Environment, configuration: Configuration) =
     Seq(
       bind[RecaptchaSettings].toSelf.eagerly(),
       bind[ResponseParser].toSelf.eagerly(),
       bind[RecaptchaVerifier].toSelf.eagerly(),
       bind[WidgetHelper].toSelf.eagerly()
     )
-  }
-}

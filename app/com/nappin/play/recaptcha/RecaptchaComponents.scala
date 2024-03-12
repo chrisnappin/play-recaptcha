@@ -18,12 +18,12 @@ package com.nappin.play.recaptcha
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 
-/**
-  * Injection helper for <code>RecaptchaComponents</code>.
+/** Injection helper for <code>RecaptchaComponents</code>.
   *
-  * @author chrisnappin, gmalouf
+  * @author
+  *   chrisnappin, gmalouf
   */
-trait RecaptchaComponents {
+trait RecaptchaComponents:
   def configuration: Configuration
   def wsClient: WSClient
 
@@ -31,4 +31,3 @@ trait RecaptchaComponents {
   lazy val responseParser = new ResponseParser()
   lazy val recaptchaVerifier = new RecaptchaVerifier(recaptchaSettings, responseParser, wsClient)
   lazy val recaptchaWidgetHelper = new WidgetHelper(recaptchaSettings)
-}
